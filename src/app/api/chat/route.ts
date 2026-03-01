@@ -1,10 +1,16 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function POST(req: NextRequest) {
     try {
+        const apiKey = process.env.GEMINI_API_KEY;
+
+        if (!apiKey) {
+            console.error("ERRORE: GEMINI_API_KEY non configurata!");
+            return NextResponse.json({ error: "Configurazione IA mancante. Controlla le variabili d'ambiente." }, { status: 500 });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
         const { message, image, level } = await req.json();
 
         // 1. Definiamo il sistema di prompt (Tone of Voice) basato sul livello
@@ -23,15 +29,16 @@ export async function POST(req: NextRequest) {
         let result;
 
         if (image) {
-            // Rimuovi l'header del data URL (es. "data:image/jpeg;base64,")
+            // Estrai mimeType: "data:image/png;base64,..." -> "image/png"
+            const mimeType = image.split(";")[0].split(":")[1] || "image/jpeg";
             const base64Data = image.split(",")[1];
 
             result = await model.generateContent([
-                systemPrompt + " Analizza questa immagine del mio compito: " + message,
+                systemPrompt + " Analizza questa immagine del mio compito: " + (message || "Cosa vedi in questa immagine?"),
                 {
                     inlineData: {
                         data: base64Data,
-                        mimeType: "image/jpeg", // Assumiamo jpeg per semplicità, Next.js Image lo gestisce bene
+                        mimeType: mimeType,
                     },
                 },
             ]);
@@ -43,8 +50,11 @@ export async function POST(req: NextRequest) {
         const text = response.text();
 
         return NextResponse.json({ text });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Gemini API Error:", error);
-        return NextResponse.json({ error: "Errore nella comunicazione con Geniotto." }, { status: 500 });
+        return NextResponse.json({
+            error: "Errore nella comunicazione con Geniotto.",
+            details: error.message
+        }, { status: 500 });
     }
 }
