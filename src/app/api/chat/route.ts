@@ -50,11 +50,12 @@ export async function POST(req: NextRequest) {
         const text = response.text();
 
         return NextResponse.json({ text });
-    } catch (error: any) {
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Errore sconosciuto";
         console.error("Gemini API Error:", error);
         return NextResponse.json({
             error: "Errore nella comunicazione con Geniotto.",
-            details: error.message
+            details: errorMessage
         }, { status: 500 });
     }
 }
