@@ -37,7 +37,7 @@ export default function HowItWorks() {
                             Come funziona il <span className="text-gradient italic">Magico Tutor?</span>
                         </h1>
                         <p className="text-2xl text-slate-500 font-bold max-w-3xl mx-auto">
-                            Abbiamo creato un'intelligenza artificiale che non ti dà solo la risposta,
+                            Abbiamo creato un&apos;intelligenza artificiale che non ti dà solo la risposta,
                             ma ti insegna a ragionare. Ecco come in 3 semplici passi! ✨
                         </p>
                     </div>

@@ -1,21 +1,20 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
+
+const messages = [
+    "Ciao, sono Geniotto! 👋",
+    "Vuoi imparare con me? 🚀",
+    "Quale compito facciamo oggi? 📚",
+    "Sono il tuo amico geniale! 🧠",
+    "I compiti? Una passeggiata! 🍦"
+];
 
 export default function Hero() {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [messageIndex, setMessageIndex] = useState(0);
     const mascotRef = useRef<HTMLDivElement>(null);
-
-    const messages = [
-        "Ciao, sono Geniotto! 👋",
-        "Vuoi imparare con me? 🚀",
-        "Quale compito facciamo oggi? 📚",
-        "Sono il tuo amico geniale! 🧠",
-        "I compiti? Una passeggiata! 🍦"
-    ];
 
     useEffect(() => {
         const interval = setInterval(() => {

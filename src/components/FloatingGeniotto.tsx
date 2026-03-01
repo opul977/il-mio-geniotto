@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
+const messages = [
+    "Hai bisogno di aiuto? 📚",
+    "Cerchi qualcosa di particolare? ✨",
+    "Vuoi fare i compiti insieme? ✍️",
+    "Sono qui se hai domande! 🤖",
+    "Tutto chiaro fin qui? 🌈"
+];
+
 export default function FloatingGeniotto() {
     const [isVisible, setIsVisible] = useState(false);
     const [messageIndex, setMessageIndex] = useState(0);
-
-    const messages = [
-        "Hai bisogno di aiuto? 📚",
-        "Cerchi qualcosa di particolare? ✨",
-        "Vuoi fare i compiti insieme? ✍️",
-        "Sono qui se hai domande! 🤖",
-        "Tutto chiaro fin qui? 🌈"
-    ];
 
     useEffect(() => {
         const handleScroll = () => {

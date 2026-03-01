@@ -46,7 +46,7 @@ export default function Home() {
               Studiare non è mai stato così <span className="text-secondary italic">veloce.</span>
             </h2>
             <p className="text-xl text-slate-500 font-bold leading-relaxed">
-              Dalla matematica alle lingue, abbiamo creato un'esperienza che sembra un gioco.
+              Dalla matematica alle lingue, abbiamo creato un&apos;esperienza che sembra un gioco.
               Meno fatica, più tempo per quello che ti piace!
             </p>
             <div className="flex gap-4">
@@ -78,7 +78,7 @@ export default function Home() {
           ].map((t, i) => (
             <div key={i} className="inline-block bg-white/10 glass p-8 rounded-3xl min-w-[300px]">
               <div className="text-2xl mb-2">{t.emoji}</div>
-              <p className="text-lg font-bold mb-4 italic break-words whitespace-normal">"{t.text}"</p>
+              <p className="text-lg font-bold mb-4 italic break-words whitespace-normal">&quot;{t.text}&quot;</p>
               <div className="font-black text-primary uppercase text-xs tracking-widest">{t.name}</div>
             </div>
           ))}
