@@ -24,11 +24,8 @@ export async function POST(req: NextRequest) {
             systemPrompt += "Ti rivolgi a studenti delle superiori. Usa un tono accademico, preciso e professionale. Fornisci riferimenti teorici profondi e scomposizioni analitiche dei problemi.";
         }
 
-        // Forza l'uso della versione v1 stabile se v1beta dà 404
-        const model = genAI.getGenerativeModel(
-            { model: "gemini-1.5-flash" },
-            { apiVersion: "v1" }
-        );
+        // Usiamo Gemini 2.0 Flash che risulta disponibile per la tua chiave API (come visto dal test)
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
         let result;
 
