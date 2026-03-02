@@ -11,6 +11,9 @@ export default function Home() {
       <Hero />
 
       {/* Subjects Carousel Section */}
+      <div id="primaria" />
+      <div id="media" />
+      <div id="superiori" />
       <SubjectsCarousel />
 
       {/* How it Works Section */}

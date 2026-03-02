@@ -53,10 +53,17 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ text });
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Errore sconosciuto";
-        console.error("Gemini API Error:", error);
+        const errorStack = error instanceof Error ? error.stack : "No stack trace";
+        const errorName = error instanceof Error ? error.name : "UnknownError";
+
+        console.error("Gemini API Error:", { name: errorName, message: errorMessage, stack: errorStack });
+
         return NextResponse.json({
             error: "Errore nella comunicazione con Geniotto.",
-            details: errorMessage
+            details: errorMessage,
+            errorName: errorName,
+            // Aggiungiamo un suggerimento se l'errore sembra legato alla chiave
+            suggestion: errorMessage.toLowerCase().includes("key") ? "Controlla che la GEMINI_API_KEY su Vercel sia corretta e non abbia spazi." : "Riprova tra un attimo."
         }, { status: 500 });
     }
 }

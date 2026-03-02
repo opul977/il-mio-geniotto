@@ -34,25 +34,23 @@ export default function Navbar() {
                         <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover/materie:opacity-100 group-hover/materie:translate-y-0 group-hover/materie:pointer-events-auto transition-all duration-300">
                             <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-4 min-w-[280px]">
                                 <div className="flex flex-col gap-2">
-                                    <Link href="/materie#primaria" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-blue-50 transition-colors group/item">
+                                    <Link href="/#primaria" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-blue-50 transition-colors group/item">
                                         <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-xl group-hover/item:scale-110 transition-transform">🎒</div>
                                         <div className="flex flex-col text-left">
                                             <span className="text-sm font-black text-slate-800">Scuola Primaria</span>
                                             <span className="text-[10px] font-bold text-slate-400">Elementari</span>
                                         </div>
                                     </Link>
-                                    <Link href="/materie#media" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-orange-50 transition-colors group/item">
+                                    <Link href="/#media" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-orange-50 transition-colors group/item">
                                         <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-xl group-hover/item:scale-110 transition-transform">🎓</div>
                                         <div className="flex flex-col text-left">
                                             <span className="text-sm font-black text-slate-800">Scuola Media</span>
-                                            <span className="text-[10px] font-bold text-slate-400">Secondaria I Grado</span>
                                         </div>
                                     </Link>
-                                    <Link href="/materie#superiori" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-indigo-50 transition-colors group/item">
+                                    <Link href="/#superiori" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-indigo-50 transition-colors group/item">
                                         <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-xl group-hover/item:scale-110 transition-transform">🏛️</div>
                                         <div className="flex flex-col text-left">
                                             <span className="text-sm font-black text-slate-800">Scuole Superiori</span>
-                                            <span className="text-[10px] font-bold text-slate-400">Secondaria II Grado</span>
                                         </div>
                                     </Link>
                                 </div>
@@ -81,15 +79,15 @@ export default function Navbar() {
                 <div className="absolute top-28 left-6 right-6 bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-8 flex flex-col gap-6 md:hidden animate-in fade-in zoom-in duration-300">
                     <div className="flex flex-col gap-4">
                         <span className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">Scegli il tuo livello</span>
-                        <Link href="/materie#primaria" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100" onClick={() => setIsOpen(false)}>
+                        <Link href="/#primaria" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100" onClick={() => setIsOpen(false)}>
                             <span className="text-2xl">🎒</span>
                             <span className="font-black text-slate-800">Primaria</span>
                         </Link>
-                        <Link href="/materie#media" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100" onClick={() => setIsOpen(false)}>
+                        <Link href="/#media" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100" onClick={() => setIsOpen(false)}>
                             <span className="text-2xl">🎓</span>
                             <span className="font-black text-slate-800">Media</span>
                         </Link>
-                        <Link href="/materie#superiori" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100" onClick={() => setIsOpen(false)}>
+                        <Link href="/#superiori" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100" onClick={() => setIsOpen(false)}>
                             <span className="text-2xl">🏛️</span>
                             <span className="font-black text-slate-800">Superiori</span>
                         </Link>
