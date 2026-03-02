@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
         }
 
         // ABBIAMO IL VINCITORE! Il test ha confermato che gemini-flash-latest funziona perfettamente.
+        // Usiamo v1beta come fallback se v1 (default) avesse problemi di nomi
         const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         let result;

@@ -57,6 +57,10 @@ export default function ChatPage() {
         setIsLoading(true);
 
         try {
+            // Aggiungiamo un controller per il timeout (30 secondi)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
+
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -65,19 +69,35 @@ export default function ChatPage() {
                     image: imageFile,
                     level: level,
                 }),
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = "Errore del server";
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.details || errorJson.error || errorMessage;
+                } catch {
+                    errorMessage = `Errore ${response.status}: Il server ha risposto in modo inatteso.`;
+                }
+                throw new Error(errorMessage);
+            }
+
             const data = await response.json();
-
-            if (data.error) throw new Error(data.error);
-
             setMessages(prev => [...prev, { role: "assistant", content: data.text }]);
             setTokens(prev => prev - 1);
         } catch (error) {
             console.error("Chat Error:", error);
+            const msg = error instanceof Error && error.name === 'AbortError'
+                ? "Geniotto sta pensando troppo... 🤖 Il server è un po' lento, riprova!"
+                : `Problema tecnico: ${error instanceof Error ? error.message : "Riprova tra poco"}`;
+
             setMessages(prev => [...prev, {
                 role: "assistant",
-                content: "Scusami, ho avuto un piccolo problema tecnico. 🤖 Puoi riprovare tra un attimo?"
+                content: msg
             }]);
         } finally {
             setIsLoading(false);
