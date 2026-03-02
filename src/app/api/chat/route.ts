@@ -24,13 +24,22 @@ export async function POST(req: NextRequest) {
             systemPrompt += "Ti rivolgi a studenti delle superiori. Usa un tono accademico, preciso e professionale. Fornisci riferimenti teorici profondi e scomposizioni analitiche dei problemi.";
         }
 
-        // Usiamo Gemini 2.0 Flash che risulta disponibile per la tua chiave API (come visto dal test)
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        // Strategia di fallback per superare i limiti di quota 429 su v1beta
+        const getModel = () => {
+            try {
+                // Tentativo 1: Gemini 1.5 Flash su v1 Stabile (Quota di solito più alta per account free)
+                return genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: "v1" });
+            } catch {
+                // Fallback estremo: Gemini 2.0 Flash su v1beta
+                return genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+            }
+        };
+
+        const model = getModel();
 
         let result;
 
         if (image) {
-            // Estrai mimeType: "data:image/png;base64,..." -> "image/png"
             const mimeType = image.split(";")[0].split(":")[1] || "image/jpeg";
             const base64Data = image.split(",")[1];
 
@@ -62,8 +71,9 @@ export async function POST(req: NextRequest) {
             error: "Errore nella comunicazione con Geniotto.",
             details: errorMessage,
             errorName: errorName,
-            // Aggiungiamo un suggerimento se l'errore sembra legato alla chiave
-            suggestion: errorMessage.toLowerCase().includes("key") ? "Controlla che la GEMINI_API_KEY su Vercel sia corretta e non abbia spazi." : "Riprova tra un attimo."
+            suggestion: errorMessage.includes("429")
+                ? "Quota superata! Google sta limitando il traffico gratuito per questo account. Riprova tra 60 secondi o abilita il 'Pay-as-you-go' su Google AI Studio."
+                : "Riprova tra un attimo."
         }, { status: 500 });
     }
 }
