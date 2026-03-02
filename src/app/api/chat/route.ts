@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Configurazione IA mancante. Controlla le variabili d'ambiente." }, { status: 500 });
         }
 
-        const genAI = new GoogleGenerativeAI(apiKey);
+        const genAI = new GoogleGenerativeAI(apiKey.trim());
         const { message, image, level } = await req.json();
 
         // 1. Definiamo il sistema di prompt (Tone of Voice) basato sul livello
@@ -24,7 +24,11 @@ export async function POST(req: NextRequest) {
             systemPrompt += "Ti rivolgi a studenti delle superiori. Usa un tono accademico, preciso e professionale. Fornisci riferimenti teorici profondi e scomposizioni analitiche dei problemi.";
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        // Forza l'uso della versione v1 stabile se v1beta dà 404
+        const model = genAI.getGenerativeModel(
+            { model: "gemini-1.5-flash" },
+            { apiVersion: "v1" }
+        );
 
         let result;
 
