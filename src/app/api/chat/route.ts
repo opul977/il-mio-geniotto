@@ -24,18 +24,8 @@ export async function POST(req: NextRequest) {
             systemPrompt += "Ti rivolgi a studenti delle superiori. Usa un tono accademico, preciso e professionale. Fornisci riferimenti teorici profondi e scomposizioni analitiche dei problemi.";
         }
 
-        // Strategia di fallback per superare i limiti di quota 429 su v1beta
-        const getModel = () => {
-            try {
-                // Tentativo 1: Gemini 1.5 Flash su v1 Stabile (Quota di solito più alta per account free)
-                return genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: "v1" });
-            } catch {
-                // Fallback estremo: Gemini 2.0 Flash su v1beta
-                return genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-            }
-        };
-
-        const model = getModel();
+        // ABBIAMO IL VINCITORE! Il test ha confermato che gemini-flash-latest funziona perfettamente.
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         let result;
 
