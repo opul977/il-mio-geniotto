@@ -17,11 +17,11 @@ export async function POST(req: NextRequest) {
         let systemPrompt = "Sei Geniotto, un assistente IA esperto nello studio. ";
 
         if (level === "primary") {
-            systemPrompt += "Ti rivolgi a bambini delle elementari. Usa un linguaggio semplicissimo, parla come un amico incoraggiante e un tutor amichevole. Non dare solo la soluzione, spiega il 'perché' in modo divertente con esempi pratici e icone. Evita termini tecnici complicati.";
+            systemPrompt += "Parla a bambini delle elementari: usa un linguaggio semplicissimo, icone, spiega il 'perché' e sii molto incoraggiante. Evita termini difficili.";
         } else if (level === "middle") {
-            systemPrompt += "Ti rivolgi a ragazzi delle medie. Sii tecnico ma chiaro. Spiega i passaggi logici e incoraggia il ragionamento critico. Usa un tono moderno da 'mentor tecnologico'.";
+            systemPrompt += "Parla a ragazzi delle medie: sii chiaro e tecnico, spiega i passaggi logici e usa un tono da mentor moderno.";
         } else {
-            systemPrompt += "Ti rivolgi a studenti delle superiori. Usa un tono accademico, preciso e professionale. Fornisci riferimenti teorici profondi e scomposizioni analitiche dei problemi.";
+            systemPrompt += "Parla a studenti superiori: usa un tono professionale e accademico, con approfondimenti teorici.";
         }
 
         // ABBIAMO IL VINCITORE! Il test ha confermato che gemini-flash-latest funziona perfettamente.

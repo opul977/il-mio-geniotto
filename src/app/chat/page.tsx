@@ -20,8 +20,28 @@ export default function ChatPage() {
     const [tokens, setTokens] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
     const [isListening, setIsListening] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Funzione per far parlare Geniotto
+    const speak = (text: string) => {
+        if (!('speechSynthesis' in window)) return;
+
+        // Interrompiamo eventuali letture precedenti
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'it-IT';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.1; // Voce un po' più simpatica per i bambini
+
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+
+        window.speechSynthesis.speak(utterance);
+    };
 
     const startSpeechRecognition = () => {
         const SpeechRecognition =
@@ -147,13 +167,16 @@ export default function ChatPage() {
                 const chunk = decoder.decode(value, { stream: true });
                 assistantMessage += chunk;
 
-                // Aggiorniamo solo l'ultimo messaggio (quello appena aggiunto)
+                // Aggiorniamo solo l'ultimo messaggio
                 setMessages(prev => {
                     const newMessages = [...prev];
                     newMessages[newMessages.length - 1].content = assistantMessage;
                     return newMessages;
                 });
             }
+
+            // Quando ha finito di scrivere, Geniotto legge la risposta a voce alta!
+            speak(assistantMessage);
 
             setTokens(prev => prev - 1);
         } catch (error) {
@@ -231,6 +254,15 @@ export default function ChatPage() {
                                             </div>
                                         )}
                                         {msg.content}
+                                        {msg.role === "assistant" && msg.content && (
+                                            <button
+                                                onClick={() => speak(msg.content)}
+                                                className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-[10px] transition-all"
+                                                title="Ascolta di nuovo"
+                                            >
+                                                🔊
+                                            </button>
+                                        )}
                                     </div>
                                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest px-2">
                                         {msg.role === "user" ? "Tu" : "Geniotto"} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
