@@ -13,12 +13,17 @@ export async function POST(req: NextRequest) {
         const genAI = new GoogleGenerativeAI(apiKey.trim());
         const { message, image, level } = await req.json();
 
-        // Prompt super-veloce per ridurre la latenza
-        let tone = "amico elementari, semplice, usa icone.";
-        if (level === "middle") tone = "mentor medie, tecnico, passaggi logici.";
-        if (level === "highschool") tone = "professionale superiori, approfondito.";
+        // Prompt pedagogico calibrato per ogni livello
+        let levelDirective = "";
+        if (level === "primary") {
+            levelDirective = "Sei un maestro dolcissimo per bambini delle ELEMENTARI. Spiega in modo semplicissimo, come se fosse una storia. Usa esempi pratici, metafore simpatiche e un tono incoraggiante. Evita parole difficili o spiega bene quelle che devi usare. Usa molte emoji! 🌈🍎🌟";
+        } else if (level === "middle") {
+            levelDirective = "Sei un tutor esperto per ragazzi delle MEDIE. Spiega con chiarezza logica, suddividendo il problema in passaggi facili da seguire. Usa un linguaggio corretto ma non troppo formale. Incoraggia il ragionamento autonomo. 📚🧠✨";
+        } else {
+            levelDirective = "Sei un assistente per studenti delle SUPERIORI. Rispondi in modo approfondito, tecnico e professionale. Cita fonti o principi fondamentali se necessario. Usa uno stile accademico ma accessibile. 🏛️📖🔬";
+        }
 
-        const systemPrompt = `Sei Geniotto, assistente studio. ${tone} Rispondi subito.`;
+        const systemPrompt = `${levelDirective} Nome assistente: Geniotto. Rispondi subito e in modo completo ma chiaro per il livello scelto.`;
 
         // Funzione per ottenere lo streaming con fallback intelligente
         const getStreamResult = async (modelName: string, apiVersion?: string) => {
