@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "L'intelligenza artificiale che spiega i compiti in modo semplice e divertente per bambini e ragazzi.",
 };
 
+import { Providers } from "@/components/Providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${quicksand.variable} font-sans antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

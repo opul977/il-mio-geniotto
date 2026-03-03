@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const { data: session } = useSession();
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 p-6">
@@ -30,7 +32,6 @@ export default function Navbar() {
                             </svg>
                         </button>
 
-                        {/* Dropdown Menu */}
                         <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover/materie:opacity-100 group-hover/materie:translate-y-0 group-hover/materie:pointer-events-auto transition-all duration-300">
                             <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-4 min-w-[280px]">
                                 <div className="flex flex-col gap-2">
@@ -61,9 +62,30 @@ export default function Navbar() {
                     <Link href="/come-funziona" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Come Funziona</Link>
                     <Link href="/prezzi" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Prezzi</Link>
 
-                    <Link href="/chat" className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl text-sm font-black shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all">
-                        Inizia Ora
-                    </Link>
+                    {session ? (
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+                                {session.user?.image ? (
+                                    <img src={session.user.image} alt="Avatar" className="w-6 h-6 rounded-full" />
+                                ) : (
+                                    <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black animate-bounce">
+                                        {session.user?.name?.[0] || "U"}
+                                    </span>
+                                )}
+                                <span className="text-xs font-black text-slate-700">{session.user?.name?.split(' ')[0]}</span>
+                            </div>
+                            <button
+                                onClick={() => signOut()}
+                                className="text-xs font-black text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+                            >
+                                Esci
+                            </button>
+                        </div>
+                    ) : (
+                        <Link href="/auth/login" className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl text-sm font-black shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all">
+                            Accedi
+                        </Link>
+                    )}
                 </div>
 
                 {/* Mobile Toggle */}
@@ -97,7 +119,22 @@ export default function Navbar() {
 
                     <Link href="/come-funziona" className="text-lg font-bold text-slate-800" onClick={() => setIsOpen(false)}>Come Funziona</Link>
                     <Link href="/prezzi" className="text-lg font-bold text-slate-800" onClick={() => setIsOpen(false)}>Prezzi</Link>
-                    <Link href="/chat" className="bg-primary text-white py-4 rounded-2xl font-black shadow-lg text-center" onClick={() => setIsOpen(false)}>Inizia Ora</Link>
+
+                    {session ? (
+                        <button
+                            onClick={() => {
+                                signOut();
+                                setIsOpen(false);
+                            }}
+                            className="bg-red-50 text-red-500 py-4 rounded-2xl font-black shadow-sm text-center border-2 border-red-100"
+                        >
+                            Esci 👋
+                        </button>
+                    ) : (
+                        <Link href="/auth/login" className="bg-primary text-white py-4 rounded-2xl font-black shadow-lg text-center" onClick={() => setIsOpen(false)}>
+                            Accedi 🚀
+                        </Link>
+                    )}
                 </div>
             )}
         </nav>
