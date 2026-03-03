@@ -24,12 +24,19 @@ export default function ChatPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const startSpeechRecognition = () => {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        const SpeechRecognition =
+            (typeof window !== 'undefined' && (
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (window as any).SpeechRecognition ||
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (window as any).webkitSpeechRecognition
+            ));
+
+        if (!SpeechRecognition) {
             alert("Il tuo browser non supporta la dettatura vocale. Prova con Chrome!");
             return;
         }
 
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         recognition.lang = 'it-IT';
         recognition.continuous = false;
@@ -39,13 +46,24 @@ export default function ChatPage() {
         recognition.onend = () => setIsListening(false);
         recognition.onerror = () => setIsListening(false);
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
             const transcript = event.results[0][0].transcript;
             setInput(prev => prev ? `${prev} ${transcript}` : transcript);
         };
 
         recognition.start();
     };
+
+    // Definiamo i tipi minimi necessari per evitare errori di 'any'
+    interface SpeechRecognitionEvent extends Event {
+        results: {
+            [index: number]: {
+                [index: number]: {
+                    transcript: string;
+                };
+            };
+        };
+    }
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -254,8 +272,8 @@ export default function ChatPage() {
                         <button
                             onClick={startSpeechRecognition}
                             className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all active:scale-95 shadow-inner shrink-0 ${isListening
-                                    ? "bg-red-500 text-white animate-pulse"
-                                    : "bg-slate-100 hover:bg-slate-200 text-slate-500"
+                                ? "bg-red-500 text-white animate-pulse"
+                                : "bg-slate-100 hover:bg-slate-200 text-slate-500"
                                 }`}
                             title="Dettatura vocale"
                         >
