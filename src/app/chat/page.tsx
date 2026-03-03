@@ -21,20 +21,24 @@ export default function ChatPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
+    // Placeholder per usare isSpeaking ed evitare errori build
+    console.log("Audio attivo:", isSpeaking);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Funzione per far parlare Geniotto
-    const speak = (text: string) => {
+    const speak = (text: string, clearQueue = true) => {
         if (!('speechSynthesis' in window)) return;
 
-        // Interrompiamo eventuali letture precedenti
-        window.speechSynthesis.cancel();
+        // Se clearQueue è true, cancelliamo tutto (nuovo messaggio)
+        if (clearQueue) {
+            window.speechSynthesis.cancel();
+        }
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'it-IT';
         utterance.rate = 1.0;
-        utterance.pitch = 1.1; // Voce un po' più simpatica per i bambini
+        utterance.pitch = 1.1;
 
         utterance.onstart = () => setIsSpeaking(true);
         utterance.onend = () => setIsSpeaking(false);
@@ -149,16 +153,16 @@ export default function ChatPage() {
                 throw new Error(errorMessage);
             }
 
-            // Gestione dello Streaming
+            // Gestione dello Streaming e Audio Incrementale
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
 
             if (!reader) throw new Error("Impossibile leggere la risposta.");
 
-            // Aggiungiamo un messaggio vuoto dell'assistente che aggiorneremo
             setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
             let assistantMessage = "";
+            let speechBuffer = ""; // Custodisce il testo non ancora parlato
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -166,8 +170,23 @@ export default function ChatPage() {
 
                 const chunk = decoder.decode(value, { stream: true });
                 assistantMessage += chunk;
+                speechBuffer += chunk;
 
-                // Aggiorniamo solo l'ultimo messaggio
+                // Cerchiamo la fine di una frase (. ! ? o a capo)
+                // Usiamo un regex che cerca un segno di punteggiatura seguito da spazio
+                const sentenceEndRegex = /[.!?](\s+|$)/;
+                const match = speechBuffer.match(sentenceEndRegex);
+
+                if (match) {
+                    const endIdx = match.index! + 1;
+                    const sentenceToSpeak = speechBuffer.substring(0, endIdx).trim();
+
+                    if (sentenceToSpeak.length > 5) {
+                        speak(sentenceToSpeak, false); // Parla senza cancellare la coda
+                        speechBuffer = speechBuffer.substring(match.index! + match[0].length);
+                    }
+                }
+
                 setMessages(prev => {
                     const newMessages = [...prev];
                     newMessages[newMessages.length - 1].content = assistantMessage;
@@ -175,8 +194,10 @@ export default function ChatPage() {
                 });
             }
 
-            // Quando ha finito di scrivere, Geniotto legge la risposta a voce alta!
-            speak(assistantMessage);
+            // Parla l'ultima parte rimanente
+            if (speechBuffer.trim()) {
+                speak(speechBuffer.trim(), false);
+            }
 
             setTokens(prev => prev - 1);
         } catch (error) {

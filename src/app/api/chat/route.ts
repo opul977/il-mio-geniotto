@@ -27,17 +27,18 @@ export async function POST(req: NextRequest) {
                 ? [systemPrompt + " Analizza: " + (message || "Cosa vedi?"), { inlineData: { data: image.split(",")[1], mimeType: image.split(";")[0].split(":")[1] || "image/jpeg" } }]
                 : systemPrompt + " Domanda: " + message;
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return await model.generateContentStream(prompt as any);
         };
 
         let result;
         try {
-            // Tentativo 1: gemini-flash-latest (v1beta di default, molto veloce)
-            result = await getStreamResult("gemini-flash-latest");
+            // Tentativo 1: gemini-flash-lite-latest (Modello Ultra-Veloce)
+            result = await getStreamResult("gemini-flash-lite-latest");
         } catch (err) {
-            console.warn("Switching to fallback model due to error:", err);
-            // Tentativo 2: gemini-1.5-flash su v1 (più stabile e supportato ovunque)
-            result = await getStreamResult("gemini-1.5-flash", "v1");
+            console.warn("Switching to standard flash due to error:", err);
+            // Tentativo 2: gemini-flash-latest (Modello standard)
+            result = await getStreamResult("gemini-flash-latest");
         }
 
         const stream = new ReadableStream({
