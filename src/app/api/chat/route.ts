@@ -13,40 +13,31 @@ export async function POST(req: NextRequest) {
         const genAI = new GoogleGenerativeAI(apiKey.trim());
         const { message, image, level } = await req.json();
 
-        // 1. Definiamo il sistema di prompt (Tone of Voice) basato sul livello
-        let systemPrompt = "Sei Geniotto, un assistente IA esperto nello studio. ";
+        // Prompt super-veloce per ridurre la latenza
+        let tone = "amico elementari, semplice, usa icone.";
+        if (level === "middle") tone = "mentor medie, tecnico, passaggi logici.";
+        if (level === "highschool") tone = "professionale superiori, approfondito.";
 
-        if (level === "primary") {
-            systemPrompt += "Parla a bambini delle elementari: usa un linguaggio semplicissimo, icone, spiega il 'perché' e sii molto incoraggiante. Evita termini difficili.";
-        } else if (level === "middle") {
-            systemPrompt += "Parla a ragazzi delle medie: sii chiaro e tecnico, spiega i passaggi logici e usa un tono da mentor moderno.";
-        } else {
-            systemPrompt += "Parla a studenti superiori: usa un tono professionale e accademico, con approfondimenti teorici.";
-        }
+        const systemPrompt = `Sei Geniotto, assistente studio. ${tone} Rispondi subito.`;
 
-        // Funzione per ottenere il risultato dello streaming con fallback
-        const getStreamResult = async (modelName: string) => {
-            const model = genAI.getGenerativeModel({ model: modelName });
-            if (image) {
-                const mimeType = image.split(";")[0].split(":")[1] || "image/jpeg";
-                const base64Data = image.split(",")[1];
-                return await model.generateContentStream([
-                    systemPrompt + " Analizza questa immagine: " + (message || "Cosa vedi?"),
-                    { inlineData: { data: base64Data, mimeType: mimeType } },
-                ]);
-            } else {
-                return await model.generateContentStream(systemPrompt + " Rispondi: " + message);
-            }
+        // Funzione per ottenere lo streaming con fallback intelligente
+        const getStreamResult = async (modelName: string, apiVersion?: string) => {
+            const model = genAI.getGenerativeModel({ model: modelName }, apiVersion ? { apiVersion } : undefined);
+            const prompt = image
+                ? [systemPrompt + " Analizza: " + (message || "Cosa vedi?"), { inlineData: { data: image.split(",")[1], mimeType: image.split(";")[0].split(":")[1] || "image/jpeg" } }]
+                : systemPrompt + " Domanda: " + message;
+
+            return await model.generateContentStream(prompt as any);
         };
 
         let result;
         try {
-            // Tentativo 1: gemini-flash-latest
+            // Tentativo 1: gemini-flash-latest (v1beta di default, molto veloce)
             result = await getStreamResult("gemini-flash-latest");
         } catch (err) {
-            console.warn("Primo tentativo fallito (503/429), provo il fallback...", err);
-            // Tentativo 2: gemini-1.5-flash (di solito più stabile in caso di picchi)
-            result = await getStreamResult("gemini-1.5-flash");
+            console.warn("Switching to fallback model due to error:", err);
+            // Tentativo 2: gemini-1.5-flash su v1 (più stabile e supportato ovunque)
+            result = await getStreamResult("gemini-1.5-flash", "v1");
         }
 
         const stream = new ReadableStream({
@@ -54,8 +45,7 @@ export async function POST(req: NextRequest) {
                 const encoder = new TextEncoder();
                 try {
                     for await (const chunk of result.stream) {
-                        const chunkText = chunk.text();
-                        controller.enqueue(encoder.encode(chunkText));
+                        controller.enqueue(encoder.encode(chunk.text()));
                     }
                     controller.close();
                 } catch (e) {
@@ -68,17 +58,14 @@ export async function POST(req: NextRequest) {
             headers: {
                 "Content-Type": "text/plain; charset=utf-8",
                 "Transfer-Encoding": "chunked",
-                "Cache-Control": "no-cache",
+                "X-Geniotto-Status": "streaming"
             },
         });
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Errore sconosciuto";
-        console.error("Gemini API Error:", errorMessage);
-
+        console.error("Critical API Error:", error);
         return NextResponse.json({
-            error: "Errore nella comunicazione con Geniotto.",
-            details: errorMessage,
-            suggestion: "Google è molto occupato ora. Riprova tra 10 secondi, Geniotto tornerà subito!"
+            error: "Geniotto ha un piccolo ritardo.",
+            details: error instanceof Error ? error.message : "Riprova tra un attimo."
         }, { status: 500 });
     }
 }
