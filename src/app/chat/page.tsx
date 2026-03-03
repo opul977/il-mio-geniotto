@@ -26,7 +26,17 @@ export default function ChatPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Funzione per far parlare Geniotto
+    // Funzione per pulire il testo dai caratteri speciali e markdown prima di parlare
+    const cleanTextForSpeech = (text: string) => {
+        return text
+            .replace(/[*_#~`]/g, '') // Rimuove markdown
+            .replace(/[^\w\s.,!?;:áéíóúàèìòù\']|_/gi, ' ') // Rimuove caratteri speciali ed emoji
+            .replace(/\s+/g, ' ') // Pulizia spazi doppi
+            .replace(/\s+([.,!?;:])/g, '$1') // Rimuove spazi prima della punteggiatura
+            .trim();
+    };
+
+    // Funzione per far parlare Geniotto in modo armonioso
     const speak = (text: string, clearQueue = true) => {
         if (!('speechSynthesis' in window)) return;
 
@@ -35,10 +45,23 @@ export default function ChatPage() {
             window.speechSynthesis.cancel();
         }
 
-        const utterance = new SpeechSynthesisUtterance(text);
+        const cleanedText = cleanTextForSpeech(text);
+        if (!cleanedText) return;
+
+        const utterance = new SpeechSynthesisUtterance(cleanedText);
         utterance.lang = 'it-IT';
-        utterance.rate = 1.0;
-        utterance.pitch = 1.1;
+
+        // Cerchiamo una voce italiana più naturale
+        const voices = window.speechSynthesis.getVoices();
+        const italianVoices = voices.filter(v => v.lang.startsWith('it'));
+        const premiumVoice = italianVoices.find(v => v.name.includes('Google') || v.name.includes('Natural')) || italianVoices[0];
+
+        if (premiumVoice) {
+            utterance.voice = premiumVoice;
+        }
+
+        utterance.rate = 0.95;
+        utterance.pitch = 1.05;
 
         utterance.onstart = () => setIsSpeaking(true);
         utterance.onend = () => setIsSpeaking(false);
