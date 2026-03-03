@@ -19,8 +19,33 @@ export default function ChatPage() {
     const [level, setLevel] = useState<"primary" | "middle" | "highschool">("primary");
     const [tokens, setTokens] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
+    const [isListening, setIsListening] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const startSpeechRecognition = () => {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("Il tuo browser non supporta la dettatura vocale. Prova con Chrome!");
+            return;
+        }
+
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'it-IT';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => setIsListening(true);
+        recognition.onend = () => setIsListening(false);
+        recognition.onerror = () => setIsListening(false);
+
+        recognition.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript;
+            setInput(prev => prev ? `${prev} ${transcript}` : transcript);
+        };
+
+        recognition.start();
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,8 +111,32 @@ export default function ChatPage() {
                 throw new Error(errorMessage);
             }
 
-            const data = await response.json();
-            setMessages(prev => [...prev, { role: "assistant", content: data.text }]);
+            // Gestione dello Streaming
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+
+            if (!reader) throw new Error("Impossibile leggere la risposta.");
+
+            // Aggiungiamo un messaggio vuoto dell'assistente che aggiorneremo
+            setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+
+            let assistantMessage = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                assistantMessage += chunk;
+
+                // Aggiorniamo solo l'ultimo messaggio (quello appena aggiunto)
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1].content = assistantMessage;
+                    return newMessages;
+                });
+            }
+
             setTokens(prev => prev - 1);
         } catch (error) {
             console.error("Chat Error:", error);
@@ -197,10 +246,20 @@ export default function ChatPage() {
                         />
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-14 h-14 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl flex items-center justify-center text-2xl transition-all active:scale-95 shadow-inner"
+                            className="w-14 h-14 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl flex items-center justify-center text-2xl transition-all active:scale-95 shadow-inner shrink-0"
                             title="Carica foto compito"
                         >
                             📸
+                        </button>
+                        <button
+                            onClick={startSpeechRecognition}
+                            className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all active:scale-95 shadow-inner shrink-0 ${isListening
+                                    ? "bg-red-500 text-white animate-pulse"
+                                    : "bg-slate-100 hover:bg-slate-200 text-slate-500"
+                                }`}
+                            title="Dettatura vocale"
+                        >
+                            {isListening ? "⏹️" : "🎙️"}
                         </button>
                         <div className="flex-1 relative">
                             <input

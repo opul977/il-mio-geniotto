@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
         }
 
         // ABBIAMO IL VINCITORE! Il test ha confermato che gemini-flash-latest funziona perfettamente.
-        // Usiamo v1beta come fallback se v1 (default) avesse problemi di nomi
         const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         let result;
@@ -34,7 +33,7 @@ export async function POST(req: NextRequest) {
             const mimeType = image.split(";")[0].split(":")[1] || "image/jpeg";
             const base64Data = image.split(",")[1];
 
-            result = await model.generateContent([
+            result = await model.generateContentStream([
                 systemPrompt + " Analizza questa immagine del mio compito: " + (message || "Cosa vedi in questa immagine?"),
                 {
                     inlineData: {
@@ -44,26 +43,40 @@ export async function POST(req: NextRequest) {
                 },
             ]);
         } else {
-            result = await model.generateContent(systemPrompt + " Rispondi a questa domanda di studio: " + message);
+            result = await model.generateContentStream(systemPrompt + " Rispondi a questa domanda di studio: " + message);
         }
 
-        const response = await result.response;
-        const text = response.text();
+        // Creiamo uno stream leggibile per il frontend
+        const stream = new ReadableStream({
+            async start(controller) {
+                const encoder = new TextEncoder();
+                try {
+                    for await (const chunk of result.stream) {
+                        const chunkText = chunk.text();
+                        controller.enqueue(encoder.encode(chunkText));
+                    }
+                    controller.close();
+                } catch (e) {
+                    controller.error(e);
+                }
+            },
+        });
 
-        return NextResponse.json({ text });
+        return new Response(stream, {
+            headers: {
+                "Content-Type": "text/plain; charset=utf-8",
+                "Transfer-Encoding": "chunked",
+            },
+        });
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Errore sconosciuto";
-        const errorStack = error instanceof Error ? error.stack : "No stack trace";
-        const errorName = error instanceof Error ? error.name : "UnknownError";
-
-        console.error("Gemini API Error:", { name: errorName, message: errorMessage, stack: errorStack });
+        console.error("Gemini API Error:", errorMessage);
 
         return NextResponse.json({
             error: "Errore nella comunicazione con Geniotto.",
             details: errorMessage,
-            errorName: errorName,
             suggestion: errorMessage.includes("429")
-                ? "Quota superata! Google sta limitando il traffico gratuito per questo account. Riprova tra 60 secondi o abilita il 'Pay-as-you-go' su Google AI Studio."
+                ? "Quota superata! Riprova tra poco."
                 : "Riprova tra un attimo."
         }, { status: 500 });
     }
