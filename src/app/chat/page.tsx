@@ -21,10 +21,16 @@ export default function ChatPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
-    // Placeholder per usare isSpeaking ed evitare errori build
-    console.log("Audio attivo:", isSpeaking);
+    const [isAudioEnabled, setIsAudioEnabled] = useState(true); // Controllo audio
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Effetto per caricare le voci (alcuni browser le caricano pigramente)
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.getVoices();
+        }
+    }, []);
 
     // Funzione per pulire il testo dai caratteri speciali e markdown prima di parlare
     const cleanTextForSpeech = (text: string) => {
@@ -38,7 +44,7 @@ export default function ChatPage() {
 
     // Funzione per far parlare Geniotto in modo armonioso
     const speak = (text: string, clearQueue = true) => {
-        if (!('speechSynthesis' in window)) return;
+        if (!('speechSynthesis' in window) || !isAudioEnabled) return;
 
         // Se clearQueue è true, cancelliamo tutto (nuovo messaggio)
         if (clearQueue) {
@@ -46,7 +52,7 @@ export default function ChatPage() {
         }
 
         const cleanedText = cleanTextForSpeech(text);
-        if (!cleanedText) return;
+        if (!cleanedText || cleanedText.length < 2) return;
 
         const utterance = new SpeechSynthesisUtterance(cleanedText);
         utterance.lang = 'it-IT';
@@ -54,18 +60,30 @@ export default function ChatPage() {
         // Cerchiamo una voce italiana più naturale
         const voices = window.speechSynthesis.getVoices();
         const italianVoices = voices.filter(v => v.lang.startsWith('it'));
-        const premiumVoice = italianVoices.find(v => v.name.includes('Google') || v.name.includes('Natural')) || italianVoices[0];
+
+        // Ordine di preferenza: Google (molto naturali), Natural, HQ, e poi la prima disponibile
+        const premiumVoice =
+            italianVoices.find(v => v.name.includes('Google') && v.name.includes('Natural')) ||
+            italianVoices.find(v => v.name.includes('Google')) ||
+            italianVoices.find(v => v.name.includes('Natural')) ||
+            italianVoices.find(v => v.name.includes('High Quality')) ||
+            italianVoices[0];
 
         if (premiumVoice) {
             utterance.voice = premiumVoice;
         }
 
-        utterance.rate = 0.95;
-        utterance.pitch = 1.05;
+        // Regoliamo i parametri per una voce meno "metallica"
+        utterance.rate = 0.9;  // Leggermente più lento per chiarezza
+        utterance.pitch = 1.0; // Tono neutro e caldo
+        utterance.volume = 1.0;
 
         utterance.onstart = () => setIsSpeaking(true);
         utterance.onend = () => setIsSpeaking(false);
-        utterance.onerror = () => setIsSpeaking(false);
+        utterance.onerror = (e) => {
+            console.error("Errore sintesi vocale:", e);
+            setIsSpeaking(false);
+        };
 
         window.speechSynthesis.speak(utterance);
     };
@@ -262,18 +280,41 @@ export default function ChatPage() {
                         <div className="flex flex-col">
                             <h2 className="text-lg font-black text-slate-800 leading-tight">Geniotto AI</h2>
                             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                                Ti saluta! 👋
+                                {isSpeaking ? (
+                                    <div className="flex items-center gap-2 text-emerald-600 animate-pulse">
+                                        <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                                        Ti sta parlando... 💬
+                                    </div>
+                                ) : (
+                                    <>
+                                        <span className="w-2 h-2 bg-slate-300 rounded-full" />
+                                        Ti saluta! 👋
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
                         <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
                             <button onClick={() => setLevel("primary")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "primary" ? "bg-white text-primary shadow-sm" : "text-slate-400"}`}>Primaria</button>
                             <button onClick={() => setLevel("middle")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "middle" ? "bg-white text-orange-500 shadow-sm" : "text-slate-400"}`}>Media</button>
                             <button onClick={() => setLevel("highschool")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "highschool" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"}`}>Superiori</button>
                         </div>
+
+                        {/* Toggle Audio ON/OFF */}
+                        <button
+                            onClick={() => {
+                                const newState = !isAudioEnabled;
+                                setIsAudioEnabled(newState);
+                                if (!newState) window.speechSynthesis.cancel();
+                            }}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all font-black text-[10px] uppercase shadow-sm ${isAudioEnabled
+                                ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                                : "bg-red-50 border-red-100 text-red-600 opacity-70"}`}
+                        >
+                            {isAudioEnabled ? "🔊 Audio On" : "🔇 Audio Off"}
+                        </button>
 
                         <Link href="/prezzi" className="bg-amber-400/10 border border-amber-400/20 px-4 py-1.5 rounded-xl flex items-center gap-2 group hover:bg-amber-400/20 transition-all">
                             <span className="text-amber-500 text-sm">🪙</span>
