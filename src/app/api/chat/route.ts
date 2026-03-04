@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
             result = await getStreamResult("gemini-flash-latest");
         }
 
-        // Se l'utente è loggato, salviamo il messaggio dell'utente PRIMA dello streaming
         if (session?.user) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const userId = (session.user as any).id;
             await supabase.from('chat_messages').insert([{
                 user_id: userId,
@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
 
                     // Salviamo la risposta di Geniotto alla fine dello streaming
                     if (session?.user) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const userId = (session.user as any).id;
                         await supabase.from('chat_messages').insert([{
                             user_id: userId,

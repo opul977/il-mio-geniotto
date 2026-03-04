@@ -30,7 +30,7 @@ export default function LoginPage() {
             } else {
                 router.push("/chat");
             }
-        } catch (_err) {
+        } catch {
             setError("Qualcosa è andato storto. Riprova più tardi!");
         } finally {
             setIsLoading(false);

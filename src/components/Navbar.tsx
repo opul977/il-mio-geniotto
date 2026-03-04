@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -66,9 +67,9 @@ export default function Navbar() {
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
                                 {session.user?.image ? (
-                                    <img src={session.user.image} alt="Avatar" className="w-6 h-6 rounded-full" />
+                                    <Image src={session.user.image} alt="Avatar" width={24} height={24} className="rounded-full" />
                                 ) : (
-                                    <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black animate-bounce">
+                                    <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black">
                                         {session.user?.name?.[0] || "U"}
                                     </span>
                                 )}

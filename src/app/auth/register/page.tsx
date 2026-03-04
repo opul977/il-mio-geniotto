@@ -31,7 +31,7 @@ export default function RegisterPage() {
                 const data = await response.json();
                 setError(data.error || "Uffa! Non sono riuscito a registrarti. Riprova! 🧐");
             }
-        } catch (err) {
+        } catch {
             setError("C'è stato un problemino tecnico. Riprova più tardi!");
         } finally {
             setIsLoading(false);

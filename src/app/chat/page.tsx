@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+// Link rimosso perché inutilizzato
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
@@ -36,6 +36,7 @@ export default function ChatPage() {
                     if (data.messages && data.messages.length > 0) {
                         setMessages([
                             { role: "assistant", content: "Ciao! Bentornato! Ecco i nostri ultimi compiti insieme: 👇" },
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             ...data.messages.map((m: any) => ({
                                 role: m.role,
                                 content: m.content,
@@ -108,7 +109,9 @@ export default function ChatPage() {
     const startSpeechRecognition = () => {
         const SpeechRecognition =
             (typeof window !== 'undefined' && (
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (window as any).SpeechRecognition ||
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (window as any).webkitSpeechRecognition
             ));
 
@@ -127,7 +130,8 @@ export default function ChatPage() {
         recognition.onerror = () => setIsListening(false);
 
         recognition.onresult = (event: any) => {
-            const transcript = event.results[0][0].transcript;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const transcript = (event as any).results[0][0].transcript;
             setInput(prev => prev ? `${prev} ${transcript}` : transcript);
         };
 
