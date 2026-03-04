@@ -28,6 +28,7 @@ interface SpeechRecognition extends EventTarget {
     interimResults: boolean;
     onstart: () => void;
     onend: () => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onerror: (event: any) => void;
     onresult: (event: SpeechRecognitionEvent) => void;
     start: () => void;
@@ -36,7 +37,9 @@ interface SpeechRecognition extends EventTarget {
 
 declare global {
     interface Window {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         SpeechRecognition: any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         webkitSpeechRecognition: any;
     }
 }
@@ -64,6 +67,7 @@ export default function ChatPage() {
                     if (data.messages && data.messages.length > 0) {
                         setMessages([
                             { role: "assistant", content: "Ciao! Bentornato! Ecco i nostri ultimi compiti insieme: 👇" },
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             ...data.messages.map((m: any) => ({
                                 role: m.role,
                                 content: m.content,
@@ -376,6 +380,7 @@ export default function ChatPage() {
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
                                 placeholder="Scrivi al tuo amico Geniotto..."
+                                aria-label="Messaggio per Geniotto"
                                 className="w-full bg-white border-2 border-slate-50 rounded-2xl py-4 pl-6 pr-20 text-md font-bold placeholder:text-slate-300 focus:outline-none focus:border-primary/20 transition-all shadow-md"
                             />
                             <button
