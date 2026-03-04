@@ -11,8 +11,32 @@ const ADMIN_EMAILS = ["opul977@gmail.com"];
 export default async function AdminPage() {
     const session = await getServerSession(authOptions);
 
+    console.log("DEBUG ADMIN - Session:", JSON.stringify(session, null, 2));
+    console.log("DEBUG ADMIN - User Email:", session?.user?.email);
+
     if (!session?.user || !ADMIN_EMAILS.includes(session.user.email || "")) {
-        redirect("/");
+        return (
+            <div className="min-h-screen bg-slate-900 text-white p-10 flex flex-col items-center justify-center font-mono">
+                <h1 className="text-4xl font-black mb-8 text-red-500">ACCESSO NEGATO 🚫</h1>
+                <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 w-full max-w-2xl overflow-auto">
+                    <p className="mb-4 text-slate-400">// Informazioni Sessione Debug:</p>
+                    <pre className="text-emerald-400 whitespace-pre-wrap">
+                        {JSON.stringify({
+                            hasSession: !!session,
+                            user: session?.user ? {
+                                name: session.user.name,
+                                email: session.user.email,
+                                hasId: !!(session.user as any).id
+                            } : null,
+                            expectedEmail: ADMIN_EMAILS[0],
+                            match: session?.user?.email === ADMIN_EMAILS[0]
+                        }, null, 2)}
+                    </pre>
+                </div>
+                <p className="mt-8 text-slate-500 text-sm">Ricarica questa pagina dopo aver fatto il logout e il login di nuovo.</p>
+                <a href="/" className="mt-4 text-primary underline underline-offset-4">Torna alla Home</a>
+            </div>
+        );
     }
 
     // Recupero statistiche
