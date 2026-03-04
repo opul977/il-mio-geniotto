@@ -62,6 +62,9 @@ export default function Navbar() {
 
                     <Link href="/come-funziona" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Come Funziona</Link>
                     <Link href="/prezzi" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Prezzi</Link>
+                    {session?.user?.email === "opul977@gmail.com" && (
+                        <Link href="/admin" className="text-sm font-black text-secondary hover:underline underline-offset-4 transition-all">Admin 🔐</Link>
+                    )}
 
                     {session ? (
                         <div className="flex items-center gap-4">

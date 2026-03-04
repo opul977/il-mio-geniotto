@@ -9,6 +9,23 @@ export async function POST(req: NextRequest) {
         const session = await getServerSession(authOptions);
         const apiKey = process.env.GEMINI_API_KEY;
 
+        // Ottieni l'IP dell'utente per il controllo token (se non loggato)
+        const forwarded = req.headers.get("x-forwarded-for");
+        const ip = forwarded ? forwarded.split(/, /)[0] : "127.0.0.1";
+
+        if (!session?.user) {
+            // Controllo token per l'IP
+            const { data: usage, error: usageError } = await supabase
+                .from('guest_usage')
+                .select('tokens_remaining')
+                .eq('ip_address', ip)
+                .single();
+
+            if (!usageError && usage && usage.tokens_remaining <= 0) {
+                return NextResponse.json({ error: "Hai esaurito i tuoi messaggi gratuiti! Registrati per continuare. 🚀" }, { status: 403 });
+            }
+        }
+
         if (!apiKey) {
             console.error("ERRORE: GEMINI_API_KEY non configurata!");
             return NextResponse.json({ error: "Configurazione IA mancante. Controlla le variabili d'ambiente." }, { status: 500 });
@@ -83,6 +100,22 @@ export async function POST(req: NextRequest) {
                             content: fullAssistantResponse,
                             level: level
                         }]);
+                    } else {
+                        // Se è un ospite, scaliamo i token dall'IP
+                        const { data: currentUsage } = await supabase
+                            .from('guest_usage')
+                            .select('tokens_remaining')
+                            .eq('ip_address', ip)
+                            .single();
+
+                        const currentTokens = currentUsage?.tokens_remaining ?? 10;
+                        const newTokens = Math.max(0, currentTokens - 1);
+
+                        await supabase
+                            .from('guest_usage')
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() } as any)
+                            .eq('ip_address', ip);
                     }
 
                     controller.close();

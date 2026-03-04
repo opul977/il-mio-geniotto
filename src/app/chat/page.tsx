@@ -59,6 +59,20 @@ export default function ChatPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Recupera i token iniziali dall'IP (se non loggato)
+    useEffect(() => {
+        if (!session) {
+            fetch('/api/tokens/check')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.tokens !== undefined) {
+                        setTokens(data.tokens);
+                    }
+                })
+                .catch(err => console.error("Error fetching tokens:", err));
+        }
+    }, [session]);
+
     useEffect(() => {
         if (session?.user) {
             fetch("/api/chat/history")
