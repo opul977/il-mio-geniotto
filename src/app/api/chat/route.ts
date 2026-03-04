@@ -1,8 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
     try {
+        const session = await getServerSession(authOptions);
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
@@ -38,21 +42,47 @@ export async function POST(req: NextRequest) {
 
         let result;
         try {
-            // Tentativo 1: gemini-flash-lite-latest (Modello Ultra-Veloce)
             result = await getStreamResult("gemini-flash-lite-latest");
         } catch (err) {
             console.warn("Switching to standard flash due to error:", err);
-            // Tentativo 2: gemini-flash-latest (Modello standard)
             result = await getStreamResult("gemini-flash-latest");
+        }
+
+        // Se l'utente è loggato, salviamo il messaggio dell'utente PRIMA dello streaming
+        if (session?.user) {
+            const userId = (session.user as any).id;
+            await supabase.from('chat_messages').insert([{
+                user_id: userId,
+                role: 'user',
+                content: message,
+                image_url: image || null,
+                level: level
+            }]);
         }
 
         const stream = new ReadableStream({
             async start(controller) {
                 const encoder = new TextEncoder();
+                let fullAssistantResponse = "";
+
                 try {
                     for await (const chunk of result.stream) {
-                        controller.enqueue(encoder.encode(chunk.text()));
+                        const chunkText = chunk.text();
+                        fullAssistantResponse += chunkText;
+                        controller.enqueue(encoder.encode(chunkText));
                     }
+
+                    // Salviamo la risposta di Geniotto alla fine dello streaming
+                    if (session?.user) {
+                        const userId = (session.user as any).id;
+                        await supabase.from('chat_messages').insert([{
+                            user_id: userId,
+                            role: 'assistant',
+                            content: fullAssistantResponse,
+                            level: level
+                        }]);
+                    }
+
                     controller.close();
                 } catch (e) {
                     controller.error(e);

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 type Message = {
     role: "user" | "assistant";
@@ -12,6 +13,7 @@ type Message = {
 };
 
 export default function ChatPage() {
+    const { data: session } = useSession();
     const [messages, setMessages] = useState<Message[]>([
         { role: "assistant", content: "Ciao! Io sono Geniotto, il tuo amico speciale! 🚀 Quale compito facciamo insieme oggi? Puoi anche caricarmi una foto dei tuoi esercizi!" }
     ]);
@@ -21,32 +23,50 @@ export default function ChatPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
-    const [isAudioEnabled, setIsAudioEnabled] = useState(true); // Controllo audio
+    const [isAudioEnabled, setIsAudioEnabled] = useState(false); // Default SPENTO come richiesto
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Effetto per caricare le voci (alcuni browser le caricano pigramente)
+    // Caricamento cronologia se loggato
+    useEffect(() => {
+        if (session?.user) {
+            fetch("/api/chat/history")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.messages && data.messages.length > 0) {
+                        setMessages([
+                            { role: "assistant", content: "Ciao! Bentornato! Ecco i nostri ultimi compiti insieme: 👇" },
+                            ...data.messages.map((m: any) => ({
+                                role: m.role,
+                                content: m.content,
+                                image: m.image_url
+                            }))
+                        ]);
+                    }
+                })
+                .catch(err => console.error("Errore caricamento cronologia:", err));
+        }
+    }, [session]);
+
+    // Effetto per caricare le voci
     useEffect(() => {
         if (typeof window !== 'undefined' && window.speechSynthesis) {
             window.speechSynthesis.getVoices();
         }
     }, []);
 
-    // Funzione per pulire il testo dai caratteri speciali e markdown prima di parlare
     const cleanTextForSpeech = (text: string) => {
         return text
-            .replace(/[*_#~`]/g, '') // Rimuove markdown
-            .replace(/[^\w\s.,!?;:áéíóúàèìòù\']|_/gi, ' ') // Rimuove caratteri speciali ed emoji
-            .replace(/\s+/g, ' ') // Pulizia spazi doppi
-            .replace(/\s+([.,!?;:])/g, '$1') // Rimuove spazi prima della punteggiatura
+            .replace(/[*_#~`]/g, '')
+            .replace(/[^\w\s.,!?;:áéíóúàèìòù\']|_/gi, ' ')
+            .replace(/\s+/g, ' ')
+            .replace(/\s+([.,!?;:])/g, '$1')
             .trim();
     };
 
-    // Funzione per far parlare Geniotto in modo armonioso
     const speak = (text: string, clearQueue = true) => {
-        if (!('speechSynthesis' in window) || !isAudioEnabled) return;
+        if (!('speechSynthesis' in window)) return;
 
-        // Se clearQueue è true, cancelliamo tutto (nuovo messaggio)
         if (clearQueue) {
             window.speechSynthesis.cancel();
         }
@@ -57,11 +77,9 @@ export default function ChatPage() {
         const utterance = new SpeechSynthesisUtterance(cleanedText);
         utterance.lang = 'it-IT';
 
-        // Cerchiamo una voce italiana più naturale
         const voices = window.speechSynthesis.getVoices();
         const italianVoices = voices.filter(v => v.lang.startsWith('it'));
 
-        // Ordine di preferenza: Google (molto naturali), Natural, HQ, e poi la prima disponibile
         const premiumVoice =
             italianVoices.find(v => v.name.includes('Google') && v.name.includes('Natural')) ||
             italianVoices.find(v => v.name.includes('Google')) ||
@@ -73,9 +91,8 @@ export default function ChatPage() {
             utterance.voice = premiumVoice;
         }
 
-        // Regoliamo i parametri per una voce meno "metallica"
-        utterance.rate = 0.9;  // Leggermente più lento per chiarezza
-        utterance.pitch = 1.0; // Tono neutro e caldo
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
         utterance.volume = 1.0;
 
         utterance.onstart = () => setIsSpeaking(true);
@@ -91,9 +108,7 @@ export default function ChatPage() {
     const startSpeechRecognition = () => {
         const SpeechRecognition =
             (typeof window !== 'undefined' && (
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (window as any).SpeechRecognition ||
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (window as any).webkitSpeechRecognition
             ));
 
@@ -111,24 +126,13 @@ export default function ChatPage() {
         recognition.onend = () => setIsListening(false);
         recognition.onerror = () => setIsListening(false);
 
-        recognition.onresult = (event: SpeechRecognitionEvent) => {
+        recognition.onresult = (event: any) => {
             const transcript = event.results[0][0].transcript;
             setInput(prev => prev ? `${prev} ${transcript}` : transcript);
         };
 
         recognition.start();
     };
-
-    // Definiamo i tipi minimi necessari per evitare errori di 'any'
-    interface SpeechRecognitionEvent extends Event {
-        results: {
-            [index: number]: {
-                [index: number]: {
-                    transcript: string;
-                };
-            };
-        };
-    }
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -154,8 +158,8 @@ export default function ChatPage() {
         const messageText = customText || input;
         if ((!messageText.trim() && !imageFile) || isLoading) return;
 
-        if (tokens <= 0) {
-            alert("Hai finito i token! Guarda un video o abbonati per continuare. 🪙");
+        if (tokens <= 0 && !session) {
+            alert("Accedi per continuare a usare Geniotto senza limiti! 🚀");
             return;
         }
 
@@ -165,10 +169,6 @@ export default function ChatPage() {
         setIsLoading(true);
 
         try {
-            // Aggiungiamo un controller per il timeout (30 secondi)
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
-
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -176,25 +176,11 @@ export default function ChatPage() {
                     message: messageText,
                     image: imageFile,
                     level: level,
-                }),
-                signal: controller.signal
+                })
             });
 
-            clearTimeout(timeoutId);
+            if (!response.ok) throw new Error("Errore del server");
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = "Errore del server";
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.details || errorJson.error || errorMessage;
-                } catch {
-                    errorMessage = `Errore ${response.status}: Il server ha risposto in modo inatteso.`;
-                }
-                throw new Error(errorMessage);
-            }
-
-            // Gestione dello Streaming e Audio Incrementale
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
 
@@ -203,7 +189,6 @@ export default function ChatPage() {
             setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
             let assistantMessage = "";
-            let speechBuffer = ""; // Custodisce il testo non ancora parlato
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -211,22 +196,6 @@ export default function ChatPage() {
 
                 const chunk = decoder.decode(value, { stream: true });
                 assistantMessage += chunk;
-                speechBuffer += chunk;
-
-                // Cerchiamo la fine di una frase (. ! ? o a capo)
-                // Usiamo un regex che cerca un segno di punteggiatura seguito da spazio
-                const sentenceEndRegex = /[.!?](\s+|$)/;
-                const match = speechBuffer.match(sentenceEndRegex);
-
-                if (match) {
-                    const endIdx = match.index! + 1;
-                    const sentenceToSpeak = speechBuffer.substring(0, endIdx).trim();
-
-                    if (sentenceToSpeak.length > 5) {
-                        speak(sentenceToSpeak, false); // Parla senza cancellare la coda
-                        speechBuffer = speechBuffer.substring(match.index! + match[0].length);
-                    }
-                }
 
                 setMessages(prev => {
                     const newMessages = [...prev];
@@ -235,21 +204,14 @@ export default function ChatPage() {
                 });
             }
 
-            // Parla l'ultima parte rimanente
-            if (speechBuffer.trim()) {
-                speak(speechBuffer.trim(), false);
+            if (!session) {
+                setTokens(prev => prev - 1);
             }
-
-            setTokens(prev => prev - 1);
         } catch (error) {
             console.error("Chat Error:", error);
-            const msg = error instanceof Error && error.name === 'AbortError'
-                ? "Geniotto sta pensando troppo... 🤖 Il server è un po' lento, riprova!"
-                : `Problema tecnico: ${error instanceof Error ? error.message : "Riprova tra poco"}`;
-
             setMessages(prev => [...prev, {
                 role: "assistant",
-                content: msg
+                content: "Geniotto ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
             }]);
         } finally {
             setIsLoading(false);
@@ -261,70 +223,53 @@ export default function ChatPage() {
             <Navbar />
 
             <div className="flex-1 max-w-5xl mx-auto w-full pt-32 pb-6 px-6 flex flex-col gap-4 h-[calc(100vh-2rem)] overflow-hidden">
-                {/* Chat Header */}
                 <div className="flex flex-col sm:flex-row items-center justify-between bg-white/40 glass p-4 rounded-[2rem] gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="relative">
-                            <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 overflow-visible">
-                                <svg width="50" height="40" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="10" y="10" width="80" height="60" rx="25" fill="white" stroke="#3b82f6" strokeWidth="4" />
-                                    <rect x="22" y="24" width="56" height="32" rx="12" fill="#1e293b" />
-                                    <circle cx="38" cy="40" r="4" fill="#60a5fa" className="animate-pulse" />
-                                    <circle cx="62" cy="40" r="4" fill="#60a5fa" className="animate-pulse" />
-                                    <g className="animate-wave" style={{ transformOrigin: '20px 70px' }}>
-                                        <rect x="5" y="55" width="15" height="15" rx="6" fill="white" stroke="#3b82f6" strokeWidth="3" />
-                                    </g>
-                                </svg>
-                            </div>
+                        <div className="bg-primary p-2 rounded-xl shadow-lg">
+                            <svg width="32" height="32" viewBox="0 0 100 80" fill="none">
+                                <rect x="10" y="10" width="80" height="60" rx="20" fill="white" />
+                                <rect x="25" y="25" width="50" height="30" rx="10" fill="#1e293b" />
+                                <circle cx="40" cy="40" r="4" fill="#60a5fa" />
+                                <circle cx="60" cy="40" r="4" fill="#60a5fa" />
+                            </svg>
                         </div>
                         <div className="flex flex-col">
-                            <h2 className="text-lg font-black text-slate-800 leading-tight">Geniotto AI</h2>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                {isSpeaking ? (
-                                    <div className="flex items-center gap-2 text-emerald-600 animate-pulse">
-                                        <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                                        Ti sta parlando... 💬
-                                    </div>
-                                ) : (
-                                    <>
-                                        <span className="w-2 h-2 bg-slate-300 rounded-full" />
-                                        Ti saluta! 👋
-                                    </>
-                                )}
-                            </div>
+                            <h2 className="text-lg font-black text-slate-800">Geniotto AI</h2>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                {session ? `Bentornato, ${session.user?.name?.split(' ')[0]}!` : "Modalità Ospite 🚀"}
+                            </span>
                         </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4">
-                        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <div className="flex bg-slate-100 p-1 rounded-xl">
                             <button onClick={() => setLevel("primary")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "primary" ? "bg-white text-primary shadow-sm" : "text-slate-400"}`}>Primaria</button>
                             <button onClick={() => setLevel("middle")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "middle" ? "bg-white text-orange-500 shadow-sm" : "text-slate-400"}`}>Media</button>
                             <button onClick={() => setLevel("highschool")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "highschool" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"}`}>Superiori</button>
                         </div>
 
-                        {/* Toggle Audio ON/OFF */}
+                        {!session && (
+                            <div className="bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                                <span className="text-[10px] font-black text-amber-600">{tokens} PROVE RIMASTE</span>
+                            </div>
+                        )}
+
                         <button
                             onClick={() => {
                                 const newState = !isAudioEnabled;
                                 setIsAudioEnabled(newState);
                                 if (!newState) window.speechSynthesis.cancel();
                             }}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all font-black text-[10px] uppercase shadow-sm ${isAudioEnabled
-                                ? "bg-emerald-50 border-emerald-100 text-emerald-600"
-                                : "bg-red-50 border-red-100 text-red-600 opacity-70"}`}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all font-black text-[10px] uppercase ${isAudioEnabled
+                                ? "bg-emerald-50 border-emerald-200 text-emerald-600"
+                                : "bg-slate-50 border-slate-200 text-slate-400"}`}
                         >
-                            {isAudioEnabled ? "🔊 Audio On" : "🔇 Audio Off"}
+                            {isAudioEnabled ? "🔊 Voce Attiva" : "🔇 Voce Spenta"}
                         </button>
-
-                        <Link href="/prezzi" className="bg-amber-400/10 border border-amber-400/20 px-4 py-1.5 rounded-xl flex items-center gap-2 group hover:bg-amber-400/20 transition-all">
-                            <span className="text-amber-500 text-sm">🪙</span>
-                            <span className="text-[12px] font-black text-amber-600">{tokens} <span className="hidden sm:inline">Token</span></span>
-                        </Link>
                     </div>
                 </div>
 
-                {/* Chat Area */}
-                <div className="flex-1 bg-white/60 glass rounded-[2.5rem] p-6 flex flex-col gap-4 overflow-hidden shadow-2xl">
+                <div className="flex-1 bg-white/60 glass rounded-[2.5rem] p-6 flex flex-col gap-4 overflow-hidden shadow-2xl relative">
                     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4">
                         {messages.map((msg, i) => (
                             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -334,7 +279,7 @@ export default function ChatPage() {
                                         : "bg-white text-slate-800 rounded-tl-none border border-slate-100"
                                         }`}>
                                         {msg.image && (
-                                            <div className="mb-3 relative w-full h-40 rounded-xl overflow-hidden border-2 border-white/20">
+                                            <div className="mb-3 relative w-full h-48 rounded-xl overflow-hidden border-2 border-slate-100">
                                                 <Image src={msg.image} alt="Compito" fill className="object-cover" />
                                             </div>
                                         )}
@@ -342,15 +287,15 @@ export default function ChatPage() {
                                         {msg.role === "assistant" && msg.content && (
                                             <button
                                                 onClick={() => speak(msg.content)}
-                                                className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-[10px] transition-all"
-                                                title="Ascolta di nuovo"
+                                                className="ml-3 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-500 hover:bg-blue-100 transition-all shadow-sm"
+                                                title="Ascolta Geniotto"
                                             >
                                                 🔊
                                             </button>
                                         )}
                                     </div>
                                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest px-2">
-                                        {msg.role === "user" ? "Tu" : "Geniotto"} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {msg.role === "user" ? "Tu" : "Geniotto"}
                                     </span>
                                 </div>
                             </div>
@@ -358,41 +303,32 @@ export default function ChatPage() {
                         {isLoading && (
                             <div className="flex justify-start">
                                 <div className="bg-white p-4 rounded-[1.5rem] rounded-tl-none border border-slate-100 shadow-sm flex gap-1.5">
-                                    <div className="w-2 h-2 bg-primary/30 rounded-full animate-bounce" />
-                                    <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce [animation-delay:0.2s]" />
-                                    <div className="w-2 h-2 bg-primary/70 rounded-full animate-bounce [animation-delay:0.4s]" />
+                                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
                                 </div>
                             </div>
                         )}
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Input Area */}
-                    <div className="flex items-center gap-3 mt-auto">
+                    <div className="pt-4 flex items-center gap-3">
                         <input
                             type="file"
                             className="hidden"
                             ref={fileInputRef}
-                            id="file-upload"
                             accept="image/*"
                             onChange={handleFileUpload}
-                            aria-label="Carica foto del compito"
-                            title="Carica foto del compito"
                         />
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-14 h-14 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl flex items-center justify-center text-2xl transition-all active:scale-95 shadow-inner shrink-0"
-                            title="Carica foto compito"
+                            className="w-14 h-14 bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center text-2xl transition-all shadow-inner shrink-0"
                         >
                             📸
                         </button>
                         <button
                             onClick={startSpeechRecognition}
-                            className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all active:scale-95 shadow-inner shrink-0 ${isListening
-                                ? "bg-red-500 text-white animate-pulse"
-                                : "bg-slate-100 hover:bg-slate-200 text-slate-500"
-                                }`}
-                            title="Dettatura vocale"
+                            className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all shadow-inner shrink-0 ${isListening ? "bg-red-500 text-white animate-pulse" : "bg-slate-50 text-slate-400"}`}
                         >
                             {isListening ? "⏹️" : "🎙️"}
                         </button>
@@ -402,17 +338,15 @@ export default function ChatPage() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                                placeholder="Scrivi la tua domanda qui..."
-                                className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-6 pr-20 text-md font-bold placeholder:text-slate-300 focus:outline-none focus:border-primary/30 transition-all shadow-md"
-                                aria-label="Scrivi la tua domanda"
-                                title="Scrivi la tua domanda"
+                                placeholder="Scrivi al tuo amico Geniotto..."
+                                className="w-full bg-white border-2 border-slate-50 rounded-2xl py-4 pl-6 pr-20 text-md font-bold placeholder:text-slate-300 focus:outline-none focus:border-primary/20 transition-all shadow-md"
                             />
                             <button
                                 onClick={() => handleSend()}
                                 disabled={isLoading || !input.trim()}
-                                className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-blue-600 disabled:opacity-50 text-white px-5 rounded-xl font-black shadow-lg shadow-blue-100 hover:scale-105 active:scale-95 transition-all text-[11px] uppercase"
+                                className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-blue-600 disabled:opacity-50 text-white px-5 rounded-xl font-black shadow-lg hover:scale-105 active:scale-95 transition-all text-[11px] uppercase"
                             >
-                                Invia 🚀
+                                INVIA 🚀
                             </button>
                         </div>
                     </div>
