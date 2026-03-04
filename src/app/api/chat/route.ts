@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
             result = await getStreamResult("gemini-flash-latest");
         }
 
+        // Se l'utente è loggato, salviamo il messaggio dell'utente PRIMA dello streaming
         if (session?.user) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const userId = (session.user as any).id;
