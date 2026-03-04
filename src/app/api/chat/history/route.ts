@@ -16,6 +16,7 @@ export async function GET() {
             .from('chat_messages')
             .select('*')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .eq('user_id', (session.user as any).id)
             .order('created_at', { ascending: true })
             .limit(50);
