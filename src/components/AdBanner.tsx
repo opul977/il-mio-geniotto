@@ -27,7 +27,7 @@ export default function AdBanner({
             <ins
                 className="adsbygoogle"
                 style={{ display: 'block' }}
-                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // Sostituire con l'ID reale
+                data-ad-client="ca-pub-1319471899981485" // Sostituire con l'ID reale
                 data-ad-slot={dataAdSlot}
                 data-ad-format={dataAdFormat}
                 data-full-width-responsive={fullWidthResponsive.toString()}
