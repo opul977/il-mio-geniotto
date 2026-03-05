@@ -30,7 +30,7 @@ export default function RootLayout({
         {/* Google AdSense - Sostituire 'pub-XXXXXXXXXXXXXXXX' con l'ID reale quando disponibile */}
         <script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1319471899981485"
           crossOrigin="anonymous"
         ></script>
       </head>
