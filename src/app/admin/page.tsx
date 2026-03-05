@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export default async function AdminPage() {
                 </div>
             )}
             <div style={{ marginTop: '50px' }}>
-                <a href="/" style={{ color: '#0070f3' }}>Torna alla Home</a>
+                <Link href="/" style={{ color: '#0070f3' }}>Torna alla Home</Link>
             </div>
         </div>
     );
