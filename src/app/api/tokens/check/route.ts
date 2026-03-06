@@ -10,11 +10,25 @@ export async function GET(req: NextRequest) {
         // Cerca l'uso dei token per questo IP
         const { data: usage } = await supabase
             .from('guest_usage')
-            .select('tokens_remaining')
+            .select('tokens_remaining, last_used_at')
             .eq('ip_address', ip)
             .single();
 
         if (usage) {
+            const lastUsed = new Date(usage.last_used_at || new Date().toISOString());
+            const now = new Date();
+            const isNewDay = lastUsed.toDateString() !== now.toDateString();
+            const isOver24h = now.getTime() - lastUsed.getTime() > 24 * 60 * 60 * 1000;
+
+            if (isNewDay || isOver24h) {
+                // Reset tokens per il nuovo giorno
+                await supabase
+                    .from('guest_usage')
+                    .update({ tokens_remaining: 10, last_used_at: now.toISOString() })
+                    .eq('ip_address', ip);
+                return NextResponse.json({ tokens: 10 });
+            }
+
             return NextResponse.json({ tokens: usage.tokens_remaining });
         }
 

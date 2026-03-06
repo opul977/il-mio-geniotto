@@ -17,12 +17,29 @@ export async function POST(req: NextRequest) {
             // Controllo token per l'IP
             const { data: usage, error: usageError } = await supabase
                 .from('guest_usage')
-                .select('tokens_remaining')
+                .select('tokens_remaining, last_used_at')
                 .eq('ip_address', ip)
                 .single();
 
-            if (!usageError && usage && usage.tokens_remaining <= 0) {
-                return NextResponse.json({ error: "Hai esaurito i tuoi messaggi gratuiti! Registrati per continuare. 🚀" }, { status: 403 });
+            if (!usageError && usage) {
+                const lastUsed = new Date(usage.last_used_at || new Date().toISOString());
+                const now = new Date();
+                const isNewDay = lastUsed.toDateString() !== now.toDateString();
+                const isOver24h = now.getTime() - lastUsed.getTime() > 24 * 60 * 60 * 1000;
+
+                let currentTokens = usage.tokens_remaining;
+
+                if (isNewDay || isOver24h) {
+                    currentTokens = 10;
+                    await supabase
+                        .from('guest_usage')
+                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() } as any)
+                        .eq('ip_address', ip);
+                }
+
+                if (currentTokens <= 0) {
+                    return NextResponse.json({ error: "Hai esaurito i tuoi messaggi gratuiti! Torna domani o registrati per continuare. 🚀" }, { status: 403 });
+                }
             }
         }
 
