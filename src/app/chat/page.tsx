@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import RewardAdModal from "@/components/RewardAdModal";
 
 type Message = {
     role: "user" | "assistant";
@@ -56,6 +57,7 @@ export default function ChatPage() {
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isAudioEnabled, setIsAudioEnabled] = useState(false); // Default SPENTO come richiesto
+    const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -204,7 +206,7 @@ export default function ChatPage() {
         if ((!messageText.trim() && !imageFile) || isLoading) return;
 
         if (tokens <= 0 && !session) {
-            alert("Accedi per continuare a usare Geniotto senza limiti! 🚀");
+            setIsRewardModalOpen(true);
             return;
         }
 
@@ -262,6 +264,24 @@ export default function ChatPage() {
             setIsLoading(false);
         }
     };
+
+    // Auto-send initial query from URL
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+            if (query && !isLoading) {
+                // Clear the URL so refreshing doesn't send it again
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                // Small delay to ensure state is ready
+                setTimeout(() => {
+                    handleSend(query);
+                }, 500);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <main className="min-h-screen mesh-gradient-light flex flex-col">
@@ -408,6 +428,11 @@ export default function ChatPage() {
                     </div>
                 </div>
             </div>
+            <RewardAdModal
+                isOpen={isRewardModalOpen}
+                onClose={() => setIsRewardModalOpen(false)}
+                onRewardEarned={() => setTokens(prev => prev + 10)}
+            />
         </main>
     );
 }
