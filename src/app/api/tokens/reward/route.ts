@@ -1,20 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
     try {
-        const forwarded = req.headers.get("x-forwarded-for");
-        const ip = forwarded ? forwarded.split(/, /)[0] : "127.0.0.1";
+        const session = await getServerSession(authOptions);
 
-        // Verifica lo stato dell'IP
+        if (!session?.user) {
+            return NextResponse.json({ error: "Devi essere loggato per riscattare i premi! 🚀" }, { status: 401 });
+        }
+
+        const userId = (session.user as any).id;
+
+        // Verifica lo stato dell'utente
         const { data: usage, error: fetchError } = await supabase
-            .from('guest_usage')
+            .from('user_usage')
             .select('tokens_remaining, ads_watched_today, last_ad_watched_at')
-            .eq('ip_address', ip)
+            .eq('user_id', userId)
             .single();
 
         if (fetchError && fetchError.code !== 'PGRST116') {
-            console.error("Errore fetch usage per ads:", fetchError);
+            console.error("Errore fetch user usage per ads:", fetchError);
             return NextResponse.json({ error: "Errore di connessione al server." }, { status: 500 });
         }
 
@@ -23,13 +30,10 @@ export async function POST(req: NextRequest) {
         let lastAdWatched = new Date(0);
 
         if (usage) {
-            // Nota: Se `ads_watched_today` o `last_ad_watched_at` non esistono nel database,
-            // Supabase restituirà undefined. Questo blocco gestisce l'aggiornamento sicuro.
             lastAdWatched = usage.last_ad_watched_at ? new Date(usage.last_ad_watched_at) : new Date(0);
 
-            // Controlla se è un nuovo giorno rispetto all'ultimo ad visto
+            // Controlla se è un nuovo giorno
             const isNewDayForAds = lastAdWatched.toDateString() !== now.toDateString();
-
             adsWatchedToday = isNewDayForAds ? 0 : (usage.ads_watched_today || 0);
 
             if (adsWatchedToday >= 10) {
@@ -40,47 +44,38 @@ export async function POST(req: NextRequest) {
             const newAdsWatched = adsWatchedToday + 1;
 
             const { error: updateError } = await supabase
-                .from('guest_usage')
-                // Se la colonna non esiste nel DB, questa operazione potrebbe fallire, 
-                // la catturiamo nel try-catch
+                .from('user_usage')
                 .update({
                     tokens_remaining: newTokens,
                     ads_watched_today: newAdsWatched,
                     last_ad_watched_at: now.toISOString()
                 } as any)
-                .eq('ip_address', ip);
+                .eq('user_id', userId);
 
             if (updateError) {
-                // Fallback nel caso in cui le colonne degli ads non esistano ancora:
-                // Ignoriamo i limiti giornalieri per ora e aggiungiamo solo i token
-                console.warn("Possibile colonna mancante nel DB, applico fallback...", updateError);
-                await supabase
-                    .from('guest_usage')
-                    .update({ tokens_remaining: newTokens } as any)
-                    .eq('ip_address', ip);
+                console.error("Update user usage error:", updateError);
+                return NextResponse.json({ error: "Errore durante l'aggiornamento dei token." }, { status: 500 });
             }
 
             return NextResponse.json({ success: true, newTokens });
 
         } else {
-            // Se non esiste ancora l'IP, crea un nuovo record
+            // Se non esiste ancora l'uso, crealo
             const { error: insertError } = await supabase
-                .from('guest_usage')
+                .from('user_usage')
                 .insert([{
-                    ip_address: ip,
-                    tokens_remaining: 10, // il primo regalo
+                    user_id: userId,
+                    tokens_remaining: 10 + 10, // Base + premio
                     ads_watched_today: 1,
                     last_ad_watched_at: now.toISOString()
                 } as any]);
 
             if (insertError) {
-                // Fallback column check
-                await supabase
-                    .from('guest_usage')
-                    .insert([{ ip_address: ip, tokens_remaining: 10 }]);
+                console.error("Insert user usage error:", insertError);
+                return NextResponse.json({ error: "Errore durante la creazione del profilo uso." }, { status: 500 });
             }
 
-            return NextResponse.json({ success: true, newTokens: 10 });
+            return NextResponse.json({ success: true, newTokens: 20 });
         }
 
     } catch (error) {

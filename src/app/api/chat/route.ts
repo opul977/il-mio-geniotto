@@ -9,38 +9,44 @@ export async function POST(req: NextRequest) {
         const session = await getServerSession(authOptions);
         const apiKey = process.env.GEMINI_API_KEY;
 
-        // Ottieni l'IP dell'utente per il controllo token (se non loggato)
-        const forwarded = req.headers.get("x-forwarded-for");
-        const ip = forwarded ? forwarded.split(/, /)[0] : "127.0.0.1";
-
         if (!session?.user) {
-            // Controllo token per l'IP
-            const { data: usage, error: usageError } = await supabase
-                .from('guest_usage')
-                .select('tokens_remaining, last_used_at')
-                .eq('ip_address', ip)
-                .single();
+            return NextResponse.json({ error: "Devi essere registrato per chattare con Geniotto! 🚀" }, { status: 401 });
+        }
 
-            if (!usageError && usage) {
-                const lastUsed = new Date(usage.last_used_at || new Date().toISOString());
-                const now = new Date();
-                const isNewDay = lastUsed.toDateString() !== now.toDateString();
-                const isOver24h = now.getTime() - lastUsed.getTime() > 24 * 60 * 60 * 1000;
+        const userId = (session.user as any).id;
 
-                let currentTokens = usage.tokens_remaining;
+        // Controllo token per l'utente
+        const { data: usage, error: usageError } = await supabase
+            .from('user_usage')
+            .select('tokens_remaining, last_used_at')
+            .eq('user_id', userId)
+            .single();
 
-                if (isNewDay || isOver24h) {
-                    currentTokens = 10;
-                    await supabase
-                        .from('guest_usage')
-                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() } as any)
-                        .eq('ip_address', ip);
-                }
+        let currentTokens = usage?.tokens_remaining ?? 10;
+        const now = new Date();
 
-                if (currentTokens <= 0) {
-                    return NextResponse.json({ error: "Hai esaurito i tuoi messaggi gratuiti! Torna domani o registrati per continuare. 🚀" }, { status: 403 });
-                }
+        if (!usageError && usage) {
+            const lastUsed = new Date(usage.last_used_at || new Date().toISOString());
+            const isNewDay = lastUsed.toDateString() !== now.toDateString();
+            const isOver24h = now.getTime() - lastUsed.getTime() > 24 * 60 * 60 * 1000;
+
+            if (isNewDay || isOver24h) {
+                currentTokens = 10;
+                await supabase
+                    .from('user_usage')
+                    .update({ tokens_remaining: 10, last_used_at: now.toISOString() } as any)
+                    .eq('user_id', userId);
             }
+        } else if (usageError && usageError.code === 'PGRST116') {
+            // Crea record se non esiste
+            await supabase
+                .from('user_usage')
+                .insert([{ user_id: userId, tokens_remaining: 10, last_used_at: now.toISOString() }]);
+            currentTokens = 10;
+        }
+
+        if (currentTokens <= 0) {
+            return NextResponse.json({ error: "Hai esaurito i tuoi messaggi gratuiti! Ricaricali guardando uno sponsor o torna domani. 🚀" }, { status: 403 });
         }
 
         if (!apiKey) {
@@ -117,22 +123,20 @@ export async function POST(req: NextRequest) {
                             content: fullAssistantResponse,
                             level: level
                         }]);
-                    } else {
-                        // Se è un ospite, scaliamo i token dall'IP
+                        // Decrementiamo i token dall'account utente
                         const { data: currentUsage } = await supabase
-                            .from('guest_usage')
+                            .from('user_usage')
                             .select('tokens_remaining')
-                            .eq('ip_address', ip)
+                            .eq('user_id', userId)
                             .single();
 
-                        const currentTokens = currentUsage?.tokens_remaining ?? 10;
-                        const newTokens = Math.max(0, currentTokens - 1);
+                        const currentToks = currentUsage?.tokens_remaining ?? 10;
+                        const newTokens = Math.max(0, currentToks - 1);
 
                         await supabase
-                            .from('guest_usage')
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            .from('user_usage')
                             .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() } as any)
-                            .eq('ip_address', ip);
+                            .eq('user_id', userId);
                     }
 
                     controller.close();

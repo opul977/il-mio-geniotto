@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import RewardAdModal from "@/components/RewardAdModal";
+import AuthBlockModal from "@/components/AuthBlockModal";
 
 type Message = {
     role: "user" | "assistant";
@@ -58,12 +59,15 @@ export default function ChatPage() {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isAudioEnabled, setIsAudioEnabled] = useState(false); // Default SPENTO come richiesto
     const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Recupera i token iniziali dall'IP (se non loggato)
+    // Removed guest token check. Only logged-in users have tokens.
+
     useEffect(() => {
-        if (!session) {
+        if (session?.user) {
+            // Fetch Tokens
             fetch('/api/tokens/check')
                 .then(res => res.json())
                 .then(data => {
@@ -72,11 +76,8 @@ export default function ChatPage() {
                     }
                 })
                 .catch(err => console.error("Error fetching tokens:", err));
-        }
-    }, [session]);
 
-    useEffect(() => {
-        if (session?.user) {
+            // Fetch History
             fetch("/api/chat/history")
                 .then(res => res.json())
                 .then(data => {
@@ -205,7 +206,12 @@ export default function ChatPage() {
         const messageText = customText || input;
         if ((!messageText.trim() && !imageFile) || isLoading) return;
 
-        if (tokens <= 0 && !session) {
+        if (!session) {
+            setIsAuthModalOpen(true);
+            return;
+        }
+
+        if (tokens <= 0) {
             setIsRewardModalOpen(true);
             return;
         }
@@ -226,7 +232,14 @@ export default function ChatPage() {
                 })
             });
 
-            if (!response.ok) throw new Error("Errore del server");
+            if (!response.ok) {
+                const errorData = await response.json();
+                if (response.status === 403) {
+                    setIsRewardModalOpen(true);
+                    throw new Error("Token esauriti");
+                }
+                throw new Error(errorData.error || "Errore del server");
+            }
 
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
@@ -251,15 +264,18 @@ export default function ChatPage() {
                 });
             }
 
-            if (!session) {
-                setTokens(prev => prev - 1);
-            }
-        } catch (error) {
+            // Decrementa token localmente
+            setTokens(prev => prev - 1);
+        } catch (error: any) {
             console.error("Chat Error:", error);
-            setMessages(prev => [...prev, {
-                role: "assistant",
-                content: "Geniotto ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
-            }]);
+            if (error.message !== "Token esauriti") {
+                setMessages(prev => [...prev, {
+                    role: "assistant",
+                    content: error.message === "Unauthorized"
+                        ? "Ehi! Per parlare con me devi prima fare l'accesso! 🚀"
+                        : "Geniotto ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
+                }]);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -323,7 +339,7 @@ export default function ChatPage() {
                             <button onClick={() => setLevel("highschool")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "highschool" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"}`}>Superiori</button>
                         </div>
 
-                        {!session && (
+                        {session && (
                             <div className="bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-2">
                                 <span className="text-[10px] font-black text-amber-600">{tokens} PROVE RIMASTE</span>
                             </div>
@@ -432,6 +448,10 @@ export default function ChatPage() {
                 isOpen={isRewardModalOpen}
                 onClose={() => setIsRewardModalOpen(false)}
                 onRewardEarned={() => setTokens(prev => prev + 10)}
+            />
+            <AuthBlockModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
             />
         </main>
     );
