@@ -282,7 +282,7 @@ export default function SubjectsCarousel() {
     const subjects = getSubjects();
 
     return (
-        <section className="py-24 bg-soft-blue/30 relative overflow-hidden">
+        <section className="pt-8 pb-24 bg-soft-blue/30 relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col items-center mb-16 relative">
                     <h2 className="text-4xl md:text-5xl font-black mb-4">Per ogni materia, un aiuto speciale</h2>

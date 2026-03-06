@@ -37,7 +37,7 @@ export default function Hero() {
 
     return (
         <section
-            className="relative pt-44 pb-32 overflow-hidden mesh-gradient-light"
+            className="relative pt-32 pb-10 overflow-hidden mesh-gradient-light"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
         >
@@ -82,7 +82,7 @@ export default function Hero() {
                 </div>
 
                 {/* Mascot / Visual */}
-                <div className="relative z-10 lg:mt-24" ref={mascotRef}>
+                <div className="relative z-10 lg:mt-8" ref={mascotRef}>
                     {/* Speech Bubble */}
                     <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-30 transition-all duration-500 transform hover:scale-110">
                         <div className="bg-white/90 glass px-6 py-4 rounded-[2rem] rounded-bl-none shadow-2xl border-2 border-primary/20 relative animate-in fade-in slide-in-from-bottom-4 duration-700">
