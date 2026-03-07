@@ -103,9 +103,9 @@ export default function RewardAdModal({ isOpen, onClose, onRewardEarned }: Rewar
 
                 {/* Footer Actions */}
                 <div className="p-6 flex flex-col items-center">
-                    <p className="text-center text-slate-600 font-bold mb-6 text-sm">
+                    <p className="text-center text-slate-600 font-bold mb-6 text-sm uppercase tracking-tight">
                         Guarda lo sponsor fino alla fine per ricevere <br />
-                        <span className="text-primary text-xl font-black">10 Gettoni Extra! 🚀</span>
+                        <span className="text-primary text-xl font-black">10 Prove Extra con wolf.G! 🐺</span>
                     </p>
 
                     {errorMsg && (

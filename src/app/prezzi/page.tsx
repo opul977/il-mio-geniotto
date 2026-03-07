@@ -49,7 +49,7 @@ export default function PricingPage() {
                         Il tutor IA perfetto per <span className="text-primary italic">ogni studente</span>
                     </h1>
                     <p className="text-xl text-slate-500 font-bold max-w-2xl mx-auto leading-relaxed">
-                        Inizia gratis con i token omaggio o scegli un piano illimitato per sbloccare tutto il potenziale di Geniotto.
+                        Inizia gratis con i token omaggio o scegli un piano illimitato per sbloccare tutto il potenziale di <span className="text-slate-800 font-black tracking-tight">wolf.G</span>.
                     </p>
                 </div>
             </section>

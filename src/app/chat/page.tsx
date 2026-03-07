@@ -49,7 +49,7 @@ declare global {
 export default function ChatPage() {
     const { data: session } = useSession();
     const [messages, setMessages] = useState<Message[]>([
-        { role: "assistant", content: "Ciao! Io sono Geniotto, il tuo amico speciale! 🚀 Quale compito facciamo insieme oggi? Puoi anche caricarmi una foto dei tuoi esercizi!" }
+        { role: "assistant", content: "Ciao! Io sono wolf.G, il tuo amico speciale! 🐺 Quale compito facciamo insieme oggi? Puoi anche caricarmi una foto dei tuoi esercizi!" }
     ]);
     const [input, setInput] = useState("");
     const [level, setLevel] = useState<"primary" | "middle" | "highschool">("primary");
@@ -272,8 +272,8 @@ export default function ChatPage() {
                 setMessages(prev => [...prev, {
                     role: "assistant",
                     content: error.message === "Unauthorized"
-                        ? "Ehi! Per parlare con me devi prima fare l'accesso! 🚀"
-                        : "Geniotto ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
+                        ? "Ehi! Per parlare con me devi prima fare l'accesso! 🐺"
+                        : "wolf.G ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
                 }]);
             }
         } finally {
@@ -306,16 +306,16 @@ export default function ChatPage() {
             <div className="flex-1 max-w-5xl mx-auto w-full pt-32 pb-6 px-6 flex flex-col gap-4 h-[calc(100vh-2rem)] overflow-hidden">
                 <div className="flex flex-col sm:flex-row items-center justify-between bg-white/40 glass p-4 rounded-[2rem] gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="bg-primary p-2 rounded-xl shadow-lg">
-                            <svg width="32" height="32" viewBox="0 0 100 80" fill="none">
-                                <rect x="10" y="10" width="80" height="60" rx="20" fill="white" />
-                                <rect x="25" y="25" width="50" height="30" rx="10" fill="#1e293b" />
-                                <circle cx="40" cy="40" r="4" fill="#60a5fa" />
-                                <circle cx="60" cy="40" r="4" fill="#60a5fa" />
-                            </svg>
+                        <div className="relative w-12 h-12">
+                            <Image
+                                src="/logo.png"
+                                alt="wolf.G Logo"
+                                fill
+                                className="object-contain"
+                            />
                         </div>
                         <div className="flex flex-col">
-                            <h2 className="text-lg font-black text-slate-800">Geniotto AI</h2>
+                            <h2 className="text-xl font-black text-slate-800 tracking-tight">wolf.G AI</h2>
                             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                 {isSpeaking ? (
                                     <div className="flex items-center gap-2 text-emerald-600 animate-pulse">
@@ -379,14 +379,14 @@ export default function ChatPage() {
                                             <button
                                                 onClick={() => speak(msg.content)}
                                                 className="ml-3 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-500 hover:bg-blue-100 transition-all shadow-sm"
-                                                title="Ascolta Geniotto"
+                                                title="Ascolta wolf.G"
                                             >
                                                 🔊
                                             </button>
                                         )}
                                     </div>
                                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest px-2">
-                                        {msg.role === "user" ? "Tu" : "Geniotto"}
+                                        {msg.role === "user" ? "Tu" : "wolf.G"}
                                     </span>
                                 </div>
                             </div>
@@ -429,8 +429,8 @@ export default function ChatPage() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                                placeholder="Scrivi al tuo amico Geniotto..."
-                                aria-label="Messaggio per Geniotto"
+                                placeholder="Scrivi al tuo amico wolf.G..."
+                                aria-label="Messaggio per wolf.G"
                                 className="w-full bg-white border-2 border-slate-50 rounded-2xl py-4 pl-6 pr-20 text-md font-bold placeholder:text-slate-300 focus:outline-none focus:border-primary/20 transition-all shadow-md"
                             />
                             <button

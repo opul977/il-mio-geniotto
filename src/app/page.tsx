@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -6,30 +7,30 @@ export default function Home() {
       <Navbar />
 
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center pt-32">
-        <div className="relative w-64 h-64 mb-8 animate-float">
-          {/* Geniotto in costruzione */}
-          <div className="bg-primary p-6 rounded-[3rem] shadow-2xl relative z-10 border-4 border-white">
-            <svg width="150" height="120" viewBox="0 0 100 80" fill="none" className="mx-auto">
-              <rect x="10" y="10" width="80" height="60" rx="20" fill="white" />
-              <rect x="25" y="25" width="50" height="30" rx="10" fill="#1e293b" />
-              <circle cx="40" cy="40" r="4" fill="#60a5fa" />
-              <circle cx="60" cy="40" r="4" fill="#60a5fa" />
-              {/* Elmetto da cantiere */}
-              <path d="M20 15 Q50 -10 80 15" stroke="#fbbf24" strokeWidth="8" strokeLinecap="round" />
-            </svg>
+        <div className="relative w-64 h-64 mb-8 animate-float flex items-center justify-center">
+          {/* logo wolf.G */}
+          <div className="bg-white p-8 rounded-[3rem] shadow-2xl relative z-10 border-4 border-slate-100 w-full h-full flex items-center justify-center">
+            <div className="relative w-full h-full">
+              <Image
+                src="/logo.png"
+                alt="wolf.G Logo"
+                fill
+                className="object-contain"
+              />
+            </div>
           </div>
           <div className="absolute -bottom-4 -right-4 bg-amber-400 p-4 rounded-2xl shadow-lg border-4 border-white animate-bounce">
             <span className="text-3xl">🚧</span>
           </div>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-6 leading-tight">
-          Geniotto sta mettendo <br /> il <span className="text-primary italic">papillon!</span> 🎀
+        <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-6 leading-tight uppercase tracking-tighter">
+          wolf.G sta mettendo <br /> il <span className="text-primary italic">papillon!</span> 🎀
         </h1>
 
         <p className="text-xl md:text-2xl text-slate-500 font-bold max-w-2xl mb-10 leading-relaxed">
           Stiamo lavorando per rendere l&apos;esperienza ancora più magica.
-          Il lancio ufficiale sul nuovo dominio <span className="text-slate-800 underline decoration-primary/30">ilmiogeniotto.it</span> è quasi pronto!
+          Il lancio ufficiale di <span className="text-slate-800 underline decoration-primary/30 font-black tracking-tight">wolf.G</span> è quasi pronto!
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center">
@@ -60,7 +61,7 @@ export default function Home() {
       </div>
 
       <footer className="p-8 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
-        © 2026 ilmiogeniotto.it - Il tuo super amico per i compiti
+        © 2026 wolf.G - Semplifica lo studio con l&apos;IA
       </footer>
     </main>
   );

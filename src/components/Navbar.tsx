@@ -14,12 +14,17 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto flex items-center justify-between bg-white/80 backdrop-blur-xl border border-white/20 shadow-lg rounded-3xl px-8 py-4">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white text-xl shadow-lg group-hover:rotate-12 transition-transform">
-                        🚀
+                    <div className="relative w-12 h-12 group-hover:scale-110 transition-transform">
+                        <Image
+                            src="/logo.png"
+                            alt="wolf.G Logo"
+                            fill
+                            className="object-contain"
+                        />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-xl font-black tracking-tight text-slate-800 leading-none">Il Mio</span>
-                        <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Geniotto</span>
+                        <span className="text-2xl font-black tracking-tight text-slate-800 leading-none">wolf.G</span>
+                        <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Semplifica lo studio</span>
                     </div>
                 </Link>
 
