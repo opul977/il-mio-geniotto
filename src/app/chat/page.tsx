@@ -63,28 +63,25 @@ export default function ChatPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Removed guest token check. Only logged-in users have tokens.
-
     useEffect(() => {
-        if (session?.user) {
-            // Fetch Tokens
-            fetch('/api/tokens/check')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.tokens !== undefined) {
-                        setTokens(data.tokens);
-                    }
-                })
-                .catch(err => console.error("Error fetching tokens:", err));
+        // Fetch Tokens (for both Guests and Logged-in Users)
+        fetch('/api/tokens/check')
+            .then(res => res.json())
+            .then(data => {
+                if (data.tokens !== undefined) {
+                    setTokens(data.tokens);
+                }
+            })
+            .catch(err => console.error("Error fetching tokens:", err));
 
-            // Fetch History
+        if (session?.user) {
+            // Fetch History only for logged-in users
             fetch("/api/chat/history")
                 .then(res => res.json())
                 .then(data => {
                     if (data.messages && data.messages.length > 0) {
                         setMessages([
                             { role: "assistant", content: "Ciao! Bentornato! Ecco i nostri ultimi compiti insieme: 👇" },
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             ...data.messages.map((m: any) => ({
                                 role: m.role,
                                 content: m.content,
@@ -206,13 +203,12 @@ export default function ChatPage() {
         const messageText = customText || input;
         if ((!messageText.trim() && !imageFile) || isLoading) return;
 
-        if (!session) {
-            setIsAuthModalOpen(true);
-            return;
-        }
-
         if (tokens <= 0) {
-            setIsRewardModalOpen(true);
+            if (!session) {
+                setIsAuthModalOpen(true);
+            } else {
+                setIsRewardModalOpen(true);
+            }
             return;
         }
 
@@ -235,7 +231,11 @@ export default function ChatPage() {
             if (!response.ok) {
                 const errorData = await response.json();
                 if (response.status === 403) {
-                    setIsRewardModalOpen(true);
+                    if (errorData.code === "GUEST_LIMIT_REACHED") {
+                        setIsAuthModalOpen(true);
+                    } else {
+                        setIsRewardModalOpen(true);
+                    }
                     throw new Error("Token esauriti");
                 }
                 throw new Error(errorData.error || "Errore del server");
@@ -339,11 +339,11 @@ export default function ChatPage() {
                             <button onClick={() => setLevel("highschool")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "highschool" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"}`}>Superiori</button>
                         </div>
 
-                        {session && (
-                            <div className="bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-2">
-                                <span className="text-[10px] font-black text-amber-600">{tokens} PROVE RIMASTE</span>
-                            </div>
-                        )}
+                        <div className="bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                            <span className="text-[10px] font-black text-amber-600">
+                                {tokens} {session ? "PROVE RIMASTE" : "PROVE GUEST"}
+                            </span>
+                        </div>
 
                         <button
                             onClick={() => {

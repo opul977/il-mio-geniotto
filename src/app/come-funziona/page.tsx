@@ -57,6 +57,40 @@ export default function HowItWorks() {
                         ))}
                     </div>
 
+                    {/* New Section: Reasoning Levels */}
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6">
+                            Un linguaggio per ogni <span className="text-primary italic">età</span>
+                        </h2>
+                        <p className="text-xl text-slate-500 font-bold max-w-2xl mx-auto">
+                            Geniotto non parla a tutti nello stesso modo. Adatta il suo ragionamento in base al tuo livello scolastico!
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
+                        <div className="bg-blue-50/50 border-2 border-blue-100 p-8 rounded-[2.5rem] flex flex-col items-center text-center group hover:bg-white hover:shadow-xl transition-all duration-300">
+                            <div className="text-5xl mb-6 group-hover:scale-125 transition-transform">🎒</div>
+                            <h4 className="text-xl font-black text-blue-600 mb-4">SCUOLA PRIMARIA</h4>
+                            <p className="text-slate-600 font-bold text-sm leading-relaxed">
+                                Parole semplici, tanti esempi pratici e un tono incoraggiante. Spieghiamo i concetti come se stessimo giocando insieme!
+                            </p>
+                        </div>
+                        <div className="bg-orange-50/50 border-2 border-orange-100 p-8 rounded-[2.5rem] flex flex-col items-center text-center group hover:bg-white hover:shadow-xl transition-all duration-300">
+                            <div className="text-5xl mb-6 group-hover:scale-125 transition-transform">🎓</div>
+                            <h4 className="text-xl font-black text-orange-600 mb-4">SCUOLA MEDIA</h4>
+                            <p className="text-slate-600 font-bold text-sm leading-relaxed">
+                                Un approccio più strutturato. Guidiamo lo studente passo dopo passo nella risoluzione, stimolando la logica e l&apos;autonomia.
+                            </p>
+                        </div>
+                        <div className="bg-indigo-50/50 border-2 border-indigo-100 p-8 rounded-[2.5rem] flex flex-col items-center text-center group hover:bg-white hover:shadow-xl transition-all duration-300">
+                            <div className="text-5xl mb-6 group-hover:scale-125 transition-transform">🏛️</div>
+                            <h4 className="text-xl font-black text-secondary mb-4">SCUOLA SUPERIORE</h4>
+                            <p className="text-slate-600 font-bold text-sm leading-relaxed">
+                                Analisi approfondite, terminologia tecnica corretta e collegamenti interdisciplinari per prepararsi al meglio alle verifiche.
+                            </p>
+                        </div>
+                    </div>
+
                     {/* Call to action card */}
                     <div className="bg-slate-900 rounded-[4rem] p-12 md:p-20 text-center relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />
