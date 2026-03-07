@@ -82,7 +82,7 @@ export default function ChatPage() {
                     if (data.messages && data.messages.length > 0) {
                         setMessages([
                             { role: "assistant", content: "Ciao! Bentornato! Ecco i nostri ultimi compiti insieme: 👇" },
-                            ...data.messages.map((m: any) => ({
+                            ...data.messages.map((m: { role: "user" | "assistant", content: string, image_url: string }) => ({
                                 role: m.role,
                                 content: m.content,
                                 image: m.image_url
@@ -266,12 +266,13 @@ export default function ChatPage() {
 
             // Decrementa token localmente
             setTokens(prev => prev - 1);
-        } catch (error: any) {
-            console.error("Chat Error:", error);
-            if (error.message !== "Token esauriti") {
+        } catch (error: unknown) {
+            const err = error as Error;
+            console.error("Chat Error:", err);
+            if (err.message !== "Token esauriti") {
                 setMessages(prev => [...prev, {
                     role: "assistant",
-                    content: error.message === "Unauthorized"
+                    content: err.message === "Unauthorized"
                         ? "Ehi! Per parlare con me devi prima fare l'accesso! 🐺"
                         : "wolf.G ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
                 }]);

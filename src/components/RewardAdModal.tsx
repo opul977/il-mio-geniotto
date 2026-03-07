@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 
 interface RewardAdModalProps {
     isOpen: boolean;
@@ -50,6 +49,7 @@ export default function RewardAdModal({ isOpen, onClose, onRewardEarned }: Rewar
                 setErrorMsg(data.error || "Errore durante il riscatto.");
             }
         } catch (err) {
+            console.error("Reward claim error:", err);
             setErrorMsg("Impossibile connettersi al server.");
         } finally {
             setIsLoading(false);

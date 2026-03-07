@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -11,7 +11,7 @@ export async function POST() {
             return NextResponse.json({ error: "Devi essere loggato per riscattare i premi! 🚀" }, { status: 401 });
         }
 
-        const userId = (session.user as any).id;
+        const userId = (session.user as { id: string }).id;
 
         // Verifica lo stato dell'utente
         const { data: usage, error: fetchError } = await supabase
@@ -49,7 +49,7 @@ export async function POST() {
                     tokens_remaining: newTokens,
                     ads_watched_today: newAdsWatched,
                     last_ad_watched_at: now.toISOString()
-                } as any)
+                })
                 .eq('user_id', userId);
 
             if (updateError) {
@@ -68,7 +68,7 @@ export async function POST() {
                     tokens_remaining: 10 + 10, // Base + premio
                     ads_watched_today: 1,
                     last_ad_watched_at: now.toISOString()
-                } as any]);
+                }]);
 
             if (insertError) {
                 console.error("Insert user usage error:", insertError);

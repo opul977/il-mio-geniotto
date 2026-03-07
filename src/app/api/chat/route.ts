@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const now = new Date();
 
         if (session?.user) {
-            userId = (session.user as any).id;
+            userId = (session.user as { id: string }).id;
             const { data: usage, error: usageError } = await supabase
                 .from('user_usage')
                 .select('tokens_remaining, last_used_at')
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
                     currentTokens = 10;
                     await supabase
                         .from('user_usage')
-                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() } as any)
+                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() })
                         .eq('user_id', userId);
                 }
             } else if (usageError?.code === 'PGRST116') {
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
                     currentTokens = 10;
                     await supabase
                         .from('guest_usage')
-                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() } as any)
+                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() })
                         .eq('ip_address', guestIp);
                 }
             } else if (usageError?.code === 'PGRST116') {
@@ -105,8 +105,7 @@ export async function POST(req: NextRequest) {
                 ? [systemPrompt + " Analizza: " + (message || "Cosa vedi?"), { inlineData: { data: image.split(",")[1], mimeType: image.split(";")[0].split(":")[1] || "image/jpeg" } }]
                 : systemPrompt + " Domanda: " + message;
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return await model.generateContentStream(prompt as any);
+            return await model.generateContentStream(prompt);
         };
 
         let result;
@@ -119,8 +118,7 @@ export async function POST(req: NextRequest) {
 
         // Se l'utente è loggato, salviamo il messaggio dell'utente PRIMA dello streaming
         if (session?.user) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const userId = (session.user as any).id;
+            const userId = (session.user as { id: string }).id;
             await supabase.from('chat_messages').insert([{
                 user_id: userId,
                 role: 'user',
@@ -133,12 +131,10 @@ export async function POST(req: NextRequest) {
         const stream = new ReadableStream({
             async start(controller) {
                 const encoder = new TextEncoder();
-                let fullAssistantResponse = "";
 
                 try {
                     for await (const chunk of result.stream) {
                         const chunkText = chunk.text();
-                        fullAssistantResponse += chunkText;
                         controller.enqueue(encoder.encode(chunkText));
                     }
 
@@ -153,7 +149,7 @@ export async function POST(req: NextRequest) {
                         const newTokens = Math.max(0, (currentUsage?.tokens_remaining ?? 10) - 1);
                         await supabase
                             .from('user_usage')
-                            .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() } as any)
+                            .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() })
                             .eq('user_id', userId);
                     } else if (guestIp) {
                         const { data: currentUsage } = await supabase
@@ -164,7 +160,7 @@ export async function POST(req: NextRequest) {
                         const newTokens = Math.max(0, (currentUsage?.tokens_remaining ?? 10) - 1);
                         await supabase
                             .from('guest_usage')
-                            .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() } as any)
+                            .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() })
                             .eq('ip_address', guestIp);
                     }
 

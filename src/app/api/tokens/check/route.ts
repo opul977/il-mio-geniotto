@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
         const session = await getServerSession(authOptions);
 
         if (session?.user) {
-            const userId = (session.user as any).id;
+            const userId = (session.user as { id: string }).id;
 
             // Cerca l'uso dei token per questo Utente
             const { data: usage } = await supabase
