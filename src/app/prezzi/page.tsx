@@ -65,15 +65,15 @@ export default function PricingPage() {
                         </div>
                         <h2 className="text-3xl font-black text-slate-800">Piano Token Gratuiti</h2>
                         <p className="text-slate-500 font-medium text-lg leading-relaxed">
-                            Ricevi <span className="text-emerald-600 font-bold">20 Token omaggio</span> al primo accesso.
-                            Hai finito i crediti? Guarda una breve pubblicità per riceverne <span className="font-bold text-emerald-600">1 omaggio</span>!
+                            Ricevi <span className="text-emerald-600 font-bold">10 Token omaggio</span> al primo accesso.
+                            Hai finito i crediti? Guarda una breve pubblicità per riceverne <span className="font-bold text-emerald-600">10 omaggio</span>!
                         </p>
                         <div className="flex flex-wrap gap-4 pt-4">
                             <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-emerald-200 transition-all hover:scale-105 active:scale-95">
-                                Riscatta 20 Token 🎁
+                                Riscatta 10 Token 🎁
                             </button>
                             <button className="bg-white border-2 border-slate-100 hover:border-primary/30 text-slate-600 px-8 py-4 rounded-2xl font-black transition-all flex items-center gap-3">
-                                📺 Guarda Pubblicità (+1)
+                                📺 Guarda Pubblicità (+10)
                             </button>
                         </div>
                     </div>
