@@ -14,17 +14,12 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto flex items-center justify-between bg-white/80 backdrop-blur-xl border border-white/20 shadow-lg rounded-3xl px-8 py-4">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-3 group">
-                    <div className="relative w-12 h-12 group-hover:scale-110 transition-transform">
-                        <Image
-                            src="/geniotto-head.png"
-                            alt="Geniotto"
-                            fill
-                            className="object-contain"
-                        />
+                    <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
+                        <span className="text-2xl">🚀</span>
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-2xl font-black tracking-tight text-slate-800 leading-none">Geniotto</span>
-                        <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Semplifica lo studio</span>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">Il Mio</span>
+                        <span className="text-xl font-black tracking-tight text-slate-800 leading-none uppercase">Geniotto</span>
                     </div>
                 </Link>
 

@@ -1,5 +1,4 @@
 import Navbar from "@/components/Navbar";
-import Image from "next/image";
 
 export default function Home() {
   return (
@@ -7,15 +6,24 @@ export default function Home() {
       <Navbar />
 
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center pt-32">
-        {/* Geniotto Card */}
+        {/* Geniotto Mascot Card */}
         <div className="relative w-64 h-64 mb-8 animate-float flex items-center justify-center">
-          <div className="bg-white p-6 rounded-[3rem] shadow-2xl relative z-10 border-4 border-slate-100 w-full h-full flex items-center justify-center">
-            <Image
-              src="/geniotto-head.png"
-              alt="Geniotto"
-              fill
-              className="object-contain p-4"
-            />
+          <div className="bg-primary rounded-[3rem] shadow-2xl shadow-blue-300 relative z-10 w-full h-full flex items-center justify-center">
+            {/* Robot Mascot (Foto 1 Style) */}
+            <div className="relative w-48 h-36">
+              {/* Top Handle (Yellow) */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-16 bg-amber-400 rounded-t-[4rem]" />
+
+              {/* Main Head (White) */}
+              <div className="absolute bottom-0 inset-x-0 h-28 bg-white rounded-[2.5rem] flex items-center justify-center p-4">
+                {/* Face/Screen (Dark) */}
+                <div className="w-full h-full bg-slate-900 rounded-[1.5rem] flex items-center justify-center gap-4">
+                  {/* Eyes (Glowing Blue/White) */}
+                  <div className="w-4 h-4 bg-sky-400 rounded-full shadow-[0_0_10px_rgba(56,189,248,0.8)]" />
+                  <div className="w-4 h-4 bg-sky-400 rounded-full shadow-[0_0_10px_rgba(56,189,248,0.8)]" />
+                </div>
+              </div>
+            </div>
           </div>
           <div className="absolute -bottom-4 -right-4 bg-amber-400 p-4 rounded-2xl shadow-lg border-4 border-white animate-bounce">
             <span className="text-3xl">🚧</span>
