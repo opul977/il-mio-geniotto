@@ -49,7 +49,7 @@ declare global {
 export default function ChatPage() {
     const { data: session } = useSession();
     const [messages, setMessages] = useState<Message[]>([
-        { role: "assistant", content: "Ciao! Io sono wolf.G, il tuo amico speciale! 🐺 Quale compito facciamo insieme oggi? Puoi anche caricarmi una foto dei tuoi esercizi!" }
+        { role: "assistant", content: "Ciao! Io sono Geniotto, il tuo amico speciale! 🐺 Quale compito facciamo insieme oggi? Puoi anche caricarmi una foto dei tuoi esercizi!" }
     ]);
     const [input, setInput] = useState("");
     const [level, setLevel] = useState<"primary" | "middle" | "highschool">("primary");
@@ -316,7 +316,7 @@ export default function ChatPage() {
                             />
                         </div>
                         <div className="flex flex-col">
-                            <h2 className="text-xl font-black text-slate-800 tracking-tight">wolf.G AI</h2>
+                            <h2 className="text-xl font-black text-slate-800 tracking-tight">Geniotto AI</h2>
                             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                 {isSpeaking ? (
                                     <div className="flex items-center gap-2 text-emerald-600 animate-pulse">
@@ -430,8 +430,8 @@ export default function ChatPage() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                                placeholder="Scrivi al tuo amico wolf.G..."
-                                aria-label="Messaggio per wolf.G"
+                                placeholder="Scrivi al tuo amico Geniotto..."
+                                aria-label="Messaggio per Geniotto"
                                 className="w-full bg-white border-2 border-slate-50 rounded-2xl py-4 pl-6 pr-20 text-md font-bold placeholder:text-slate-300 focus:outline-none focus:border-primary/20 transition-all shadow-md"
                             />
                             <button

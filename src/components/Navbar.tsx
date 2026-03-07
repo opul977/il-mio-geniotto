@@ -23,7 +23,7 @@ export default function Navbar() {
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-2xl font-black tracking-tight text-slate-800 leading-none">wolf.G</span>
+                        <span className="text-2xl font-black tracking-tight text-slate-800 leading-none">Geniotto</span>
                         <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Semplifica lo studio</span>
                     </div>
                 </Link>

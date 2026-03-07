@@ -25,12 +25,12 @@ export default function Home() {
         </div>
 
         <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-6 leading-tight uppercase tracking-tighter">
-          wolf.G sta mettendo <br /> il <span className="text-primary italic">papillon!</span> 🎀
+          Geniotto sta mettendo <br /> il <span className="text-primary italic">papillon!</span> 🎀
         </h1>
 
         <p className="text-xl md:text-2xl text-slate-500 font-bold max-w-2xl mb-10 leading-relaxed">
           Stiamo lavorando per rendere l&apos;esperienza ancora più magica.
-          Il lancio ufficiale di <span className="text-slate-800 underline decoration-primary/30 font-black tracking-tight">wolf.G</span> è quasi pronto!
+          Il lancio ufficiale di <span className="text-slate-800 underline decoration-primary/30 font-black tracking-tight">Geniotto</span> è quasi pronto!
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center">
@@ -61,7 +61,7 @@ export default function Home() {
       </div>
 
       <footer className="p-8 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
-        © 2026 wolf.G - Semplifica lo studio con l&apos;IA
+        © 2026 Geniotto - Semplifica lo studio con l&apos;IA
       </footer>
     </main>
   );

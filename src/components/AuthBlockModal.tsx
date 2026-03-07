@@ -16,7 +16,7 @@ export default function AuthBlockModal({ isOpen, onClose }: AuthBlockModalProps)
                 <div className="text-6xl mb-6">🎁</div>
                 <h3 className="text-2xl font-black text-slate-800 mb-4">Hai finito le prove gratis!</h3>
                 <p className="text-slate-600 font-bold mb-8 leading-relaxed">
-                    Ti piace studiare con <span className="text-primary font-black">wolf.G</span>? Registrati ora per ricevere subito <span className="text-primary font-black">altre 10 monete gratuite</span> e continuare a chattare!
+                    Ti piace studiare con <span className="text-primary font-black">Geniotto</span>? Registrati ora per ricevere subito <span className="text-primary font-black">altre 10 monete gratuite</span> e continuare a chattare!
                 </p>
 
                 <div className="flex flex-col gap-4">

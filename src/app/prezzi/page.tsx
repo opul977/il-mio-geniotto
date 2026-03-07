@@ -8,7 +8,7 @@ const pricingPlans = [
         name: "Giornaliero",
         price: "1.99€",
         duration: "/24 ore",
-        description: "Perfetto per un'emergenza compiti o per provare wolf.G senza limiti per un giorno intero.",
+        description: "Perfetto per un'emergenza compiti o per provare Geniotto senza limiti per un giorno intero.",
         features: ["Accesso Illimitato 24h", "Tutte le materie incluse", "Nessuna pubblicità", "Risposte ultra-rapide"],
         color: "bg-blue-50 border-blue-100 text-blue-600",
         buttonColor: "bg-blue-600 hover:bg-blue-700",
@@ -30,7 +30,7 @@ const pricingPlans = [
         price: "39.99€",
         duration: "/mese",
         description: "La scelta definitiva per un intero mese di studio senza stress e risultati garantiti.",
-        features: ["Massimo risparmio mensile", "Assistenza Premium dedicata", "Tutorial esclusivi sull'uso dell'IA", "Badge 'Membro Elite wolf.G'"],
+        features: ["Massimo risparmio mensile", "Assistenza Premium dedicata", "Tutorial esclusivi sull'uso dell'IA", "Badge 'Membro Elite Geniotto'"],
         color: "bg-amber-50 border-amber-100 text-amber-600",
         buttonColor: "bg-amber-500 hover:bg-amber-600",
         icon: "👑"
@@ -49,7 +49,7 @@ export default function PricingPage() {
                         Il tutor IA perfetto per <span className="text-primary italic">ogni studente</span>
                     </h1>
                     <p className="text-xl text-slate-500 font-bold max-w-2xl mx-auto leading-relaxed">
-                        Inizia gratis con i token omaggio o scegli un piano illimitato per sbloccare tutto il potenziale di <span className="text-slate-800 font-black tracking-tight">wolf.G</span>.
+                        Inizia gratis con i token omaggio o scegli un piano illimitato per sbloccare tutto il potenziale di <span className="text-slate-800 font-black tracking-tight">Geniotto</span>.
                     </p>
                 </div>
             </section>

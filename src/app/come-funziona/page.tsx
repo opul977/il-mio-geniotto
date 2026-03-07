@@ -38,7 +38,7 @@ export default function HowItWorks() {
                         </h1>
                         <p className="text-2xl text-slate-500 font-bold max-w-3xl mx-auto uppercase tracking-tight">
                             Abbiamo creato un&apos;intelligenza artificiale che non ti dà solo la risposta,
-                            ma ti insegna a ragionare. Ecco <span className="text-primary font-black">wolf.G</span> in 3 semplici passi! ✨
+                            ma ti insegna a ragionare. Ecco <span className="text-primary font-black">Geniotto</span> in 3 semplici passi! ✨
                         </p>
                     </div>
 
@@ -63,7 +63,7 @@ export default function HowItWorks() {
                             Un linguaggio per ogni <span className="text-primary italic">età</span>
                         </h2>
                         <p className="text-xl text-slate-500 font-bold max-w-2xl mx-auto">
-                            wolf.G non parla a tutti nello stesso modo. Adatta il suo ragionamento in base al tuo livello scolastico!
+                            Geniotto non parla a tutti nello stesso modo. Adatta il suo ragionamento in base al tuo livello scolastico!
                         </p>
                     </div>
 
