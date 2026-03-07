@@ -99,17 +99,15 @@ export default function Hero() {
                         {/* Animated backdrop circles */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-highlight/5 to-accent/10 opacity-50 rounded-[4rem]" />
 
-                        {/* Mascot / Visual (Cropped Wolf Face) */}
+                        {/* Mascot / Visual (Geniotto Wolf Head) */}
                         <div className="relative z-20 floating group-hover:scale-105 transition-all duration-700 ease-out"
                             style={{ transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)` }}>
-                            <div className="w-64 h-64 bg-white rounded-[3rem] shadow-2xl relative overflow-hidden border-4 border-slate-100 flex items-center justify-center p-8">
-                                <div className="absolute inset-x-0 -top-4 -bottom-12">
-                                    <img
-                                        src="/logo.png"
-                                        alt="Geniotto Logo"
-                                        className="w-full h-full object-contain object-top scale-125"
-                                    />
-                                </div>
+                            <div className="w-64 h-64 bg-white rounded-[3rem] shadow-2xl border-4 border-slate-100 flex items-center justify-center p-6">
+                                <img
+                                    src="/geniotto-head.png"
+                                    alt="Geniotto"
+                                    className="w-full h-full object-contain"
+                                />
                             </div>
                         </div>
 

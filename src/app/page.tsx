@@ -9,15 +9,13 @@ export default function Home() {
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center pt-32">
         <div className="relative w-64 h-64 mb-8 animate-float flex items-center justify-center">
           {/* logo Geniotto */}
-          <div className="bg-white p-8 rounded-[3rem] shadow-2xl relative z-10 border-4 border-slate-100 w-full h-full flex items-center justify-center overflow-hidden">
-            <div className="absolute -inset-4 bottom-[-40px]">
-              <Image
-                src="/logo.png"
-                alt="Geniotto Logo"
-                fill
-                className="object-contain object-top scale-110"
-              />
-            </div>
+          <div className="bg-white p-6 rounded-[3rem] shadow-2xl relative z-10 border-4 border-slate-100 w-full h-full flex items-center justify-center">
+            <Image
+              src="/geniotto-head.png"
+              alt="Geniotto"
+              fill
+              className="object-contain p-4"
+            />
           </div>
           <div className="absolute -bottom-4 -right-4 bg-amber-400 p-4 rounded-2xl shadow-lg border-4 border-white animate-bounce">
             <span className="text-3xl">🚧</span>

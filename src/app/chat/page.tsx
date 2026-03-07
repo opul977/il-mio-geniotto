@@ -309,8 +309,8 @@ export default function ChatPage() {
                     <div className="flex items-center gap-3">
                         <div className="relative w-12 h-12">
                             <Image
-                                src="/logo.png"
-                                alt="wolf.G Logo"
+                                src="/geniotto-head.png"
+                                alt="Geniotto Logo"
                                 fill
                                 className="object-contain"
                             />
