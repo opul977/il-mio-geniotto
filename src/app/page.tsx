@@ -1,5 +1,4 @@
 import Navbar from "@/components/Navbar";
-import Image from "next/image";
 
 export default function Home() {
   return (
@@ -7,15 +6,26 @@ export default function Home() {
       <Navbar />
 
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center pt-32">
+        {/* Geniotto Card - Robot Mascot */}
         <div className="relative w-64 h-64 mb-8 animate-float flex items-center justify-center">
-          {/* logo Geniotto */}
-          <div className="bg-white p-6 rounded-[3rem] shadow-2xl relative z-10 border-4 border-slate-100 w-full h-full flex items-center justify-center">
-            <Image
-              src="/geniotto-head.png"
-              alt="Geniotto"
-              fill
-              className="object-contain p-4"
-            />
+          <div className="bg-primary rounded-[3rem] shadow-2xl shadow-blue-300 relative z-10 w-full h-full flex flex-col items-center justify-center gap-2">
+            {/* Robot Face */}
+            <div className="w-28 h-28 bg-white/20 rounded-3xl flex items-center justify-center relative">
+              <div className="w-24 h-20 bg-slate-900 rounded-2xl flex items-center justify-center relative">
+                {/* Eyes */}
+                <div className="flex gap-4">
+                  <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                    <div className="w-2.5 h-2.5 bg-slate-900 rounded-full" />
+                  </div>
+                  <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                    <div className="w-2.5 h-2.5 bg-slate-900 rounded-full" />
+                  </div>
+                </div>
+              </div>
+              {/* Antenna */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-2 h-4 bg-white/80 rounded-full" />
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-4 h-4 bg-amber-400 rounded-full border-2 border-white" />
+            </div>
           </div>
           <div className="absolute -bottom-4 -right-4 bg-amber-400 p-4 rounded-2xl shadow-lg border-4 border-white animate-bounce">
             <span className="text-3xl">🚧</span>
@@ -59,7 +69,7 @@ export default function Home() {
       </div>
 
       <footer className="p-8 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
-        © 2026 Geniotto - Semplifica lo studio con l&apos;IA
+        © 2026 <span className="text-slate-500">wolf.G AI</span> · Geniotto — Semplifica lo studio con l&apos;IA
       </footer>
     </main>
   );
