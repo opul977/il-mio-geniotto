@@ -8,14 +8,14 @@ export default function Home() {
 
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center pt-32">
         <div className="relative w-64 h-64 mb-8 animate-float flex items-center justify-center">
-          {/* logo wolf.G */}
-          <div className="bg-white p-8 rounded-[3rem] shadow-2xl relative z-10 border-4 border-slate-100 w-full h-full flex items-center justify-center">
-            <div className="relative w-full h-full">
+          {/* logo Geniotto */}
+          <div className="bg-white p-8 rounded-[3rem] shadow-2xl relative z-10 border-4 border-slate-100 w-full h-full flex items-center justify-center overflow-hidden">
+            <div className="absolute -inset-4 bottom-[-40px]">
               <Image
                 src="/logo.png"
-                alt="wolf.G Logo"
+                alt="Geniotto Logo"
                 fill
-                className="object-contain"
+                className="object-contain object-top scale-110"
               />
             </div>
           </div>

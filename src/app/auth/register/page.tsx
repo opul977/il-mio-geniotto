@@ -112,7 +112,7 @@ export default function RegisterPage() {
                     <p className="mt-8 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">
                         Hai già un account?{" "}
                         <Link href="/auth/login" className="text-primary hover:underline">
-                            Accedi qui 🚀
+                            Accedi qui 🐺
                         </Link>
                     </p>
                 </div>

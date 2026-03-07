@@ -95,7 +95,7 @@ export default function PricingPage() {
                             >
                                 {plan.popular && (
                                     <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-black px-6 py-2 rounded-full shadow-lg uppercase tracking-widest">
-                                        🚀 Consigliato dalle Famiglie
+                                        🐺 Consigliato dalle Famiglie
                                     </div>
                                 )}
 

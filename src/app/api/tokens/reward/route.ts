@@ -8,7 +8,7 @@ export async function POST() {
         const session = await getServerSession(authOptions);
 
         if (!session?.user) {
-            return NextResponse.json({ error: "Devi essere loggato per riscattare i premi! 🚀" }, { status: 401 });
+            return NextResponse.json({ error: "Devi essere loggato per riscattare i premi! 🐺" }, { status: 401 });
         }
 
         const userId = (session.user as { id: string }).id;

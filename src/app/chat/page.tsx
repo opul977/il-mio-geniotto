@@ -326,7 +326,7 @@ export default function ChatPage() {
                                 ) : (
                                     <>
                                         <span className="w-2 h-2 bg-slate-300 rounded-full" />
-                                        {session ? `Ciao, ${session.user?.name?.split(' ')[0]}!` : "Modalità Ospite 🚀"}
+                                        {session ? `Ciao, ${session.user?.name?.split(' ')[0]}!` : "Modalità Ospite 🐺"}
                                     </>
                                 )}
                             </div>
@@ -380,7 +380,7 @@ export default function ChatPage() {
                                             <button
                                                 onClick={() => speak(msg.content)}
                                                 className="ml-3 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-500 hover:bg-blue-100 transition-all shadow-sm"
-                                                title="Ascolta wolf.G"
+                                                title="Ascolta Geniotto"
                                             >
                                                 🔊
                                             </button>
@@ -439,7 +439,7 @@ export default function ChatPage() {
                                 disabled={isLoading || !input.trim()}
                                 className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-blue-600 disabled:opacity-50 text-white px-5 rounded-xl font-black shadow-lg hover:scale-105 active:scale-95 transition-all text-[11px] uppercase"
                             >
-                                INVIA 🚀
+                                INVIA 🐺
                             </button>
                         </div>
                     </div>

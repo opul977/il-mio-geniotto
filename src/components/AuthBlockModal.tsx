@@ -24,7 +24,7 @@ export default function AuthBlockModal({ isOpen, onClose }: AuthBlockModalProps)
                         href="/auth/login"
                         className="bg-primary hover:bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95 text-center"
                     >
-                        Accedi o Registrati 🚀
+                        Accedi o Registrati 🐺
                     </Link>
                     <button
                         onClick={onClose}

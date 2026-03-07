@@ -99,7 +99,7 @@ export default function HowItWorks() {
                                 Pronto a fare una <br /> <span className="text-primary underline decoration-8 underline-offset-8">domanda</span>?
                             </h2>
                             <Link href="/chat" className="bg-white text-primary px-16 py-8 rounded-[3rem] text-2xl font-black shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center">
-                                Inizia la Chat Gratis! 🚀
+                                Inizia la Chat Gratis! 🐺
                             </Link>
                         </div>
                         {/* Decorative floating icons */}

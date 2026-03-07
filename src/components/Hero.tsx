@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const messages = [
     "Ciao, sono Geniotto! 👋",
-    "Vuoi imparare con me? 🚀",
+    "Vuoi imparare con me? �",
     "Quale compito facciamo oggi? 📚",
     "Sono il tuo amico geniale! 🧠",
     "I compiti? Una passeggiata! 🍦"
@@ -70,7 +70,7 @@ export default function Hero() {
                     <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                         <Link href="/chat" className="group relative bg-primary text-white px-12 py-6 rounded-[2.5rem] text-xl font-black shadow-2xl shadow-blue-200 hover:shadow-blue-400 hover:-translate-y-1 active:scale-95 transition-all overflow-hidden flex items-center justify-center">
                             <span className="relative z-10 flex items-center gap-3">
-                                Inizia ora <span className="group-hover:translate-x-2 transition-transform">🚀</span>
+                                Inizia ora <span className="group-hover:translate-x-2 transition-transform">�</span>
                             </span>
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </Link>
@@ -99,37 +99,18 @@ export default function Hero() {
                         {/* Animated backdrop circles */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-highlight/5 to-accent/10 opacity-50 rounded-[4rem]" />
 
-                        {/* Mascot Robot */}
-                        <div className="relative z-20 floating group-hover:scale-105 transition-transform duration-700 ease-out"
+                        {/* Mascot / Visual (Cropped Wolf Face) */}
+                        <div className="relative z-20 floating group-hover:scale-105 transition-all duration-700 ease-out"
                             style={{ transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)` }}>
-                            <svg width="340" height="340" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                {/* Robot Head group moved by mouse */}
-                                <g style={{ transform: `translate(${mousePos.x * 15}px, ${mousePos.y * 15}px)`, transition: 'transform 0.1s ease-out' }}>
-                                    <rect x="55" y="30" width="90" height="70" rx="30" fill="white" className="shadow-inner" />
-                                    <rect x="55" y="30" width="90" height="70" rx="30" stroke="#3b82f6" strokeWidth="6" />
-                                    {/* Face Screen */}
-                                    <rect x="68" y="45" width="64" height="40" rx="12" fill="#1e293b" />
-                                    {/* Glowing Eyes following mouse */}
-                                    <g style={{ transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 8}px)` }}>
-                                        <circle cx="85" cy="65" r="4" fill="#60a5fa" className="animate-pulse" />
-                                        <circle cx="115" cy="65" r="4" fill="#60a5fa" className="animate-pulse" />
-                                    </g>
-                                    {/* Smile */}
-                                    <path d="M90 75C90 75 95 80 100 80C105 80 110 75 110 75" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" />
-                                </g>
-
-                                {/* Robot Body */}
-                                <rect x="65" y="105" width="70" height="60" rx="20" fill="white" stroke="#3b82f6" strokeWidth="6" />
-                                <circle cx="100" cy="135" r="10" fill="#3b82f6" fillOpacity="0.1" stroke="#3b82f6" strokeWidth="2" />
-
-                                {/* Hands floating with parallax and waving */}
-                                <g className="animate-wave" style={{ transformOrigin: '45px 100px' }}>
-                                    <rect x="35" y="90" width="20" height="20" rx="8" fill="white" stroke="#3b82f6" strokeWidth="4"
-                                        style={{ transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px)` }} />
-                                </g>
-                                <rect x="145" y="110" width="20" height="20" rx="8" fill="white" stroke="#3b82f6" strokeWidth="4"
-                                    className="animate-bounce [animation-delay:0.5s]" style={{ transform: `translate(${mousePos.x * 10}px, ${mousePos.y * 10}px)` }} />
-                            </svg>
+                            <div className="w-64 h-64 bg-white rounded-[3rem] shadow-2xl relative overflow-hidden border-4 border-slate-100 flex items-center justify-center p-8">
+                                <div className="absolute inset-x-0 -top-4 -bottom-12">
+                                    <img
+                                        src="/logo.png"
+                                        alt="Geniotto Logo"
+                                        className="w-full h-full object-contain object-top scale-125"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Orbiting Icons with parallax */}
