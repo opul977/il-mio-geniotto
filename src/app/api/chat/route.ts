@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
                 }, { status: 403 });
             }
             return NextResponse.json({
-                error: "Hai esaurito i tuoi messaggi gratuiti! Ricaricali guardando uno sponsor o torna domani. 🐺",
+                error: "Hai esaurito i tuoi messaggi gratuiti! Ricaricali guardando uno sponsor o torna domani. 🚀",
                 code: "USER_LIMIT_REACHED"
             }, { status: 403 });
         }

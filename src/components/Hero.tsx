@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const messages = [
     "Ciao, sono Geniotto! 👋",
-    "Vuoi imparare con me? �",
+    "Vuoi imparare con me? 🚀",
     "Quale compito facciamo oggi? 📚",
     "Sono il tuo amico geniale! 🧠",
     "I compiti? Una passeggiata! 🍦"
@@ -70,7 +70,7 @@ export default function Hero() {
                     <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                         <Link href="/chat" className="group relative bg-primary text-white px-12 py-6 rounded-[2.5rem] text-xl font-black shadow-2xl shadow-blue-200 hover:shadow-blue-400 hover:-translate-y-1 active:scale-95 transition-all overflow-hidden flex items-center justify-center">
                             <span className="relative z-10 flex items-center gap-3">
-                                Inizia ora <span className="group-hover:translate-x-2 transition-transform">�</span>
+                                Inizia ora <span className="group-hover:translate-x-2 transition-transform">🚀</span>
                             </span>
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </Link>

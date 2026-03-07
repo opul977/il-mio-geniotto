@@ -51,7 +51,7 @@ export default function LoginPage() {
                                 <circle cx="62" cy="40" r="4" fill="#60a5fa" className="animate-pulse" />
                             </svg>
                         </div>
-                        <h1 className="text-3xl font-black text-slate-800 mb-2">Bentornato! 🐺</h1>
+                        <h1 className="text-3xl font-black text-slate-800 mb-2">Bentornato! 🚀</h1>
                         <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">Accedi a Geniotto</p>
                     </div>
 
@@ -91,7 +91,7 @@ export default function LoginPage() {
                             disabled={isLoading}
                             className="w-full bg-primary hover:bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-100 transition-all active:scale-[0.98] disabled:opacity-50 uppercase tracking-widest text-sm"
                         >
-                            {isLoading ? "Entriamo..." : "Entra 🐺"}
+                            {isLoading ? "Entriamo..." : "Entra 🚀"}
                         </button>
                     </form>
 

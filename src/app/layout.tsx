@@ -13,7 +13,7 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: "Geniotto | Il tuo super amico per i compiti! 🐺",
+  title: "Geniotto | Il tuo super amico per i compiti! 🚀",
   description: "L'intelligenza artificiale che spiega i compiti in modo semplice e divertente per bambini e ragazzi con il tocco magico di Geniotto.",
 };
 
