@@ -5,32 +5,32 @@ import Link from "next/link";
 
 const pricingPlans = [
     {
-        name: "Settimanale",
-        price: "2.99€",
-        duration: "/settimana",
-        description: "Ideale per i compiti della settimana o per un ripasso dell'ultimo minuto.",
-        features: ["Accesso Illimitato a tutte le materie", "Nessuna pubblicità", "Priorità nelle risposte", "Salva i tuoi appunti"],
+        name: "Giornaliero",
+        price: "1.99€",
+        duration: "/24 ore",
+        description: "Perfetto per un'emergenza compiti o per provare wolf.G senza limiti per un giorno intero.",
+        features: ["Accesso Illimitato 24h", "Tutte le materie incluse", "Nessuna pubblicità", "Risposte ultra-rapide"],
         color: "bg-blue-50 border-blue-100 text-blue-600",
         buttonColor: "bg-blue-600 hover:bg-blue-700",
         icon: "⚡"
     },
     {
-        name: "Mensile",
-        price: "7.99€",
-        duration: "/mese",
-        description: "L'opzione più amata dalle famiglie per uno studio costante e rilassato.",
-        features: ["Tutto quello che c'è nel piano Settimanale", "Assistenza Premium 24/7", "Report settimanali per i genitori", "Sconto del 20% rispetto al piano settimanale"],
+        name: "Settimanale",
+        price: "6.99€",
+        duration: "/settimana",
+        description: "Il miglior equilibrio per affrontare una settimana intensa di verifiche e interrogazioni.",
+        features: ["Tutto quello che c'è nel piano Giornaliero", "Priorità assoluta", "Supporto compiti complessi", "Salvataggio cronologia illimitato"],
         color: "bg-primary/10 border-primary/20 text-primary",
         buttonColor: "bg-primary hover:bg-blue-700",
-        icon: "🤖",
+        icon: "🐺",
         popular: true
     },
     {
-        name: "Annuale",
-        price: "59.90€",
-        duration: "/anno",
-        description: "Massimo risparmio per l'intero anno scolastico. Studia senza pensieri!",
-        features: ["Tutto quello che c'è nel piano Mensile", "Risparmia oltre 35€ all'anno", "Contenuti speciali esclusivi", "Badge 'Super Studente'"],
+        name: "Mensile",
+        price: "39.99€",
+        duration: "/mese",
+        description: "La scelta definitiva per un intero mese di studio senza stress e risultati garantiti.",
+        features: ["Massimo risparmio mensile", "Assistenza Premium dedicata", "Tutorial esclusivi sull'uso dell'IA", "Badge 'Membro Elite wolf.G'"],
         color: "bg-amber-50 border-amber-100 text-amber-600",
         buttonColor: "bg-amber-500 hover:bg-amber-600",
         icon: "👑"
@@ -131,14 +131,63 @@ export default function PricingPage() {
                 </div>
             </section>
 
+            {/* Payment Methods & Trust Section */}
+            <section className="pb-20 px-6">
+                <div className="max-w-4xl mx-auto text-center">
+                    <div className="bg-white/60 glass rounded-[2.5rem] p-8 border border-white/50 shadow-xl">
+                        <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Pagamenti Protetti e Veloci</h3>
+                        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
+                            {/* PayPal */}
+                            <div className="flex items-center gap-2">
+                                <span className="text-2xl font-black text-[#003087]">Pay</span>
+                                <span className="text-2xl font-black text-[#009cde]">Pal</span>
+                            </div>
+                            {/* Visa/Mastercard Icons Placeholder/Emoji for now, but I'll use styled text for a premium feel */}
+                            <div className="flex items-center gap-4">
+                                <div className="flex flex-col items-center">
+                                    <div className="w-12 h-8 bg-slate-800 rounded-md flex items-center justify-center text-[10px] text-white font-bold leading-none">VISA</div>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <div className="w-12 h-8 bg-[#EB001B] rounded-md flex items-center justify-center overflow-hidden relative">
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="w-6 h-6 bg-[#F79E1B] rounded-full translate-x-3 opacity-80" />
+                                            <div className="w-6 h-6 bg-[#EB001B] rounded-full -translate-x-3" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-600 font-bold">
+                                <span className="text-2xl">💳</span>
+                                <span>Carte di Credito</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-10 pt-8 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="flex items-center justify-center gap-3 text-emerald-600 font-bold text-sm">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                Crittografia SSL 256-bit
+                            </div>
+                            <div className="flex items-center justify-center gap-3 text-emerald-600 font-bold text-sm">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                Fattura Immediata
+                            </div>
+                            <div className="flex items-center justify-center gap-3 text-emerald-600 font-bold text-sm">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                Recesso entro 14 giorni
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Support Message */}
             <section className="pb-32 px-6">
                 <div className="max-w-3xl mx-auto text-center bg-slate-900 text-white rounded-[3rem] p-12 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 via-transparent to-accent/20 opacity-50" />
                     <div className="relative z-10">
-                        <h2 className="text-3xl font-black mb-4">Hai domande sui piani?</h2>
+                        <h2 className="text-3xl font-black mb-4">Hai domande sui pagamenti?</h2>
                         <p className="text-slate-400 font-bold mb-8">
-                            Il nostro team è qui per aiutarti a scegliere la soluzione migliore per lo studio dei tuoi figli.
+                            Siamo qui per aiutarti a capire quale piano si adatta meglio alle necessità dei tuoi figli.
                         </p>
                         <Link href="/supporto" className="text-primary font-black flex items-center justify-center gap-2 hover:gap-4 transition-all">
                             Contatta il supporto 📧 <span>→</span>
