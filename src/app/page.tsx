@@ -7,25 +7,25 @@ export default function Home() {
 
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center pt-32">
         {/* Geniotto Mascot Card */}
-        <div className="relative w-64 h-64 mb-8 animate-float flex items-center justify-center">
-          <div className="bg-primary rounded-[3rem] shadow-2xl shadow-blue-300 relative z-10 w-full h-full flex items-center justify-center">
-            {/* Robot Mascot (Foto 1 Style) */}
-            <div className="relative w-48 h-36">
+        <div className="relative w-64 h-64 mb-12 animate-float flex items-center justify-center">
+          <div className="bg-white rounded-[3.5rem] shadow-[0_20px_50px_rgba(59,130,246,0.15)] relative z-10 w-full h-full flex items-center justify-center border-4 border-slate-50">
+            {/* Robot Mascot (Clean Style) */}
+            <div className="relative w-48 h-36 scale-90">
               {/* Top Handle (Yellow) */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-16 bg-amber-400 rounded-t-[4rem]" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-16 bg-amber-400 rounded-t-[4rem] shadow-inner" />
 
               {/* Main Head (White) */}
-              <div className="absolute bottom-0 inset-x-0 h-28 bg-white rounded-[2.5rem] flex items-center justify-center p-4">
+              <div className="absolute bottom-0 inset-x-0 h-28 bg-white border-2 border-slate-100 rounded-[2.5rem] shadow-sm flex items-center justify-center p-4">
                 {/* Face/Screen (Dark) */}
-                <div className="w-full h-full bg-slate-900 rounded-[1.5rem] flex items-center justify-center gap-4">
+                <div className="w-full h-full bg-slate-900 rounded-[1.5rem] flex items-center justify-center gap-4 relative overflow-hidden">
                   {/* Eyes (Glowing Blue/White) */}
-                  <div className="w-4 h-4 bg-sky-400 rounded-full shadow-[0_0_10px_rgba(56,189,248,0.8)]" />
-                  <div className="w-4 h-4 bg-sky-400 rounded-full shadow-[0_0_10px_rgba(56,189,248,0.8)]" />
+                  <div className="w-4 h-4 bg-sky-400 rounded-full shadow-[0_0_15px_rgba(56,189,248,1)] animate-pulse" />
+                  <div className="w-4 h-4 bg-sky-400 rounded-full shadow-[0_0_15px_rgba(56,189,248,1)] animate-pulse" />
                 </div>
               </div>
             </div>
           </div>
-          <div className="absolute -bottom-4 -right-4 bg-amber-400 p-4 rounded-2xl shadow-lg border-4 border-white animate-bounce">
+          <div className="absolute -bottom-2 -right-2 bg-amber-400 p-4 rounded-2xl shadow-lg border-4 border-white animate-bounce z-20">
             <span className="text-3xl">🚧</span>
           </div>
         </div>
