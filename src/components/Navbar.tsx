@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
+import RewardAdModal from "./RewardAdModal";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const { data: session } = useSession();
+    const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
+    const { data: session, update } = useSession();
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 p-6">
@@ -61,7 +63,6 @@ export default function Navbar() {
                     </div>
 
                     <Link href="/come-funziona" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Come Funziona</Link>
-                    <Link href="/prezzi" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Prezzi</Link>
                     {session?.user?.email === "opul977@gmail.com" && (
                         <Link href="/admin" className="text-sm font-black text-secondary hover:underline underline-offset-4 transition-all">Admin 🔐</Link>
                     )}
@@ -84,6 +85,12 @@ export default function Navbar() {
                             >
                                 Esci
                             </button>
+                            <button
+                                onClick={() => setIsRewardModalOpen(true)}
+                                className="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-lg shadow-emerald-100 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                            >
+                                <span>💎</span> Ottieni Gettoni
+                            </button>
                         </div>
                     ) : (
                         <Link href="/auth/login" className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl text-sm font-black shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all">
@@ -93,7 +100,11 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile Toggle */}
-                <button className="md:hidden text-slate-800" onClick={() => setIsOpen(!isOpen)}>
+                <button
+                    className="md:hidden text-slate-800"
+                    onClick={() => setIsOpen(!isOpen)}
+                    aria-label="Menu"
+                >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"} />
                     </svg>
@@ -122,7 +133,6 @@ export default function Navbar() {
                     <div className="h-px bg-slate-100 my-2" />
 
                     <Link href="/come-funziona" className="text-lg font-bold text-slate-800" onClick={() => setIsOpen(false)}>Come Funziona</Link>
-                    <Link href="/prezzi" className="text-lg font-bold text-slate-800" onClick={() => setIsOpen(false)}>Prezzi</Link>
 
                     {session ? (
                         <button
@@ -141,6 +151,14 @@ export default function Navbar() {
                     )}
                 </div>
             )}
+
+            <RewardAdModal
+                isOpen={isRewardModalOpen}
+                onClose={() => setIsRewardModalOpen(false)}
+                onReward={() => {
+                    update();
+                }}
+            />
         </nav>
     );
 }

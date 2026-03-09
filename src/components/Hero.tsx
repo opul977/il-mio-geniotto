@@ -2,6 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import RewardAdModal from "./RewardAdModal";
+import { useSession } from "next-auth/react";
 
 const messages = [
     "Ciao, sono Geniotto! 👋",
@@ -14,6 +17,8 @@ const messages = [
 export default function Hero() {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [messageIndex, setMessageIndex] = useState(0);
+    const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
+    const { data: session, update } = useSession();
     const mascotRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -77,6 +82,15 @@ export default function Hero() {
                         <Link href="/come-funziona" className="glass px-10 py-6 rounded-[2.5rem] text-xl font-black hover:bg-white hover:border-primary/20 transition-all border border-transparent flex items-center justify-center text-slate-800">
                             Guarda come funziona
                         </Link>
+                        {session && (
+                            <button
+                                onClick={() => setIsRewardModalOpen(true)}
+                                className="bg-emerald-50 border-2 border-emerald-100 text-emerald-600 px-10 py-6 rounded-[2.5rem] text-xl font-black hover:bg-emerald-100 transition-all flex items-center justify-center gap-3 group"
+                            >
+                                <span className="text-2xl group-hover:scale-125 transition-transform">💎</span>
+                                Gettoni Gratis
+                            </button>
+                        )}
                     </div>
 
                 </div>
@@ -102,11 +116,12 @@ export default function Hero() {
                         {/* Mascot / Visual (Geniotto Wolf Head) */}
                         <div className="relative z-20 floating group-hover:scale-105 transition-all duration-700 ease-out"
                             style={{ transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)` }}>
-                            <div className="w-64 h-64 bg-white rounded-[3rem] shadow-2xl border-4 border-slate-100 flex items-center justify-center p-6">
-                                <img
+                            <div className="w-64 h-64 bg-white rounded-[3rem] shadow-2xl border-4 border-slate-100 flex items-center justify-center p-6 relative">
+                                <Image
                                     src="/geniotto-head.png"
                                     alt="Geniotto"
-                                    className="w-full h-full object-contain"
+                                    fill
+                                    className="object-contain p-6"
                                 />
                             </div>
                         </div>
@@ -121,6 +136,13 @@ export default function Hero() {
                     </div>
                 </div>
             </div>
+            <RewardAdModal
+                isOpen={isRewardModalOpen}
+                onClose={() => setIsRewardModalOpen(false)}
+                onReward={() => {
+                    update();
+                }}
+            />
         </section>
     );
 }

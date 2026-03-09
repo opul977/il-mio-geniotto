@@ -448,7 +448,7 @@ export default function ChatPage() {
             <RewardAdModal
                 isOpen={isRewardModalOpen}
                 onClose={() => setIsRewardModalOpen(false)}
-                onRewardEarned={() => setTokens(prev => prev + 10)}
+                onReward={(newTokens) => setTokens(newTokens)}
             />
             <AuthBlockModal
                 isOpen={isAuthModalOpen}

@@ -1,144 +1,184 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "react-hot-toast";
 
 interface RewardAdModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onRewardEarned: () => void;
+    onReward: (newTokens: number) => void;
 }
 
-export default function RewardAdModal({ isOpen, onClose, onRewardEarned }: RewardAdModalProps) {
-    const [timeLeft, setTimeLeft] = useState(15);
-    const [isCounting, setIsCounting] = useState(false);
-    const [rewardReady, setRewardReady] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
-
-    useEffect(() => {
-        if (isOpen) {
-            setTimeLeft(15);
-            setRewardReady(false);
-            setIsCounting(true);
-            setErrorMsg("");
-        }
-    }, [isOpen]);
+export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdModalProps) {
+    const [step, setStep] = useState<'selection' | 'watching' | 'rewarded'>('selection');
+    const [duration, setDuration] = useState<30 | 60>(30);
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         let timer: NodeJS.Timeout;
-        if (isCounting && timeLeft > 0) {
-            timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
-        } else if (isCounting && timeLeft === 0) {
-            setIsCounting(false);
-            setRewardReady(true);
+        if (step === 'watching' && timeLeft > 0) {
+            timer = setInterval(() => {
+                setTimeLeft((prev) => prev - 1);
+            }, 1000);
+        } else if (step === 'watching' && timeLeft === 0) {
+            handleCompleteAd();
         }
-        return () => clearTimeout(timer);
-    }, [isCounting, timeLeft]);
+        return () => clearInterval(timer);
+    }, [step, timeLeft]);
 
-    const handleClaimReward = async () => {
-        setIsLoading(true);
-        setErrorMsg("");
+    const startAd = (d: 30 | 60) => {
+        setDuration(d);
+        setTimeLeft(d);
+        setStep('watching');
+    };
+
+    const handleCompleteAd = useCallback(async () => {
+        setIsSubmitting(true);
         try {
-            const res = await fetch("/api/tokens/reward", { method: "POST" });
-            const data = await res.json();
+            const response = await fetch('/api/tokens/reward', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ duration }),
+            });
 
-            if (res.ok) {
-                onRewardEarned();
-                onClose();
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success(`Ottimo! Hai guadagnato ${duration === 30 ? '1 gettone' : '2 gettoni'}! 🪙`);
+                onReward(data.newTokens);
+                setStep('rewarded');
             } else {
-                setErrorMsg(data.error || "Errore durante il riscatto.");
+                toast.error(data.error || "Qualcosa è andato storto.");
+                onClose();
             }
         } catch (err) {
-            console.error("Reward claim error:", err);
-            setErrorMsg("Impossibile connettersi al server.");
+            console.error(err);
+            toast.error("Errore di connessione.");
+            onClose();
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
-    };
+    }, [duration, onReward, onClose]);
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white max-w-lg w-full rounded-[2rem] shadow-2xl overflow-hidden relative border-4 border-slate-100 flex flex-col">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 w-full max-w-lg overflow-hidden relative">
 
-                {/* Header Timer */}
-                <div className="bg-slate-900 text-white p-4 flex justify-between items-center z-10">
-                    <span className="font-bold text-sm uppercase tracking-widest text-slate-400">Messaggio Promozionale</span>
-                    <div className="bg-slate-800 px-3 py-1 rounded-full text-sm font-black flex items-center gap-2">
-                        {rewardReady ? (
-                            <span className="text-emerald-400">Ricompensa pronta! ✨</span>
-                        ) : (
-                            <>
-                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                                <span className="text-slate-300">Attendi {timeLeft}s</span>
-                            </>
-                        )}
-                    </div>
-                </div>
+                {/* Close Button */}
+                {step !== 'watching' && (
+                    <button
+                        onClick={onClose}
+                        className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                        aria-label="Chiudi"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                )}
 
-                {/* Video Area (Simulation) */}
-                <div className="relative aspect-video bg-slate-100 flex items-center justify-center border-b border-slate-200 overflow-hidden group">
-                    {/* Simulated Ad Content */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 opacity-20" />
+                <div className="p-8 md:p-12 text-center">
+                    {step === 'selection' && (
+                        <div className="space-y-6">
+                            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 animate-bounce">
+                                📺
+                            </div>
+                            <h2 className="text-3xl font-black text-slate-800">Guadagna Gettoni</h2>
+                            <p className="text-slate-500 font-bold leading-relaxed">
+                                Guarda una breve pubblicità per continuare a usare Geniotto gratuitamente!
+                            </p>
 
-                    <div className="text-center z-10 p-6">
-                        <div className="text-5xl mb-4 animate-bounce">🎁</div>
-                        <h3 className="text-xl font-black text-slate-800 mb-2">Simulazione Sponsor</h3>
-                        <p className="text-sm font-bold text-slate-500">
-                            Qui apparirà il video del tuo partner pubblicitario.
-                        </p>
-                    </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                                <button
+                                    onClick={() => startAd(30)}
+                                    disabled={isSubmitting}
+                                    className="group bg-white border-2 border-slate-100 hover:border-primary/30 p-6 rounded-3xl transition-all hover:shadow-lg text-left disabled:opacity-50"
+                                >
+                                    <div className="text-2xl mb-2">⚡</div>
+                                    <div className="font-black text-slate-800">Flash Ad</div>
+                                    <div className="text-xs text-slate-400 mb-2">30 Secondi</div>
+                                    <div className="inline-flex items-center gap-1 bg-blue-50 text-primary text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest">
+                                        +1 Gettone
+                                    </div>
+                                </button>
 
-                    {/* Progress Bar inside video */}
-                    {!rewardReady && (
-                        <div className="absolute bottom-0 left-0 h-1 bg-slate-300 w-full">
-                            <div
-                                className="h-full bg-primary transition-all duration-1000 ease-linear"
-                                style={{ width: `${((15 - timeLeft) / 15) * 100}%` }}
-                            />
+                                <button
+                                    onClick={() => startAd(60)}
+                                    disabled={isSubmitting}
+                                    className="group bg-white border-2 border-slate-100 hover:border-primary/30 p-6 rounded-3xl transition-all hover:shadow-lg text-left disabled:opacity-50"
+                                >
+                                    <div className="text-2xl mb-2">🎬</div>
+                                    <div className="font-black text-slate-800">Full Ad</div>
+                                    <div className="text-xs text-slate-400 mb-2">1 Minuto</div>
+                                    <div className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest">
+                                        +2 Gettoni
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     )}
-                </div>
 
-                {/* Footer Actions */}
-                <div className="p-6 flex flex-col items-center">
-                    <p className="text-center text-slate-600 font-bold mb-6 text-sm uppercase tracking-tight">
-                        Guarda lo sponsor fino alla fine per ricevere <br />
-                        <span className="text-primary text-xl font-black">10 Prove Extra con Geniotto! 🚀</span>
-                    </p>
+                    {step === 'watching' && (
+                        <div className="space-y-8 py-4">
+                            <div className="relative w-32 h-32 mx-auto">
+                                <svg className="w-full h-full rotate-[-90deg]">
+                                    <circle
+                                        cx="64" cy="64" r="60"
+                                        className="stroke-slate-100 fill-none"
+                                        strokeWidth="8"
+                                    />
+                                    <circle
+                                        cx="64" cy="64" r="60"
+                                        className="stroke-primary fill-none transition-all duration-1000"
+                                        strokeWidth="8"
+                                        style={{
+                                            strokeDasharray: '377',
+                                            strokeDashoffset: (377 - (377 * timeLeft) / duration).toString()
+                                        }}
+                                    />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="text-4xl font-black text-slate-800">{timeLeft}</span>
+                                </div>
+                            </div>
 
-                    {errorMsg && (
-                        <div className="mb-4 text-red-500 text-sm font-bold px-4 py-2 bg-red-50 rounded-lg w-full text-center border border-red-100">
-                            {errorMsg}
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-black text-slate-800">Video in corso...</h3>
+                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">
+                                    Non chiudere questa finestra
+                                </p>
+                            </div>
+
+                            <div className="w-full bg-slate-50 rounded-2xl p-8 border border-slate-100 animate-pulse flex flex-col items-center gap-4">
+                                <div className="w-12 h-12 bg-slate-200 rounded-xl" />
+                                <div className="w-3/4 h-3 bg-slate-200 rounded-full" />
+                                <div className="w-1/2 h-3 bg-slate-200 rounded-full" />
+                            </div>
                         </div>
                     )}
 
-                    <div className="flex w-full gap-4">
-                        {rewardReady ? (
-                            <button
-                                onClick={handleClaimReward}
-                                disabled={isLoading}
-                                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-200 transition-all active:scale-95 disabled:opacity-50"
-                            >
-                                {isLoading ? "Riscatto..." : "Ottieni 10 Prove ✨"}
-                            </button>
-                        ) : (
-                            <button
-                                disabled
-                                className="flex-1 bg-slate-100 text-slate-400 font-black py-4 rounded-2xl cursor-not-allowed"
-                            >
-                                Attendi la fine del video
-                            </button>
-                        )}
+                    {step === 'rewarded' && (
+                        <div className="space-y-6">
+                            <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-5xl mx-auto mb-4 scale-110 animate-bounce">
+                                👑
+                            </div>
+                            <h2 className="text-3xl font-black text-emerald-600">Gettoni Riscattati!</h2>
+                            <p className="text-slate-500 font-bold leading-relaxed">
+                                Ottimo lavoro! Hai ricevuto i tuoi gettoni. <br />
+                                Puoi tornare a studiare con Geniotto.
+                            </p>
 
-                        <button
-                            onClick={onClose}
-                            className="px-6 py-4 font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-700 rounded-2xl transition-colors border border-transparent hover:border-slate-200"
-                        >
-                            Chiudi
-                        </button>
-                    </div>
+                            <button
+                                onClick={onClose}
+                                className="w-full bg-slate-900 text-white py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-slate-200 transition-all hover:scale-105 active:scale-95 mt-4"
+                            >
+                                Torna allo studio 🚀
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
