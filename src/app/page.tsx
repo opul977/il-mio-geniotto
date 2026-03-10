@@ -17,6 +17,11 @@ export default function Home() {
             <span className="w-8 h-px bg-slate-300"></span>
           </div>
           <p>© 2026 <span className="text-slate-600">wolf.G AI</span> · Creato con ❤️ per il tuo futuro</p>
+          <div className="flex gap-4 text-[9px] font-black text-slate-400">
+            <a href="/privacy" className="hover:text-primary transition-colors">PRIVACY POLICY</a>
+            <span className="opacity-30">•</span>
+            <a href="/cookie-policy" className="hover:text-primary transition-colors">COOKIE POLICY</a>
+          </div>
         </div>
       </footer>
     </main>

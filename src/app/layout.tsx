@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { Providers } from "@/components/Providers";
+import CookieConsent from "@/components/CookieConsent";
 
 export default function RootLayout({
   children,
@@ -37,7 +38,10 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${quicksand.variable} font-sans antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <CookieConsent />
+        </Providers>
       </body>
     </html>
   );
