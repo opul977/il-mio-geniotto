@@ -42,7 +42,7 @@ export default function Hero() {
 
     return (
         <section
-            className="relative pt-32 pb-10 overflow-hidden mesh-gradient-light"
+            className="relative pt-44 pb-32 overflow-hidden mesh-gradient-light"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
         >
@@ -96,7 +96,7 @@ export default function Hero() {
                 </div>
 
                 {/* Mascot / Visual */}
-                <div className="relative z-10 lg:mt-8" ref={mascotRef}>
+                <div className="relative z-10 lg:mt-24" ref={mascotRef}>
                     {/* Speech Bubble */}
                     <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-30 transition-all duration-500 transform hover:scale-110">
                         <div className="bg-white/90 glass px-6 py-4 rounded-[2rem] rounded-bl-none shadow-2xl border-2 border-primary/20 relative animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -113,17 +113,37 @@ export default function Hero() {
                         {/* Animated backdrop circles */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-highlight/5 to-accent/10 opacity-50 rounded-[4rem]" />
 
-                        {/* Mascot / Visual (Geniotto Wolf Head) */}
-                        <div className="relative z-20 floating group-hover:scale-105 transition-all duration-700 ease-out"
+                        {/* Mascot Robot */}
+                        <div className="relative z-20 floating group-hover:scale-105 transition-transform duration-700 ease-out"
                             style={{ transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)` }}>
-                            <div className="w-64 h-64 bg-white rounded-[3rem] shadow-2xl border-4 border-slate-100 flex items-center justify-center p-6 relative">
-                                <Image
-                                    src="/geniotto-head.png"
-                                    alt="Geniotto"
-                                    fill
-                                    className="object-contain p-6"
-                                />
-                            </div>
+                            <svg width="340" height="340" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                {/* Robot Head group moved by mouse */}
+                                <g style={{ transform: `translate(${mousePos.x * 15}px, ${mousePos.y * 15}px)`, transition: 'transform 0.1s ease-out' }}>
+                                    <rect x="55" y="30" width="90" height="70" rx="30" fill="white" className="shadow-inner" />
+                                    <rect x="55" y="30" width="90" height="70" rx="30" stroke="#3b82f6" strokeWidth="6" />
+                                    {/* Face Screen */}
+                                    <rect x="68" y="45" width="64" height="40" rx="12" fill="#1e293b" />
+                                    {/* Glowing Eyes following mouse */}
+                                    <g style={{ transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 8}px)` }}>
+                                        <circle cx="85" cy="65" r="4" fill="#60a5fa" className="animate-pulse" />
+                                        <circle cx="115" cy="65" r="4" fill="#60a5fa" className="animate-pulse" />
+                                    </g>
+                                    {/* Smile */}
+                                    <path d="M90 75C90 75 95 80 100 80C105 80 110 75 110 75" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" />
+                                </g>
+
+                                {/* Robot Body */}
+                                <rect x="65" y="105" width="70" height="60" rx="20" fill="white" stroke="#3b82f6" strokeWidth="6" />
+                                <circle cx="100" cy="135" r="10" fill="#3b82f6" fillOpacity="0.1" stroke="#3b82f6" strokeWidth="2" />
+
+                                {/* Hands floating with parallax and waving */}
+                                <g className="animate-wave" style={{ transformOrigin: '45px 100px' }}>
+                                    <rect x="35" y="90" width="20" height="20" rx="8" fill="white" stroke="#3b82f6" strokeWidth="4"
+                                        style={{ transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px)` }} />
+                                </g>
+                                <rect x="145" y="110" width="20" height="20" rx="8" fill="white" stroke="#3b82f6" strokeWidth="4"
+                                    className="animate-bounce [animation-delay:0.5s]" style={{ transform: `translate(${mousePos.x * 10}px, ${mousePos.y * 10}px)` }} />
+                            </svg>
                         </div>
 
                         {/* Orbiting Icons with parallax */}
