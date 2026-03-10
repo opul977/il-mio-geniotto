@@ -10,12 +10,14 @@ export async function POST(req: NextRequest) {
         const apiKey = process.env.GEMINI_API_KEY;
 
         let userId: string | null = null;
+        let userEmail: string | null = null;
         let guestIp: string | null = null;
         let currentTokens = 0;
         const now = new Date();
 
         if (session?.user) {
             userId = (session.user as { id: string }).id;
+            userEmail = (session.user as { email?: string }).email || null;
             const { data: usage, error: usageError } = await supabase
                 .from('user_usage')
                 .select('tokens_remaining, last_used_at')
@@ -65,7 +67,9 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        if (currentTokens <= 0) {
+        const isAdmin = userEmail === "admin@geniotto.it";
+
+        if (currentTokens <= 0 && !isAdmin) {
             if (!session) {
                 return NextResponse.json({
                     error: "Hai esaurito le tue 10 prove gratuite da ospite! 🎁 Registrati ora per riceverne SUBITO altre 10 e continuare!",
@@ -142,8 +146,8 @@ REGOLE FONDAMENTALI:
                     }
 
                     // Salviamo la risposta di Geniotto alla fine dello streaming
-                    // Decrementiamo i token
-                    if (userId) {
+                    // Decrementiamo i token (tranne se Admin)
+                    if (userId && !isAdmin) {
                         const { data: currentUsage } = await supabase
                             .from('user_usage')
                             .select('tokens_remaining')
@@ -154,7 +158,7 @@ REGOLE FONDAMENTALI:
                             .from('user_usage')
                             .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() })
                             .eq('user_id', userId);
-                    } else if (guestIp) {
+                    } else if (guestIp && !isAdmin) {
                         const { data: currentUsage } = await supabase
                             .from('guest_usage')
                             .select('tokens_remaining')

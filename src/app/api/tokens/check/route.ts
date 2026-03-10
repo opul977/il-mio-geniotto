@@ -9,6 +9,12 @@ export async function GET(req: NextRequest) {
 
         if (session?.user) {
             const userId = (session.user as { id: string }).id;
+            const userEmail = (session.user as { email?: string }).email;
+
+            // Admin bypass
+            if (userEmail === "admin@geniotto.it") {
+                return NextResponse.json({ tokens: 9999 });
+            }
 
             // Cerca l'uso dei token per questo Utente
             const { data: usage } = await supabase
