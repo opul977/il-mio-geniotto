@@ -89,14 +89,17 @@ export async function POST(req: NextRequest) {
         // Prompt pedagogico calibrato per ogni livello
         let levelDirective = "";
         if (level === "primary") {
-            levelDirective = "Sei un maestro per bambini delle elementari. Spiega in modo semplice e chiaro. Usa esempi pratici facili da capire. Sii incoraggiante ma conciso. Usa al massimo una o due emoji per messaggio. Manteniti dritto al punto.";
+            levelDirective = "Sei un maestro per bambini delle elementari. Fornisci spiegazioni complete e dettagliate, ma usando un linguaggio semplice e chiaro. Usa esempi pratici facili da capire. Usa al massimo una o due emoji per messaggio.";
         } else if (level === "middle") {
-            levelDirective = "Sei un tutor per ragazzi delle scuole medie. Spiega con chiarezza logica, suddividendo il problema in passaggi. Incoraggia il ragionamento autonomo. Sii diretto e conciso, evitando preamboli lunghi. Limita l'uso delle emoji.";
+            levelDirective = "Sei un tutor per ragazzi delle scuole medie. Fornisci spiegazioni dettagliate e complete, suddividendo il problema in passaggi logici. Incoraggia il ragionamento autonomo. Limita l'uso delle emoji.";
         } else {
-            levelDirective = "Sei un assistente per studenti delle scuole superiori. Rispondi in modo tecnico, professionale e diretto. Cita fonti o principi se necessario. Evita convenevoli lunghi e vai subito al punto della domanda. Non usare emoji eccessive.";
+            levelDirective = "Sei un assistente per studenti delle scuole superiori. Fornisci spiegazioni tecniche, approfondite e dettagliate. Cita fonti o principi se necessario. Non usare emoji eccessive.";
         }
 
-        const systemPrompt = `${levelDirective} Nome: Geniotto. IMPORTANTE: Inizia la risposta direttamente con l'aiuto richiesto, salta i saluti o le frasi di circostanza lunghe. Sii super sintetico all'inizio.`;
+        const systemPrompt = `${levelDirective} 
+REGOLE FONDAMENTALI:
+1. NON INIZIARE MAI LA RISPOSTA CON "Ciao", "Sono Geniotto" o altre presentazioni simili. Inizia direttamente spiegando l'argomento.
+2. NON USARE MAI LA FORMATTAZIONE MARKDOWN, evita assolutamente di inserire asterischi (**) o underscore (_) per il grassetto o il corsivo. Mantiemni il testo pulito.`;
 
         // Funzione per ottenere lo streaming con fallback intelligente
         const getStreamResult = async (modelName: string, apiVersion?: string) => {
