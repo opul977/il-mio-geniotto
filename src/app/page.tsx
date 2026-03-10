@@ -1,73 +1,23 @@
 import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import SubjectsCarousel from "@/components/SubjectsCarousel";
 
 export default function Home() {
   return (
     <main className="min-h-screen mesh-gradient-light flex flex-col">
       <Navbar />
+      <Hero />
+      <SubjectsCarousel />
 
-      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center pt-32">
-        {/* Geniotto Mascot Card */}
-        <div className="relative w-64 h-64 mb-12 animate-float flex items-center justify-center">
-          <div className="bg-white rounded-[3.5rem] shadow-[0_20px_50px_rgba(59,130,246,0.15)] relative z-10 w-full h-full flex items-center justify-center border-4 border-slate-50">
-            {/* Robot Mascot (Clean Style) */}
-            <div className="relative w-48 h-36 scale-90">
-              {/* Top Handle (Yellow) */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-16 bg-amber-400 rounded-t-[4rem] shadow-inner" />
-
-              {/* Main Head (White) */}
-              <div className="absolute bottom-0 inset-x-0 h-28 bg-white border-2 border-slate-100 rounded-[2.5rem] shadow-sm flex items-center justify-center p-4">
-                {/* Face/Screen (Dark) */}
-                <div className="w-full h-full bg-slate-900 rounded-[1.5rem] flex items-center justify-center gap-4 relative overflow-hidden">
-                  {/* Eyes (Glowing Blue/White) */}
-                  <div className="w-4 h-4 bg-sky-400 rounded-full shadow-[0_0_15px_rgba(56,189,248,1)] animate-pulse" />
-                  <div className="w-4 h-4 bg-sky-400 rounded-full shadow-[0_0_15px_rgba(56,189,248,1)] animate-pulse" />
-                </div>
-              </div>
-            </div>
+      <footer className="p-12 text-center text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] bg-white/30 backdrop-blur-md border-t border-white/50">
+        <div className="max-w-7xl mx-auto flex flex-col items-center gap-4">
+          <div className="flex items-center gap-2 opacity-60">
+            <span className="w-8 h-px bg-slate-300"></span>
+            <span>Geniotto — Semplifica lo studio con l&apos;IA</span>
+            <span className="w-8 h-px bg-slate-300"></span>
           </div>
-          <div className="absolute -bottom-2 -right-2 bg-amber-400 p-4 rounded-2xl shadow-lg border-4 border-white animate-bounce z-20">
-            <span className="text-3xl">🚧</span>
-          </div>
+          <p>© 2026 <span className="text-slate-600">wolf.G AI</span> · Creato con ❤️ per il tuo futuro</p>
         </div>
-
-        <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-6 leading-tight uppercase tracking-tighter">
-          Geniotto sta mettendo <br /> il <span className="text-primary italic">papillon!</span> 🎀
-        </h1>
-
-        <p className="text-xl md:text-2xl text-slate-500 font-bold max-w-2xl mb-10 leading-relaxed">
-          Stiamo lavorando per rendere l&apos;esperienza ancora più magica.
-          Il lancio ufficiale di <span className="text-slate-800 underline decoration-primary/30 font-black tracking-tight">Geniotto</span> è quasi pronto!
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <div className="bg-white/60 glass px-8 py-4 rounded-3xl border border-slate-200">
-            <span className="text-sm font-black text-slate-400 uppercase tracking-widest block mb-1">Stato Lavori</span>
-            <div className="flex items-center gap-3">
-              <div className="h-3 w-48 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-primary w-[90%] animate-pulse" />
-              </div>
-              <span className="font-black text-primary text-lg">90%</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
-          {[
-            { title: "Nuova Grafica", desc: "Ancora più colorata e semplice", icon: "🎨" },
-            { title: "Più Velocità", desc: "Risposte istantanee dall'IA", icon: "⚡" },
-            { title: "Premi e Giochi", desc: "In arrivo presto per tutti", icon: "🏆" }
-          ].map((feature, i) => (
-            <div key={i} className="bg-white/40 glass p-6 rounded-[2rem] border border-white/50 hover:scale-105 transition-all text-left">
-              <div className="text-3xl mb-3">{feature.icon}</div>
-              <h3 className="font-black text-slate-800 mb-1">{feature.title}</h3>
-              <p className="text-sm text-slate-500 font-bold">{feature.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <footer className="p-8 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
-        © 2026 <span className="text-slate-500">wolf.G AI</span> · Geniotto — Semplifica lo studio con l&apos;IA
       </footer>
     </main>
   );
