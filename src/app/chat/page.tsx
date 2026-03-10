@@ -49,7 +49,7 @@ declare global {
 export default function ChatPage() {
     const { data: session } = useSession();
     const [messages, setMessages] = useState<Message[]>([
-        { role: "assistant", content: "Ciao! Io sono Geniotto, il tuo amico speciale! 🐺 Quale compito facciamo insieme oggi? Puoi anche caricarmi una foto dei tuoi esercizi!" }
+        { role: "assistant", content: "Ciao! Sono Geniotto. Come posso aiutarti oggi?" }
     ]);
     const [input, setInput] = useState("");
     const [level, setLevel] = useState<"primary" | "middle" | "highschool">("primary");
@@ -81,7 +81,7 @@ export default function ChatPage() {
                 .then(data => {
                     if (data.messages && data.messages.length > 0) {
                         setMessages([
-                            { role: "assistant", content: "Ciao! Bentornato! Ecco i nostri ultimi compiti insieme: 👇" },
+                            { role: "assistant", content: "Bentornato! Ecco le nostre ultime conversazioni:" },
                             ...data.messages.map((m: { role: "user" | "assistant", content: string, image_url: string }) => ({
                                 role: m.role,
                                 content: m.content,

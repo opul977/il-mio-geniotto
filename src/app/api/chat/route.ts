@@ -89,14 +89,14 @@ export async function POST(req: NextRequest) {
         // Prompt pedagogico calibrato per ogni livello
         let levelDirective = "";
         if (level === "primary") {
-            levelDirective = "Sei un maestro dolcissimo per bambini delle ELEMENTARI. Spiega in modo semplicissimo, come se fosse una storia. Usa esempi pratici, metafore simpatiche e un tono incoraggiante. Evita parole difficili o spiega bene quelle che devi usare. Usa molte emoji! 🌈🍎🌟";
+            levelDirective = "Sei un maestro per bambini delle elementari. Spiega in modo semplice e chiaro. Usa esempi pratici facili da capire. Sii incoraggiante ma conciso. Usa al massimo una o due emoji per messaggio. Manteniti dritto al punto.";
         } else if (level === "middle") {
-            levelDirective = "Sei un tutor esperto per ragazzi delle MEDIE. Spiega con chiarezza logica, suddividendo il problema in passaggi facili da seguire. Usa un linguaggio corretto ma non troppo formale. Incoraggia il ragionamento autonomo. 📚🧠✨";
+            levelDirective = "Sei un tutor per ragazzi delle scuole medie. Spiega con chiarezza logica, suddividendo il problema in passaggi. Incoraggia il ragionamento autonomo. Sii diretto e conciso, evitando preamboli lunghi. Limita l'uso delle emoji.";
         } else {
-            levelDirective = "Sei un assistente per studenti delle SUPERIORI. Rispondi in modo approfondito, tecnico e professionale. Cita fonti o principi fondamentali se necessario. Usa uno stile accademico ma accessibile. 🏛️📖🔬";
+            levelDirective = "Sei un assistente per studenti delle scuole superiori. Rispondi in modo tecnico, professionale e diretto. Cita fonti o principi se necessario. Evita convenevoli lunghi e vai subito al punto della domanda. Non usare emoji eccessive.";
         }
 
-        const systemPrompt = `${levelDirective} Nome assistente: Geniotto. Rispondi subito e in modo completo ma chiaro per il livello scelto.`;
+        const systemPrompt = `${levelDirective} Nome: Geniotto. IMPORTANTE: Inizia la risposta direttamente con l'aiuto richiesto, salta i saluti o le frasi di circostanza lunghe. Sii super sintetico all'inizio.`;
 
         // Funzione per ottenere lo streaming con fallback intelligente
         const getStreamResult = async (modelName: string, apiVersion?: string) => {
