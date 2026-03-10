@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface Subject {
     id: string;
@@ -256,6 +257,8 @@ const highSchoolSubjects: Subject[] = [
 
 export default function SubjectsCarousel() {
     const [level, setLevel] = useState<"primary" | "middle" | "highschool">("primary");
+    const [query, setQuery] = useState("");
+    const router = useRouter();
 
     // Sync level with URL hash
     useEffect(() => {
@@ -280,6 +283,13 @@ export default function SubjectsCarousel() {
     };
 
     const subjects = getSubjects();
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (query.trim()) {
+            router.push(`/chat?q=${encodeURIComponent(query)}&level=${level}`);
+        }
+    };
 
     return (
         <section className="pt-8 pb-24 bg-soft-blue/30 relative overflow-hidden">
@@ -310,7 +320,30 @@ export default function SubjectsCarousel() {
                         </button>
                     </div>
 
-                    <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Il tuo amico Geniotto {level === "primary" ? "è pronto ad aiutarti a studiare!" : "ti aspetta nella chat."}</p>
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-sm mb-8">Il tuo amico Geniotto {level === "primary" ? "è pronto ad aiutarti a studiare!" : "ti aspetta nella chat."}</p>
+
+                    {/* Chat Input Form */}
+                    <form onSubmit={handleSearch} className="w-full max-w-2xl relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+                        <div className="relative flex items-center bg-white rounded-full shadow-2xl border-4 border-white focus-within:border-primary/20 transition-all group overflow-hidden">
+                            <input
+                                type="text"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="Scrivi qui la tua domanda o l'argomento..."
+                                className="w-full py-5 pl-8 pr-32 text-lg font-bold text-slate-800 placeholder:text-slate-300 bg-transparent focus:outline-none"
+                            />
+                            <div className="absolute right-2 top-2 bottom-2">
+                                <button
+                                    type="submit"
+                                    disabled={!query.trim()}
+                                    className="h-full px-8 bg-primary hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:scale-100 disabled:shadow-none disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                                >
+                                    <span>Invia</span>
+                                    <span className="text-xl">🚀</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
                 {/* Subjects Grid */}

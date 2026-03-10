@@ -199,7 +199,7 @@ export default function ChatPage() {
         }
     };
 
-    const handleSend = async (customText?: string, imageFile?: string) => {
+    const handleSend = async (customText?: string, imageFile?: string, customLevel?: "primary" | "middle" | "highschool") => {
         const messageText = customText || input;
         if ((!messageText.trim() && !imageFile) || isLoading) return;
 
@@ -224,7 +224,7 @@ export default function ChatPage() {
                 body: JSON.stringify({
                     message: messageText,
                     image: imageFile,
-                    level: level,
+                    level: customLevel || level,
                 })
             });
 
@@ -287,13 +287,19 @@ export default function ChatPage() {
         if (typeof window !== 'undefined') {
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('q');
+            const urlLevel = urlParams.get('level') as "primary" | "middle" | "highschool" | null;
+
+            if (urlLevel && ["primary", "middle", "highschool"].includes(urlLevel)) {
+                setLevel(urlLevel);
+            }
+
             if (query && !isLoading) {
                 // Clear the URL so refreshing doesn't send it again
                 window.history.replaceState({}, document.title, window.location.pathname);
 
                 // Small delay to ensure state is ready
                 setTimeout(() => {
-                    handleSend(query);
+                    handleSend(query, undefined, urlLevel && ["primary", "middle", "highschool"].includes(urlLevel) ? urlLevel : undefined);
                 }, 500);
             }
         }
