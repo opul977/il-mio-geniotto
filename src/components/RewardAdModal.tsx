@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
+import AdSenseDisplay from "./AdSenseDisplay";
 
 interface RewardAdModalProps {
     isOpen: boolean;
@@ -152,11 +153,7 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
                                 </p>
                             </div>
 
-                            <div className="w-full bg-slate-50 rounded-2xl p-8 border border-slate-100 animate-pulse flex flex-col items-center gap-4">
-                                <div className="w-12 h-12 bg-slate-200 rounded-xl" />
-                                <div className="w-3/4 h-3 bg-slate-200 rounded-full" />
-                                <div className="w-1/2 h-3 bg-slate-200 rounded-full" />
-                            </div>
+                            <AdSenseDisplay />
                         </div>
                     )}
 
