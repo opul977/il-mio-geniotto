@@ -60,6 +60,7 @@ export default function ChatPage() {
     const [isAudioEnabled, setIsAudioEnabled] = useState(false); // Default SPENTO come richiesto
     const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -193,7 +194,7 @@ export default function ChatPage() {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64 = reader.result as string;
-                handleSend("Ecco la foto del mio compito!", base64);
+                setSelectedImage(base64);
             };
             reader.readAsDataURL(file);
         }
@@ -201,7 +202,8 @@ export default function ChatPage() {
 
     const handleSend = async (customText?: string, imageFile?: string, customLevel?: "primary" | "middle" | "highschool") => {
         const messageText = customText || input;
-        if ((!messageText.trim() && !imageFile) || isLoading) return;
+        const finalImage = imageFile || selectedImage;
+        if ((!messageText.trim() && !finalImage) || isLoading) return;
 
         if (tokens <= 0) {
             if (!session) {
@@ -212,9 +214,10 @@ export default function ChatPage() {
             return;
         }
 
-        const userMessage: Message = { role: "user", content: messageText, image: imageFile };
+        const userMessage: Message = { role: "user", content: messageText || "Analizza questa foto", image: finalImage || undefined };
         setMessages(prev => [...prev, userMessage]);
         setInput("");
+        setSelectedImage(null);
         setIsLoading(true);
 
         try {
@@ -222,8 +225,8 @@ export default function ChatPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    message: messageText,
-                    image: imageFile,
+                    message: messageText || "Analizza questa foto",
+                    image: finalImage,
                     level: customLevel || level,
                 })
             });
@@ -410,6 +413,22 @@ export default function ChatPage() {
                         <div ref={messagesEndRef} />
                     </div>
 
+                    {selectedImage && (
+                        <div className="mx-2 mb-2 relative inline-block animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-xl">
+                                <Image src={selectedImage} alt="Preview" fill className="object-cover" />
+                                <div className="absolute inset-0 bg-black/10 hover:bg-black/20 transition-colors" />
+                            </div>
+                            <button
+                                onClick={() => setSelectedImage(null)}
+                                className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all z-10 font-bold border-2 border-white"
+                                title="Rimuovi immagine"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    )}
+
                     <div className="pt-4 flex items-center gap-3">
                         <input
                             type="file"
@@ -442,7 +461,7 @@ export default function ChatPage() {
                             />
                             <button
                                 onClick={() => handleSend()}
-                                disabled={isLoading || !input.trim()}
+                                disabled={isLoading || (!input.trim() && !selectedImage)}
                                 className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-blue-600 disabled:opacity-50 text-white px-5 rounded-xl font-black shadow-lg hover:scale-105 active:scale-95 transition-all text-[11px] uppercase"
                             >
                                 INVIA 🚀
