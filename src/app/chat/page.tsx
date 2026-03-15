@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import RewardAdModal from "@/components/RewardAdModal";
 import AuthBlockModal from "@/components/AuthBlockModal";
 import StickyAdBanner from "@/components/StickyAdBanner";
+import RecommendedProducts from "@/components/RecommendedProducts";
 import ReactMarkdown from "react-markdown";
 
 type Message = {
@@ -383,8 +384,17 @@ export default function ChatPage() {
                     </div>
                 </div>
 
-                <div className="flex-1 bg-white/60 glass rounded-[2.5rem] p-6 flex flex-col gap-4 overflow-hidden shadow-2xl relative">
-                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4">
+                <div className="flex-1 bg-white/60 glass rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6 overflow-hidden shadow-2xl relative">
+                    {/* Sidebar with Recommended Products (Desktop only) */}
+                    <div className="hidden lg:flex flex-col w-72 shrink-0 h-full border-r border-slate-100 pr-6 gap-6">
+                        <div className="flex flex-col gap-2">
+                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Consigliati da Geniotto</span>
+                           <RecommendedProducts layout="mini" />
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col gap-4 overflow-hidden h-full">
+                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4">
                         {messages.map((msg, i) => (
                             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                                 <div className={`max-w-[85%] flex flex-col gap-2 ${msg.role === "user" ? "items-end" : "items-start"}`}>
