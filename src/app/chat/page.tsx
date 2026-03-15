@@ -505,6 +505,8 @@ export default function ChatPage() {
                     </div>
                 </div>
             </div>
+        </div>
+
             <RewardAdModal
                 isOpen={isRewardModalOpen}
                 onClose={() => setIsRewardModalOpen(false)}
