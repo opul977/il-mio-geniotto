@@ -68,6 +68,15 @@ export default function Navbar() {
                     )}
 
                     <div className="flex items-center gap-4">
+                        <a
+                            href="https://www.paypal.com/donate/?business=opul77@yahoo.it&no_recurring=0&item_name=Offrimi+un+caffè+per+Geniotto+☕&currency_code=EUR"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-amber-100 hover:bg-amber-200 text-amber-700 text-[10px] font-black px-4 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                        >
+                            <span>☕</span> Offrimi un caffè
+                        </a>
+
                         <button
                             onClick={() => setIsRewardModalOpen(true)}
                             className="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-lg shadow-emerald-100 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 animate-pulse hover:animate-none"
@@ -131,6 +140,17 @@ export default function Navbar() {
                             <span className="text-2xl">🏛️</span>
                             <span className="font-black text-slate-800">Superiori</span>
                         </Link>
+
+                        <a 
+                            href="https://www.paypal.com/donate/?business=opul77@yahoo.it&no_recurring=0&item_name=Offrimi+un+caffè+per+Geniotto+☕&currency_code=EUR"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-4 p-4 rounded-2xl bg-amber-50 border border-amber-100" 
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <span className="text-2xl">☕</span>
+                            <span className="font-black text-amber-700">Offrimi un caffè</span>
+                        </a>
                     </div>
 
                     <div className="h-px bg-slate-100 my-2" />

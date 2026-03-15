@@ -356,6 +356,17 @@ export default function ChatPage() {
                             </span>
                         </div>
 
+                        <a
+                            href="https://www.paypal.com/donate/?business=opul77@yahoo.it&no_recurring=0&item_name=Offrimi+un+caffè+per+Geniotto+☕&currency_code=EUR"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-white border-2 border-amber-100 px-3 py-1.5 rounded-xl flex items-center gap-2 hover:bg-amber-50 transition-all hover:scale-105 active:scale-95"
+                        >
+                            <span className="text-[10px] font-black text-amber-600">
+                                ☕ Offrimi un caffè
+                            </span>
+                        </a>
+
                         <button
                             onClick={() => {
                                 const newState = !isAudioEnabled;
