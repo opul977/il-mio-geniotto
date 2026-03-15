@@ -164,6 +164,12 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
                                 </p>
                             </div>
 
+                            <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100/50 mb-4 animate-pulse">
+                                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest leading-relaxed">
+                                    Mentre aspetti, dai un&apos;occhiata ai nostri sponsor. <br />
+                                    Ci aiutano a mantenere Geniotto gratis per te! ❤️
+                                </p>
+                            </div>
                             <AdSenseDisplay />
                         </div>
                     )}

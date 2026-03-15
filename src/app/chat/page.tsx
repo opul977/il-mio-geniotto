@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import RewardAdModal from "@/components/RewardAdModal";
 import AuthBlockModal from "@/components/AuthBlockModal";
+import StickyAdBanner from "@/components/StickyAdBanner";
 import ReactMarkdown from "react-markdown";
 
 type Message = {
@@ -448,6 +449,10 @@ export default function ChatPage() {
                             </button>
                         </div>
                     )}
+
+                    <div className="px-2 pt-2">
+                        <StickyAdBanner />
+                    </div>
 
                     <div className="pt-4 flex items-center gap-3">
                         <input
