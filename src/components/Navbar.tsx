@@ -108,7 +108,7 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <Link href="/auth/login" className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl text-sm font-black shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all">
-                                Accedi
+                                Entra nel Genio 🚀
                             </Link>
                         )}
                     </div>
