@@ -74,7 +74,7 @@ export default function ReviewsSection() {
             <div className="text-center mb-16">
                 <h2 className="text-4xl font-black text-slate-800 mb-4 uppercase tracking-tight">Cosa dicono di Geniotto 💬</h2>
                 <p className="text-slate-500 font-bold max-w-2xl mx-auto italic">
-                    "Il parere dei genitori e degli studenti è la nostra forza più grande!"
+                    &quot;Il parere dei genitori e degli studenti è la nostra forza più grande!&quot;
                 </p>
             </div>
 
@@ -98,7 +98,7 @@ export default function ReviewsSection() {
                                         ))}
                                     </div>
                                 </div>
-                                <p className="text-slate-600 font-medium leading-relaxed italic">"{rev.comment}"</p>
+                                <p className="text-slate-600 font-medium leading-relaxed italic">&quot;{rev.comment}&quot;</p>
                                 <div className="mt-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">
                                     {new Date(rev.created_at).toLocaleDateString("it-IT", { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </div>

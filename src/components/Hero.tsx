@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import RewardAdModal from "./RewardAdModal";
 import { useSession } from "next-auth/react";
 
@@ -18,7 +17,7 @@ export default function Hero() {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [messageIndex, setMessageIndex] = useState(0);
     const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
-    const { data: session, update } = useSession();
+    const { update } = useSession();
     const mascotRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {

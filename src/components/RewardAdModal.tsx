@@ -27,17 +27,7 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
         }
     }, [isOpen, session, step]);
 
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (step === 'watching' && timeLeft > 0) {
-            timer = setInterval(() => {
-                setTimeLeft((prev) => prev - 1);
-            }, 1000);
-        } else if (step === 'watching' && timeLeft === 0) {
-            handleCompleteAd();
-        }
-        return () => clearInterval(timer);
-    }, [step, timeLeft]);
+    }, [step, timeLeft, handleCompleteAd]);
 
     const startAd = (d: 30 | 60) => {
         setDuration(d);
