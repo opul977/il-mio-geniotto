@@ -82,15 +82,13 @@ export default function Hero() {
                         <Link href="/come-funziona" className="glass px-10 py-6 rounded-[2.5rem] text-xl font-black hover:bg-white hover:border-primary/20 transition-all border border-transparent flex items-center justify-center text-slate-800">
                             Guarda come funziona
                         </Link>
-                        {session && (
-                            <button
-                                onClick={() => setIsRewardModalOpen(true)}
-                                className="bg-emerald-50 border-2 border-emerald-100 text-emerald-600 px-10 py-6 rounded-[2.5rem] text-xl font-black hover:bg-emerald-100 transition-all flex items-center justify-center gap-3 group"
-                            >
-                                <span className="text-2xl group-hover:scale-125 transition-transform">💎</span>
-                                Gettoni Gratis
-                            </button>
-                        )}
+                        <button
+                            onClick={() => setIsRewardModalOpen(true)}
+                            className="bg-emerald-50 border-2 border-emerald-100 text-emerald-600 px-10 py-6 rounded-[2.5rem] text-xl font-black hover:bg-emerald-100 transition-all flex items-center justify-center gap-3 group animate-pulse hover:animate-none"
+                        >
+                            <span className="text-2xl group-hover:scale-125 transition-transform">💎</span>
+                            Gettoni Gratis
+                        </button>
                     </div>
 
                 </div>

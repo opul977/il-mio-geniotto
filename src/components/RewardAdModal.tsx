@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import AdSenseDisplay from "./AdSenseDisplay";
 
 interface RewardAdModalProps {
@@ -11,10 +13,19 @@ interface RewardAdModalProps {
 }
 
 export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdModalProps) {
-    const [step, setStep] = useState<'selection' | 'watching' | 'rewarded'>('selection');
+    const [step, setStep] = useState<'selection' | 'watching' | 'rewarded' | 'auth_required'>('selection');
     const [duration, setDuration] = useState<30 | 60>(30);
     const [timeLeft, setTimeLeft] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        if (isOpen && !session) {
+            setStep('auth_required');
+        } else if (isOpen && session && step === 'auth_required') {
+            setStep('selection');
+        }
+    }, [isOpen, session, step]);
 
     useEffect(() => {
         let timer: NodeJS.Timeout;
@@ -87,9 +98,9 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
                             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 animate-bounce">
                                 📺
                             </div>
-                            <h2 className="text-3xl font-black text-slate-800">Guadagna Gettoni</h2>
-                            <p className="text-slate-500 font-bold leading-relaxed">
-                                Guarda una breve pubblicità per continuare a usare Geniotto gratuitamente!
+                            <h2 className="text-3xl font-black text-slate-800">Vinci Gettoni Gratis! 🎁</h2>
+                            <p className="text-slate-500 font-bold leading-relaxed px-4">
+                                Guarda un breve video sponsorizzato e Geniotto ti regala gettoni extra per i tuoi compiti! 🚀
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
@@ -174,6 +185,42 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
                             >
                                 Torna allo studio 🚀
                             </button>
+                        </div>
+                    )}
+
+                    {step === 'auth_required' && (
+                        <div className="space-y-8">
+                            <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center text-5xl mx-auto mb-4 animate-pulse">
+                                🔒
+                            </div>
+                            <div className="space-y-3">
+                                <h2 className="text-3xl font-black text-slate-800">Premio Riservato! 🎁</h2>
+                                <p className="text-slate-500 font-bold leading-relaxed px-4">
+                                    I regali di Geniotto sono riservati ai membri della nostra famiglia. <br />
+                                    Entra ora per sbloccare i gettoni gratis!
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col gap-4 mt-8">
+                                <Link
+                                    href="/auth/register"
+                                    onClick={onClose}
+                                    className="w-full bg-primary text-white py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-blue-200 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                                >
+                                    Registrati Gratis 🚀
+                                </Link>
+                                <Link
+                                    href="/auth/login"
+                                    onClick={onClose}
+                                    className="w-full bg-white border-2 border-slate-100 text-slate-600 py-4 rounded-[2rem] font-black text-lg transition-all hover:bg-slate-50 flex items-center justify-center gap-3"
+                                >
+                                    Hai già un account? Accedi
+                                </Link>
+                            </div>
+
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest pt-4">
+                                Ci vorranno solo 30 secondi! ⚡
+                            </p>
                         </div>
                     )}
                 </div>

@@ -19,14 +19,18 @@ export default function AdSenseDisplay() {
     }, []);
 
     return (
-        <div className="w-full flex items-center justify-center my-4 overflow-hidden rounded-2xl bg-slate-50 border border-slate-100 min-h-[250px]">
+        <div className="w-full flex flex-col items-center justify-center my-4 overflow-hidden rounded-2xl bg-slate-50 border border-slate-100 min-h-[280px] p-2">
+            <div className="text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Annuncio Sponsorizzato</div>
             {/* Geniotto_Popup_Premio */}
-            <ins className="adsbygoogle w-full h-full min-w-[250px] min-h-[250px]"
-                style={{ display: "block" }}
+            <ins className="adsbygoogle"
+                style={{ display: "inline-block", width: "100%", height: "250px" }}
                 data-ad-client="ca-pub-1319471899981485"
                 data-ad-slot="2038476836"
-                data-ad-format="auto"
+                data-ad-format="rectangle"
                 data-full-width-responsive="true"></ins>
+            <p className="text-[9px] text-slate-400 mt-2 italic px-4">
+                Se non vedi l&apos;annuncio, assicurati che il tuo AdBlock sia disattivato.
+            </p>
         </div>
     );
 }

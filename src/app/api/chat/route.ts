@@ -103,7 +103,33 @@ export async function POST(req: NextRequest) {
         const systemPrompt = `${levelDirective} 
 REGOLE FONDAMENTALI:
 1. NON INIZIARE MAI LA RISPOSTA CON "Ciao", "Sono Geniotto" o altre presentazioni simili. Inizia direttamente spiegando l'argomento.
-2. NON USARE MAI LA FORMATTAZIONE MARKDOWN, evita assolutamente di inserire asterischi (**) o underscore (_) per il grassetto o il corsivo. Mantiemni il testo pulito.`;
+2. USA LA FORMATTAZIONE MARKDOWN: usa il **grassetto** per termini chiave. Usa le liste puntate per i passaggi.
+3. SPIEGAZIONI MATEMATICHE (DIVISIONI, MOLTIPLICAZIONI ECC.): Segui RIGOROSAMENTE questo esempio di layout per le divisioni:
+   
+   **Divisione in colonna: 2460 ÷ 23**
+   
+   *   **Passo 1**: Prendo il 24... (spiegazione)
+   *   **Passo 2**: Scendo il 6... (spiegazione)
+   
+   **Schema Classico**:
+   \`\`\`
+     2460 | 23
+    -23   |-------
+     ---- | 106
+       16 |
+      - 0 |
+     ---- |
+      160 |
+     -138 |
+     ---- |
+       22 |
+   \`\`\`
+   
+   **Risultato**: 106 con resto 22.
+   **Verifica**: (23 x 106) + 22 = 2438 + 22 = 2460.
+
+4. USA SEMPRE I BLOCCHI DI CODICE (\` \` \` \` \` \`) per racchiudere lo schema classico.
+5. Sii molto paziente e incoraggiante, come un vero maestro.`;
 
         // Funzione per ottenere lo streaming con fallback intelligente
         const getStreamResult = async (modelName: string, apiVersion?: string) => {

@@ -67,36 +67,39 @@ export default function Navbar() {
                         <Link href="/admin" className="text-sm font-black text-secondary hover:underline underline-offset-4 transition-all">Admin 🔐</Link>
                     )}
 
-                    {session ? (
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
-                                {session.user?.image ? (
-                                    <Image src={session.user.image} alt="Avatar" width={24} height={24} className="rounded-full" />
-                                ) : (
-                                    <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black">
-                                        {session.user?.name?.[0] || "U"}
-                                    </span>
-                                )}
-                                <span className="text-xs font-black text-slate-700">{session.user?.name?.split(' ')[0]}</span>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setIsRewardModalOpen(true)}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-lg shadow-emerald-100 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 animate-pulse hover:animate-none"
+                        >
+                            <span>💎</span> Ottieni Gettoni
+                        </button>
+
+                        {session ? (
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+                                    {session.user?.image ? (
+                                        <Image src={session.user.image} alt="Avatar" width={24} height={24} className="rounded-full" />
+                                    ) : (
+                                        <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black">
+                                            {session.user?.name?.[0] || "U"}
+                                        </span>
+                                    )}
+                                    <span className="text-xs font-black text-slate-700">{session.user?.name?.split(' ')[0]}</span>
+                                </div>
+                                <button
+                                    onClick={() => signOut()}
+                                    className="text-xs font-black text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+                                >
+                                    Esci
+                                </button>
                             </div>
-                            <button
-                                onClick={() => signOut()}
-                                className="text-xs font-black text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest"
-                            >
-                                Esci
-                            </button>
-                            <button
-                                onClick={() => setIsRewardModalOpen(true)}
-                                className="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-lg shadow-emerald-100 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
-                            >
-                                <span>💎</span> Ottieni Gettoni
-                            </button>
-                        </div>
-                    ) : (
-                        <Link href="/auth/login" className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl text-sm font-black shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all">
-                            Accedi
-                        </Link>
-                    )}
+                        ) : (
+                            <Link href="/auth/login" className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-2xl text-sm font-black shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all">
+                                Accedi
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 {/* Mobile Toggle */}

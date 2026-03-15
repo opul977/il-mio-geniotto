@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import RewardAdModal from "@/components/RewardAdModal";
 import AuthBlockModal from "@/components/AuthBlockModal";
+import ReactMarkdown from "react-markdown";
 
 type Message = {
     role: "user" | "assistant";
@@ -384,7 +385,15 @@ export default function ChatPage() {
                                                 <Image src={msg.image} alt="Compito" fill className="object-cover" />
                                             </div>
                                         )}
-                                        {msg.content}
+                                        {msg.role === "assistant" ? (
+                                            <div className="markdown-content">
+                                                <ReactMarkdown>
+                                                    {msg.content}
+                                                </ReactMarkdown>
+                                            </div>
+                                        ) : (
+                                            msg.content
+                                        )}
                                         {msg.role === "assistant" && msg.content && (
                                             <button
                                                 onClick={() => speak(msg.content)}
