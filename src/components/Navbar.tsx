@@ -21,7 +21,10 @@ export default function Navbar() {
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">Il Mio</span>
-                        <span className="text-xl font-black tracking-tight text-slate-800 leading-none uppercase">Geniotto</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xl font-black tracking-tight text-slate-800 leading-none uppercase">Geniotto</span>
+                            <span className="hidden">v1.0.1</span>
+                        </div>
                     </div>
                 </Link>
 
