@@ -104,7 +104,8 @@ export async function POST(req: NextRequest) {
 REGOLE FONDAMENTALI:
 1. NON INIZIARE MAI LA RISPOSTA CON "Ciao", "Sono Geniotto" o altre presentazioni simili. Inizia direttamente spiegando l'argomento.
 2. USA LA FORMATTAZIONE MARKDOWN: usa il **grassetto** per termini chiave. Usa le liste puntate per i passaggi.
-3. SPIEGAZIONI MATEMATICHE (DIVISIONI, MOLTIPLICAZIONI ECC.): Segui RIGOROSAMENTE questo esempio di layout per le divisioni:
+3. DIVIETO ASSOLUTO SIMBOLO DOLLARO ($): NON usare mai i simboli del dollaro ($). NON usare la notazione LaTeX. Scrivi le formule in testo semplice. Se usi il simbolo del dollaro verrai punito. Usa "x" o "×" per moltiplicare, ":" o "÷" per dividere.
+4. SPIEGAZIONI MATEMATICHE (DIVISIONI, MOLTIPLICAZIONI ECC.): Segui RIGOROSAMENTE questo esempio di layout:
    
    **Divisione in colonna: 2460 ÷ 23**
    
@@ -128,8 +129,8 @@ REGOLE FONDAMENTALI:
    **Risultato**: 106 con resto 22.
    **Verifica**: (23 x 106) + 22 = 2438 + 22 = 2460.
 
-4. USA SEMPRE I BLOCCHI DI CODICE (\` \` \` \` \` \`) per racchiudere lo schema classico.
-5. Sii molto paziente e incoraggiante, come un vero maestro.`;
+5. USA SEMPRE I BLOCCHI DI CODICE (\` \` \` \` \` \`) per racchiudere lo schema classico.
+6. Sii molto paziente e incoraggiante, come un vero maestro.`;
 
         // Funzione per ottenere lo streaming con fallback intelligente
         const getStreamResult = async (modelName: string, apiVersion?: string) => {
@@ -167,7 +168,16 @@ REGOLE FONDAMENTALI:
 
                 try {
                     for await (const chunk of result.stream) {
-                        const chunkText = chunk.text();
+                        let chunkText = chunk.text();
+                        
+                        // SANITIZZAZIONE AGGRESSIVA LATO SERVER
+                        // Rimuoviamo i simboli del dollaro e i comandi LaTeX comuni
+                        chunkText = chunkText
+                            .replace(/\$/g, '')
+                            .replace(/\\times/g, '×')
+                            .replace(/\\div/g, '÷')
+                            .replace(/\\cdot/g, '·');
+
                         controller.enqueue(encoder.encode(chunkText));
                     }
 
