@@ -388,7 +388,10 @@ export default function ChatPage() {
                     {/* Sidebar with Recommended Products (Desktop only) */}
                     <div className="hidden lg:flex flex-col w-72 shrink-0 h-full border-r border-slate-100 pr-6 gap-6">
                         <div className="flex flex-col gap-2">
-                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Consigliati da Geniotto</span>
+                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                               <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                               Consigli dinamici di Geniotto
+                           </span>
                            <RecommendedProducts layout="mini" />
                         </div>
                     </div>

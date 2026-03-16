@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { RECOMMENDED_PRODUCTS } from "@/lib/affiliate_links";
+import { RECOMMENDED_PRODUCTS, Product } from "@/lib/affiliate_links";
+import { useEffect, useState } from "react";
 
 interface RecommendedProductsProps {
     layout?: 'grid' | 'mini';
@@ -9,6 +10,13 @@ interface RecommendedProductsProps {
 
 export default function RecommendedProducts({ layout = 'grid' }: RecommendedProductsProps) {
     const isMini = layout === 'mini';
+    const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
+
+    useEffect(() => {
+        // Shuffle and take 3
+        const shuffled = [...RECOMMENDED_PRODUCTS].sort(() => 0.5 - Math.random());
+        setDisplayProducts(shuffled.slice(0, 3));
+    }, []);
 
     return (
         <section className={`${isMini ? 'p-2' : 'py-24 bg-white/50 backdrop-blur-sm'}`}>
@@ -28,7 +36,7 @@ export default function RecommendedProducts({ layout = 'grid' }: RecommendedProd
                 )}
 
                 <div className={`grid gap-6 ${isMini ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-                    {RECOMMENDED_PRODUCTS.map((product) => (
+                    {displayProducts.map((product) => (
                         <div 
                             key={product.id}
                             className={`group bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 overflow-hidden flex ${isMini ? 'flex-row items-center p-3 gap-4' : 'flex-col p-6'}`}
