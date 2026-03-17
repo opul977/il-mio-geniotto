@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        const isAdmin = userEmail === "admin@geniotto.it";
+        const isAdmin = userEmail === "admin@ilmiogeniotto.it";
 
         if (currentTokens <= 0 && !isAdmin) {
             if (!session) {

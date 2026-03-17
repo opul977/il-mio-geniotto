@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
             const userEmail = (session.user as { email?: string }).email;
 
             // Admin bypass
-            if (userEmail === "admin@geniotto.it") {
+            if (userEmail === "admin@ilmiogeniotto.it") {
                 return NextResponse.json({ tokens: 9999 });
             }
 
