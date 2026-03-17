@@ -26,7 +26,7 @@ export default function ContattiPage() {
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Supporto</p>
-                                        <p className="font-bold text-slate-700">support@ilmiogeniottostudi.it</p>
+                                        <p className="font-bold text-slate-700">support@ilmiogeniotto.it</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
@@ -73,7 +73,7 @@ export default function ContattiPage() {
                         <p className="text-slate-500 font-bold mb-4">
                             Per questioni amministrative o partnership commerciali, scrivi a:
                         </p>
-                        <p className="text-2xl font-black text-slate-800 tracking-tight">info@ilmiogeniottostudi.it</p>
+                        <p className="text-2xl font-black text-slate-800 tracking-tight">info@ilmiogeniotto.it</p>
                     </div>
                 </div>
             </div>
