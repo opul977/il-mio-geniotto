@@ -51,8 +51,10 @@ export async function POST(req: NextRequest) {
 
             currentTokens = usage?.tokens_remaining ?? 10;
             if (!usageError && usage) {
-                const lastUsed = new Date(usage.last_used_at || new Date().toISOString());
-                if (lastUsed.toDateString() !== now.toDateString()) {
+                const lastUsedDate = new Date(usage.last_used_at || new Date().toISOString()).toISOString().split('T')[0];
+                const nowDate = now.toISOString().split('T')[0];
+                
+                if (lastUsedDate !== nowDate) {
                     currentTokens = 10;
                     await supabase
                         .from('guest_usage')
@@ -69,17 +71,33 @@ export async function POST(req: NextRequest) {
 
         const isAdmin = userEmail === "admin@ilmiogeniotto.it";
 
-        if (currentTokens <= 0 && !isAdmin) {
-            if (!session) {
+        // --- DECREMENTO ANTICIPATO ---
+        if (!isAdmin) {
+            if (currentTokens <= 0) {
+                if (!session) {
+                    return NextResponse.json({
+                        error: "Hai esaurito le tue 10 prove gratuite da ospite! 🎁 Registrati ora per riceverne SUBITO altre 10 e continuare!",
+                        code: "GUEST_LIMIT_REACHED"
+                    }, { status: 403 });
+                }
                 return NextResponse.json({
-                    error: "Hai esaurito le tue 10 prove gratuite da ospite! 🎁 Registrati ora per riceverne SUBITO altre 10 e continuare!",
-                    code: "GUEST_LIMIT_REACHED"
+                    error: "Hai esaurito i tuoi messaggi gratuiti! Ricaricali guardando uno sponsor o torna domani. 🚀",
+                    code: "USER_LIMIT_REACHED"
                 }, { status: 403 });
             }
-            return NextResponse.json({
-                error: "Hai esaurito i tuoi messaggi gratuiti! Ricaricali guardando uno sponsor o torna domani. 🚀",
-                code: "USER_LIMIT_REACHED"
-            }, { status: 403 });
+
+            // Sottrai il token IMMEDIATAMENTE sul DB
+            if (userId) {
+                await supabase
+                    .from('user_usage')
+                    .update({ tokens_remaining: currentTokens - 1, last_used_at: now.toISOString() })
+                    .eq('user_id', userId);
+            } else if (guestIp) {
+                await supabase
+                    .from('guest_usage')
+                    .update({ tokens_remaining: currentTokens - 1, last_used_at: now.toISOString() })
+                    .eq('ip_address', guestIp);
+            }
         }
 
         if (!apiKey) {
@@ -169,31 +187,7 @@ REGOLE FONDAMENTALI:
                         controller.enqueue(encoder.encode(chunkText));
                     }
 
-                    // Salviamo la risposta di Geniotto alla fine dello streaming
-                    // Decrementiamo i token (tranne se Admin)
-                    if (userId && !isAdmin) {
-                        const { data: currentUsage } = await supabase
-                            .from('user_usage')
-                            .select('tokens_remaining')
-                            .eq('user_id', userId)
-                            .single();
-                        const newTokens = Math.max(0, (currentUsage?.tokens_remaining ?? 10) - 1);
-                        await supabase
-                            .from('user_usage')
-                            .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() })
-                            .eq('user_id', userId);
-                    } else if (guestIp && !isAdmin) {
-                        const { data: currentUsage } = await supabase
-                            .from('guest_usage')
-                            .select('tokens_remaining')
-                            .eq('ip_address', guestIp)
-                            .single();
-                        const newTokens = Math.max(0, (currentUsage?.tokens_remaining ?? 10) - 1);
-                        await supabase
-                            .from('guest_usage')
-                            .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() })
-                            .eq('ip_address', guestIp);
-                    }
+                    // Token già decrementati all'inizio
 
                     controller.close();
                 } catch (e) {
