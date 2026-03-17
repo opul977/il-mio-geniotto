@@ -54,7 +54,7 @@ export default function CookiePolicyPage() {
                         </section>
 
                         <p className="text-sm italic pt-8 border-t border-slate-100">
-                            Ultimo aggiornamento: 10 Marzo 2026
+                            Ultimo aggiornamento: 17 Marzo 2026
                         </p>
                     </div>
                 </div>

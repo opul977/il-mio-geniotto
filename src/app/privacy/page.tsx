@@ -14,7 +14,7 @@ export default function PrivacyPage() {
                         <section>
                             <h2 className="text-xl font-black text-slate-800 mb-3">1. Informazioni Generali</h2>
                             <p>
-                                Benvenuto su Geniotto (il-mio-geniotto.vercel.app). La privacy dei nostri utenti è estremamente importante per noi.
+                                Benvenuto su Geniotto (ilmiogeniotto.it). La privacy dei nostri utenti è estremamente importante per noi.
                                 Questa Privacy Policy descrive come raccogliamo, utilizziamo e proteggiamo le tue informazioni quando utilizzi il nostro servizio.
                             </p>
                         </section>
@@ -68,7 +68,7 @@ export default function PrivacyPage() {
                         </section>
 
                         <p className="text-sm italic pt-8 border-t border-slate-100">
-                            Ultimo aggiornamento: 10 Marzo 2026
+                            Ultimo aggiornamento: 17 Marzo 2026
                         </p>
                     </div>
                 </div>
