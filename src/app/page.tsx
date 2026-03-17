@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import SubjectsCarousel from "@/components/SubjectsCarousel";
 import ReviewsSection from "@/components/ReviewsSection";
 import RecommendedProducts from "@/components/RecommendedProducts";
+import FaqSection from "@/components/FaqSection";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <SubjectsCarousel />
       <RecommendedProducts />
       <ReviewsSection />
+      <FaqSection />
 
       <footer className="p-12 text-center text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] bg-white/30 backdrop-blur-md border-t border-white/50">
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-4">
@@ -21,10 +23,16 @@ export default function Home() {
             <span className="w-8 h-px bg-slate-300"></span>
           </div>
           <p>© 2026 <span className="text-slate-600">wolf.G AI</span> · Creato con ❤️ per il tuo futuro</p>
-          <div className="flex gap-4 text-[9px] font-black text-slate-400">
+          <div className="flex flex-wrap justify-center gap-4 text-[9px] font-black text-slate-400">
             <a href="/privacy" className="hover:text-primary transition-colors">PRIVACY POLICY</a>
             <span className="opacity-30">•</span>
             <a href="/cookie-policy" className="hover:text-primary transition-colors">COOKIE POLICY</a>
+            <span className="opacity-30">•</span>
+            <a href="/chi-siamo" className="hover:text-primary transition-colors">CHI SIAMO</a>
+            <span className="opacity-30">•</span>
+            <a href="/contatti" className="hover:text-primary transition-colors">CONTATTI</a>
+            <span className="opacity-30">•</span>
+            <a href="/guide/come-studiare-con-ia" className="hover:text-primary transition-colors">GUIDA IA</a>
           </div>
         </div>
       </footer>

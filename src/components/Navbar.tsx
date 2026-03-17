@@ -66,6 +66,9 @@ export default function Navbar() {
                     </div>
 
                     <Link href="/come-funziona" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Come Funziona</Link>
+                    <Link href="/guide/come-studiare-con-ia" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Guide IA</Link>
+                    <Link href="/chi-siamo" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Chi Siamo</Link>
+                    <Link href="/contatti" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Contatti</Link>
                     {session?.user?.email === "opul977@gmail.com" && (
                         <Link href="/admin" className="text-sm font-black text-secondary hover:underline underline-offset-4 transition-all">Admin 🔐</Link>
                     )}
@@ -159,6 +162,9 @@ export default function Navbar() {
                     <div className="h-px bg-slate-100 my-2" />
 
                     <Link href="/come-funziona" className="text-lg font-bold text-slate-800" onClick={() => setIsOpen(false)}>Come Funziona</Link>
+                    <Link href="/guide/come-studiare-con-ia" className="text-lg font-bold text-slate-800" onClick={() => setIsOpen(false)}>Guide IA</Link>
+                    <Link href="/chi-siamo" className="text-lg font-bold text-slate-800" onClick={() => setIsOpen(false)}>Chi Siamo</Link>
+                    <Link href="/contatti" className="text-lg font-bold text-slate-800" onClick={() => setIsOpen(false)}>Contatti</Link>
 
                     {session ? (
                         <button
