@@ -6,8 +6,6 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import RewardAdModal from "@/components/RewardAdModal";
 import AuthBlockModal from "@/components/AuthBlockModal";
-import AdSenseDisplay from "@/components/AdSenseDisplay";
-import RecommendedProducts from "@/components/RecommendedProducts";
 import ReactMarkdown from "react-markdown";
 
 type Message = {
@@ -385,23 +383,6 @@ export default function ChatPage() {
                 </div>
 
                 <div className="flex-1 bg-white/60 glass rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6 overflow-hidden shadow-2xl relative">
-                    {/* Sidebar with Recommended Products (Desktop only) */}
-                    <div className="hidden lg:flex flex-col w-72 shrink-0 h-full border-r border-slate-100 pr-6 gap-6">
-                        <div className="flex flex-col gap-2">
-                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
-                               <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-                               Consigli dinamici di Geniotto
-                           </span>
-                           <RecommendedProducts layout="mini" />
-                        </div>
-
-                        <div className="mt-auto border-t border-slate-50 pt-6">
-                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">
-                                Sponsor Solidali
-                            </span>
-                            <AdSenseDisplay type="square" />
-                        </div>
-                    </div>
 
                     <div className="flex-1 flex flex-col gap-4 overflow-hidden h-full">
                         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4">
