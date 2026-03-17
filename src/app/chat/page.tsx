@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import RewardAdModal from "@/components/RewardAdModal";
 import AuthBlockModal from "@/components/AuthBlockModal";
+import AdSenseDisplay from "@/components/AdSenseDisplay";
 import RecommendedProducts from "@/components/RecommendedProducts";
 import ReactMarkdown from "react-markdown";
 
@@ -392,6 +393,13 @@ export default function ChatPage() {
                                Consigli dinamici di Geniotto
                            </span>
                            <RecommendedProducts layout="mini" />
+                        </div>
+
+                        <div className="mt-auto border-t border-slate-50 pt-6">
+                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2">
+                                Sponsor Solidali
+                            </span>
+                            <AdSenseDisplay type="square" />
                         </div>
                     </div>
 
