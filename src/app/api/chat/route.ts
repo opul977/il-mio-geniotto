@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey.trim());
-        const { message, image, level } = await req.json();
+        const { message, image, level, history } = await req.json();
 
         // Prompt pedagogico calibrato per ogni livello
         let levelDirective = "";
@@ -120,10 +120,11 @@ export async function POST(req: NextRequest) {
 
         const systemPrompt = `${levelDirective} 
 REGOLE FONDAMENTALI:
-1. SALUTI E INTERAZIONE: Se l'utente ti saluta (es. "Ciao", "Ehi"), rispondi in modo amichevole e chiedi come puoi aiutarlo nello studio. Se invece l'utente ti invia un compito o una domanda diretta, inizia subito con la spiegazione senza preamboli o presentazioni.
-2. USA LA FORMATTAZIONE MARKDOWN: usa il **grassetto** per termini chiave. Usa le liste puntate per i passaggi logici.
-3. DIVIETO ASSOLUTO SIMBOLO DOLLARO ($): NON usare mai i simboli del dollaro ($) e NON usare la notazione LaTeX. Scrivi le formule in testo semplice. Se usi il simbolo del dollaro verrai punito. Usa "x" o "×" per moltiplicare, ":" o "÷" per dividere.
-4. SPIEGAZIONI MATEMATICHE (SOLO SE RICHIESTE): Solo quando risolvi divisioni o operazioni complesse, segui RIGOROSAMENTE questo esempio di layout per lo schema:
+1. RISPOSTA DIRETTA E SOSTANZIOSA: Se l'utente fa una domanda o chiede un argomento, rispondi SUBITO con informazioni dettagliate e utili. NON fare domande generiche tipo "cosa vuoi sapere?" o "cosa stai studiando?". Se l'utente dice "voglio parlare degli Etruschi", inizia IMMEDIATAMENTE a spiegare chi erano gli Etruschi. Se l'utente chiede "chi erano?", rispondi basandoti sul contesto della conversazione.
+2. SALUTI: Rispondi con un saluto amichevole SOLO se l'utente scrive ESCLUSIVAMENTE un saluto (es. "Ciao", "Buongiorno"). In tutti gli altri casi, rispondi con contenuti.
+3. USA LA FORMATTAZIONE MARKDOWN: usa il **grassetto** per termini chiave. Usa le liste puntate per i passaggi logici.
+4. DIVIETO ASSOLUTO SIMBOLO DOLLARO ($): NON usare mai i simboli del dollaro ($) e NON usare la notazione LaTeX. Scrivi le formule in testo semplice. Usa "x" o "×" per moltiplicare, ":" o "÷" per dividere.
+5. SPIEGAZIONI MATEMATICHE (SOLO SE RICHIESTE): Solo quando risolvi divisioni o operazioni complesse, segui RIGOROSAMENTE questo esempio di layout per lo schema:
    
    **Esempio di Divisione: 2460 ÷ 23**
    
@@ -135,25 +136,44 @@ REGOLE FONDAMENTALI:
        16 |
    \`\`\`
    
-5. TONO: Sii sempre paziente, incoraggiante e giocoso come un vero amico di studio. Usa al massimo una o due emoji per messaggio.
-6. RISPOSTE DIRETTE: Se l'utente non ha chiesto matematica, NON mostrare esempi di divisioni. Rispondi solo alla domanda ricevuta.`;
+6. TONO: Sii sempre paziente e incoraggiante. Usa al massimo una o due emoji per messaggio.`;
 
         // Funzione per ottenere lo streaming con fallback intelligente
         const getStreamResult = async (modelName: string, apiVersion?: string) => {
             const model = genAI.getGenerativeModel({ model: modelName }, apiVersion ? { apiVersion } : undefined);
-            const prompt = image
-                ? [systemPrompt + " Analizza: " + (message || "Cosa vedi?"), { inlineData: { data: image.split(",")[1], mimeType: image.split(";")[0].split(":")[1] || "image/jpeg" } }]
-                : systemPrompt + " Domanda: " + message;
 
-            return await model.generateContentStream(prompt);
+            if (image) {
+                // Image analysis: one-shot call
+                const prompt = [systemPrompt + " Analizza: " + (message || "Cosa vedi?"), { inlineData: { data: image.split(",")[1], mimeType: image.split(";")[0].split(":")[1] || "image/jpeg" } }];
+                return await model.generateContentStream(prompt);
+            } else {
+                // Text chat: use history for context
+                const chatHistory = (history || []).slice(-10).map((m: { role: string; content: string }) => ({
+                    role: m.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: m.content }],
+                }));
+                
+                // Ensure history starts with user
+                while (chatHistory.length > 0 && chatHistory[0].role !== 'user') {
+                    chatHistory.shift();
+                }
+
+                const chat = model.startChat({ 
+                    history: chatHistory,
+                });
+                // Prepend system prompt to the message for context
+                return await chat.sendMessageStream(systemPrompt + "\n\nDomanda dell'utente: " + message);
+            }
         };
 
         let result;
         try {
-            result = await getStreamResult("gemini-flash-lite-latest");
-        } catch (err) {
-            console.warn("Switching to standard flash due to error:", err);
+            // "gemini-flash-latest" points to the latest stable 1.5-flash which is currently working
             result = await getStreamResult("gemini-flash-latest");
+        } catch (err) {
+            console.warn("Switching to fallback model (gemini-pro-latest):", err);
+            // Fallback to Pro if Flash has issues
+            result = await getStreamResult("gemini-pro-latest");
         }
 
         // Se l'utente è loggato, salviamo il messaggio dell'utente PRIMA dello streaming

@@ -5,11 +5,17 @@ async function getRealModels() {
     console.log("--- Recupero Lista Modelli Ufficiale ---");
     let apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-        try {
-            const envContent = fs.readFileSync(path.join(__dirname, '.env'), 'utf8');
-            const match = envContent.match(/GEMINI_API_KEY=(.*)/);
-            if (match) apiKey = match[1].trim();
-        } catch (e) { }
+        const envFiles = ['.env', '.env.local'];
+        for (const file of envFiles) {
+            try {
+                const envContent = fs.readFileSync(path.join(__dirname, file), 'utf8');
+                const match = envContent.match(/GEMINI_API_KEY=(.*)/);
+                if (match) {
+                    apiKey = match[1].replace(/["']/g, '').trim();
+                    break;
+                }
+            } catch (e) { }
+        }
     }
 
     if (!apiKey) {

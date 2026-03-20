@@ -229,6 +229,7 @@ export default function ChatPage() {
                     message: messageText || "Analizza questa foto",
                     image: finalImage,
                     level: customLevel || level,
+                    history: messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
                 })
             });
 
