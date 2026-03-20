@@ -248,7 +248,7 @@ export default function ChatPage() {
                     role: "assistant",
                     content: err.message === "Unauthorized"
                         ? "Ehi! Per parlare con me devi prima fare l'accesso! 🐺"
-                        : "wolf.G ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
+                        : "Geniotto ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
                 }]);
             }
         } finally {
@@ -283,8 +283,14 @@ export default function ChatPage() {
                 {/* Header barra controlli */}
                 <div className="flex flex-col sm:flex-row items-center justify-between bg-white/40 glass p-4 rounded-[2rem] gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-12">
-                            <Image src="/geniotto-head.png" alt="Geniotto Logo" fill className="object-contain" />
+                        <div className="relative w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 p-2">
+                            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                                <rect x="5" y="10" width="90" height="70" rx="25" fill="white" stroke="#3b82f6" strokeWidth="6" />
+                                <rect x="18" y="25" width="64" height="40" rx="12" fill="#1e293b" />
+                                <circle cx="35" cy="45" r="4" fill="#60a5fa" className="animate-pulse" />
+                                <circle cx="65" cy="45" r="4" fill="#60a5fa" className="animate-pulse" />
+                                <path d="M40 55C40 55 45 60 50 60C55 60 60 55 60 55" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
                         </div>
                         <div className="flex flex-col">
                             <h2 className="text-xl font-black text-slate-800 tracking-tight">Geniotto AI</h2>

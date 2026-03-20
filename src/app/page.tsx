@@ -22,7 +22,7 @@ export default function Home() {
             <span>Geniotto — Semplifica lo studio con l&apos;IA</span>
             <span className="w-8 h-px bg-slate-300"></span>
           </div>
-          <p>© 2026 <span className="text-slate-600">wolf.G AI</span> · Creato con ❤️ per il tuo futuro</p>
+          <p>© 2026 <span className="text-slate-600">Geniotto AI</span> · Creato con ❤️ per il tuo futuro</p>
           <div className="flex flex-wrap justify-center gap-4 text-[9px] font-black text-slate-400">
             <a href="/privacy" className="hover:text-primary transition-colors">PRIVACY POLICY</a>
             <span className="opacity-30">•</span>
