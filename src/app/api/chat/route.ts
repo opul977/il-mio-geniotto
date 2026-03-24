@@ -140,7 +140,7 @@ REGOLE FONDAMENTALI:
 
         // Funzione per ottenere lo streaming con fallback intelligente
         const getStreamResult = async (modelName: string, apiVersion?: string) => {
-            const model = genAI.getGenerativeModel({ model: modelName }, apiVersion ? { apiVersion } : undefined);
+            const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
             if (image) {
                 // Image analysis: one-shot call

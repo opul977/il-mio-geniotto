@@ -33,6 +33,12 @@ export const authOptions: NextAuthOptions = {
 
                 if (!isPasswordCorrect) return null;
 
+                // Controlla se l'email è stata verificata
+                // Nota: se email_verified è null (vecchi account), li facciamo passare lo stesso per non bloccarli
+                if (user.email_verified === false) {
+                    throw new Error("Devi prima verificare la tua email! Controlla la casella di posta.");
+                }
+
                 return {
                     id: user.id,
                     email: user.email,
