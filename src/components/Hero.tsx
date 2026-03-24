@@ -71,21 +71,29 @@ export default function Hero() {
                         Il tuo amico <span className="text-primary underline decoration-4 underline-offset-4">Geniotto</span> ti spiega il perché di ogni cosa. ✨
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
-                        <Link href="/chat" className="group relative bg-primary text-white px-12 py-6 rounded-[2.5rem] text-xl font-black shadow-2xl shadow-blue-200 hover:shadow-blue-400 hover:-translate-y-1 active:scale-95 transition-all overflow-hidden flex items-center justify-center">
-                            <span className="relative z-10 flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center lg:justify-start">
+                        <Link href="/chat" className="group relative bg-primary text-white px-8 py-5 rounded-[2rem] text-lg font-black shadow-xl shadow-blue-200 hover:shadow-blue-400 hover:-translate-y-1 active:scale-95 transition-all overflow-hidden flex items-center justify-center">
+                            <span className="relative z-10 flex items-center gap-2">
                                 Inizia ora <span className="group-hover:translate-x-2 transition-transform">🚀</span>
                             </span>
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </Link>
-                        <Link href="/come-funziona" className="glass px-10 py-6 rounded-[2.5rem] text-xl font-black hover:bg-white hover:border-primary/20 transition-all border border-transparent flex items-center justify-center text-slate-800">
-                            Guarda come funziona
+                        
+                        <a href="/ilMioGenietto.apk" download className="group relative bg-slate-800 text-white px-8 py-5 rounded-[2rem] text-lg font-black shadow-xl hover:-translate-y-1 active:scale-95 transition-all overflow-hidden flex items-center justify-center border-2 border-slate-700 hover:border-emerald-500">
+                            <span className="relative z-10 flex items-center gap-2">
+                                Scarica App <span className="text-emerald-400 group-hover:scale-125 transition-transform duration-300">📱</span>
+                            </span>
+                        </a>
+
+                        <Link href="/come-funziona" className="glass px-8 py-5 rounded-[2rem] text-lg font-black hover:bg-white hover:border-primary/20 transition-all border border-transparent flex items-center justify-center text-slate-800">
+                            Come funziona
                         </Link>
+
                         <button
                             onClick={() => setIsRewardModalOpen(true)}
-                            className="bg-emerald-50 border-2 border-emerald-100 text-emerald-600 px-10 py-6 rounded-[2.5rem] text-xl font-black hover:bg-emerald-100 transition-all flex items-center justify-center gap-3 group animate-pulse hover:animate-none"
+                            className="bg-emerald-50 border-2 border-emerald-100 text-emerald-600 px-8 py-5 rounded-[2rem] text-lg font-black hover:bg-emerald-100 transition-all flex items-center justify-center gap-2 group animate-pulse hover:animate-none"
                         >
-                            <span className="text-2xl group-hover:scale-125 transition-transform">💎</span>
+                            <span className="text-xl group-hover:scale-125 transition-transform">💎</span>
                             Gettoni Gratis
                         </button>
                     </div>
