@@ -3,9 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { containsBadWords } from "@/lib/badwords";
 
 export async function POST(req: NextRequest) {
     try {
+        const { message, image, level, history } = await req.json();
+
+        // Controllo parolacce / profanity
+        if (message && containsBadWords(message)) {
+            return NextResponse.json({
+                error: "Il tuo messaggio contiene parole non appropriate. Per favore, usa un linguaggio consono! 😇",
+                code: "PROFANITY_DETECTED"
+            }, { status: 400 });
+        }
+
         const session = await getServerSession(authOptions);
         const apiKey = process.env.GEMINI_API_KEY;
 
@@ -106,7 +117,6 @@ export async function POST(req: NextRequest) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey.trim());
-        const { message, image, level, history } = await req.json();
 
         // Prompt pedagogico calibrato per ogni livello
         let levelDirective = "";
