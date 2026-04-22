@@ -1,0 +1,31 @@
+
+> ai-homework-helper@0.1.0 build
+> next build
+
+   Ôû▓ Next.js 15.5.12
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ Ô£ô Compiled successfully in 3.6s
+   Linting and checking validity of types ...
+
+./src/app/api/chat/route.ts
+154:40  Warning: 'modelName' is defined but never used.  @typescript-eslint/no-unused-vars
+154:59  Warning: 'apiVersion' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+Failed to compile.
+
+.next/types/app/materie/[slug]/page.ts:34:29
+Type error: Type '{ params: { slug: string; }; }' does not satisfy the constraint 'PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ slug: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+
+  32 |
+  33 | // Check the prop type of the entry function
+> 34 | checkFields<Diff<PageProps, FirstArg<TEntry['default']>, 'default'>>()
+     |                             ^
+  35 |
+  36 | // Check the arguments and return type of the generateMetadata function
+  37 | if ('generateMetadata' in entry) {
+Next.js build worker exited with code: 1 and signal: null

@@ -79,9 +79,9 @@ export default function Hero() {
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </Link>
                         
-                        <a href="/ilMioGenietto.apk" download className="group relative bg-slate-800 text-white px-8 py-5 rounded-[2rem] text-lg font-black shadow-xl hover:-translate-y-1 active:scale-95 transition-all overflow-hidden flex items-center justify-center border-2 border-slate-700 hover:border-emerald-500">
+                        <a href="https://expo.dev/artifacts/eas/8dvknBxx1zxjBy5PDtZmqJ.apk" download className="group relative bg-slate-800 text-white px-8 py-5 rounded-[2rem] text-lg font-black shadow-xl hover:-translate-y-1 active:scale-95 transition-all overflow-hidden flex items-center justify-center border-2 border-slate-700 hover:border-emerald-500">
                             <span className="relative z-10 flex items-center gap-2">
-                                Scarica App <span className="text-emerald-400 group-hover:scale-125 transition-transform duration-300">📱</span>
+                                Scarica App V2.8 <span className="text-emerald-400 group-hover:scale-125 transition-transform duration-300">📱</span>
                             </span>
                         </a>
 

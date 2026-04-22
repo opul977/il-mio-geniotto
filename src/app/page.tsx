@@ -28,11 +28,13 @@ export default function Home() {
             <span className="opacity-30">•</span>
             <a href="/cookie-policy" className="hover:text-primary transition-colors">COOKIE POLICY</a>
             <span className="opacity-30">•</span>
+            <a href="/termini" className="hover:text-primary transition-colors">TERMINI E CONDIZIONI</a>
+            <span className="opacity-30">•</span>
             <a href="/chi-siamo" className="hover:text-primary transition-colors">CHI SIAMO</a>
             <span className="opacity-30">•</span>
             <a href="/contatti" className="hover:text-primary transition-colors">CONTATTI</a>
             <span className="opacity-30">•</span>
-            <a href="/guide/come-studiare-con-ia" className="hover:text-primary transition-colors">GUIDA IA</a>
+            <a href="/articoli" className="hover:text-primary transition-colors">BLOG & GUIDE</a>
           </div>
         </div>
       </footer>

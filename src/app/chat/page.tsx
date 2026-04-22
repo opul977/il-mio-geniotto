@@ -66,33 +66,32 @@ export default function ChatPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
+        // Carica il contatore gettoni
         fetch('/api/tokens/check')
             .then(res => res.json())
-            .then(data => {
-                if (data.tokens !== undefined) {
-                    setTokens(data.tokens);
-                }
-            })
+            .then(data => { if (data.tokens !== undefined) setTokens(data.tokens); })
             .catch(err => console.error("Error fetching tokens:", err));
 
-        if (session?.user) {
-            fetch("/api/chat/history")
-                .then(res => res.json())
-                .then(data => {
-                    if (data.messages && data.messages.length > 0) {
-                        setMessages([
-                            { role: "assistant", content: "Bentornato! Ecco le nostre ultime conversazioni:" },
-                            ...data.messages.map((m: { role: "user" | "assistant", content: string, image_url: string }) => ({
-                                role: m.role,
-                                content: m.content,
-                                image: m.image_url
-                            }))
-                        ]);
-                    }
-                })
-                .catch(err => console.error("Errore caricamento cronologia:", err));
-        }
-    }, [session]);
+        // Carica cronologia: funziona per utenti loggati E ospiti (via IP)
+        fetch("/api/chat/history")
+            .then(res => res.json())
+            .then(data => {
+                if (data.messages && data.messages.length > 0) {
+                    const welcomeMsg = data.source === 'account'
+                        ? "Bentornato! Ecco le nostre ultime conversazioni:"
+                        : "Bentornato! Ho ritrovato la tua cronologia 🔍";
+                    setMessages([
+                        { role: "assistant", content: welcomeMsg },
+                        ...data.messages.map((m: { role: "user" | "assistant", content: string, image_url: string }) => ({
+                            role: m.role,
+                            content: m.content,
+                            image: m.image_url
+                        }))
+                    ]);
+                }
+            })
+            .catch(err => console.error("Errore caricamento cronologia:", err));
+    }, []);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && window.speechSynthesis) {

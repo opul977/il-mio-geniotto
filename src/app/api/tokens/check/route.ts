@@ -24,15 +24,15 @@ export async function GET(req: NextRequest) {
                 .single();
 
             if (usage) {
-                const lastUsed = new Date(usage.last_used_at || new Date().toISOString());
-                const now = new Date();
-                const isNewDay = lastUsed.toDateString() !== now.toDateString();
+                const lastUsedDate = new Date(usage.last_used_at || new Date().toISOString()).toISOString().split('T')[0];
+                const nowDate = new Date().toISOString().split('T')[0];
+                const isNewDay = lastUsedDate !== nowDate;
 
                 if (isNewDay) {
                     // Reset tokens per il nuovo giorno
                     await supabase
                         .from('user_usage')
-                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() })
+                        .update({ tokens_remaining: 10, last_used_at: new Date().toISOString() })
                         .eq('user_id', userId);
                     return NextResponse.json({ tokens: 10 });
                 }

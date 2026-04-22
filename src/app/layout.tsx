@@ -68,6 +68,8 @@ export const metadata: Metadata = {
 
 import { Providers } from "@/components/Providers";
 import CookieConsent from "@/components/CookieConsent";
+import Script from 'next/script';
+import AdSenseDisplay from "@/components/AdSenseDisplay";
 
 export default function RootLayout({
   children,
@@ -78,17 +80,37 @@ export default function RootLayout({
     <html lang="it">
       <head>
         {/* Google AdSense */}
-        <script
+        <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1319471899981485"
           crossOrigin="anonymous"
-        ></script>
+          strategy="afterInteractive"
+        />
       </head>
       <body
-        className={`${outfit.variable} ${quicksand.variable} font-sans antialiased`}
+        className={`${outfit.variable} ${quicksand.variable} font-sans antialiased bg-white`}
       >
         <Providers>
-          {children}
+          <div className="flex min-h-screen w-full">
+            {/* Sidebar Sinistra (AdSense) - Visibile solo su Desktop XL */}
+            <aside className="hidden xl:flex w-[180px] flex-col p-4 sticky top-0 h-screen border-r border-slate-50">
+              <div className="h-full w-full flex items-center justify-center">
+                <AdSenseDisplay type="vertical" slot="2038476836" />
+              </div>
+            </aside>
+
+            {/* Contenuto Principale */}
+            <main className="flex-1 w-full max-w-full overflow-x-hidden">
+              {children}
+            </main>
+
+            {/* Sidebar Destra (AdSense) - Visibile solo su Desktop XL */}
+            <aside className="hidden xl:flex w-[180px] flex-col p-4 sticky top-0 h-screen border-l border-slate-50">
+              <div className="h-full w-full flex items-center justify-center">
+                <AdSenseDisplay type="vertical" slot="2038476836" />
+              </div>
+            </aside>
+          </div>
           <CookieConsent />
         </Providers>
       </body>

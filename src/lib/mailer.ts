@@ -1,10 +1,12 @@
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.SMTP_HOST || 'authsmtp.register.it',
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: process.env.SMTP_SECURE !== 'false', // true per porta 465, false per 587
   auth: {
-    user: process.env.GMAIL_EMAIL,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
   },
 });
 
@@ -12,7 +14,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   const verifyUrl = `${process.env.NEXTAUTH_URL}/auth/verify?token=${token}`;
   
   const mailOptions = {
-    from: `"Geniotto AI" <${process.env.GMAIL_EMAIL}>`,
+    from: `"Geniotto AI" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Verifica la tua email per Geniotto AI',
     html: `

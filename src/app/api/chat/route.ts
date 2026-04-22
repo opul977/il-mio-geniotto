@@ -37,8 +37,10 @@ export async function POST(req: NextRequest) {
 
             currentTokens = usage?.tokens_remaining ?? 10;
             if (!usageError && usage) {
-                const lastUsed = new Date(usage.last_used_at || new Date().toISOString());
-                if (lastUsed.toDateString() !== now.toDateString()) {
+                const lastUsedDate = new Date(usage.last_used_at || now.toISOString()).toISOString().split('T')[0];
+                const nowDate = now.toISOString().split('T')[0];
+                
+                if (lastUsedDate !== nowDate) {
                     currentTokens = 10;
                     await supabase
                         .from('user_usage')
@@ -62,7 +64,7 @@ export async function POST(req: NextRequest) {
 
             currentTokens = usage?.tokens_remaining ?? 10;
             if (!usageError && usage) {
-                const lastUsedDate = new Date(usage.last_used_at || new Date().toISOString()).toISOString().split('T')[0];
+                const lastUsedDate = new Date(usage.last_used_at || now.toISOString()).toISOString().split('T')[0];
                 const nowDate = now.toISOString().split('T')[0];
                 
                 if (lastUsedDate !== nowDate) {
@@ -186,11 +188,19 @@ REGOLE FONDAMENTALI:
             result = await getStreamResult("gemini-pro-latest");
         }
 
-        // Se l'utente è loggato, salviamo il messaggio dell'utente PRIMA dello streaming
+        // Salva il messaggio dell'utente PRIMA dello streaming (sia loggato che ospite)
         if (session?.user) {
             const userId = (session.user as { id: string }).id;
             await supabase.from('chat_messages').insert([{
                 user_id: userId,
+                role: 'user',
+                content: message,
+                image_url: image || null,
+                level: level
+            }]);
+        } else if (guestIp) {
+            await supabase.from('chat_messages').insert([{
+                guest_ip: guestIp,
                 role: 'user',
                 content: message,
                 image_url: image || null,
@@ -203,11 +213,12 @@ REGOLE FONDAMENTALI:
                 const encoder = new TextEncoder();
 
                 try {
+                    let fullResponse = "";
                     for await (const chunk of result.stream) {
                         let chunkText = chunk.text();
+                        fullResponse += chunkText;
                         
                         // SANITIZZAZIONE AGGRESSIVA LATO SERVER
-                        // Rimuoviamo i simboli del dollaro e i comandi LaTeX comuni
                         chunkText = chunkText
                             .replace(/\$/g, '')
                             .replace(/\\times/g, '×')
@@ -217,7 +228,13 @@ REGOLE FONDAMENTALI:
                         controller.enqueue(encoder.encode(chunkText));
                     }
 
-                    // Token già decrementati all'inizio
+                    // Salva la risposta dell'assistente (sia per utenti loggati che ospiti)
+                    if (session?.user) {
+                        const uid = (session.user as { id: string }).id;
+                        await supabase.from('chat_messages').insert([{ user_id: uid, role: 'assistant', content: fullResponse, level: level }]);
+                    } else if (guestIp) {
+                        await supabase.from('chat_messages').insert([{ guest_ip: guestIp, role: 'assistant', content: fullResponse, level: level }]);
+                    }
 
                     controller.close();
                 } catch (e) {
