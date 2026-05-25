@@ -60,15 +60,49 @@ export default function PrivacyPage() {
                             </p>
                         </section>
 
-                        <section>
-                            <h2 className="text-xl font-black text-slate-800 mb-3">6. Contatti</h2>
+                        <section id="delete-account" className="bg-red-50/50 border-2 border-red-100 p-6 rounded-2xl mt-8">
+                            <h2 className="text-xl font-black text-red-600 mb-3 flex items-center gap-2">
+                                <span>🗑️</span> 6. Richiesta di Eliminazione Account e Dati
+                            </h2>
+                            <p className="mb-4">
+                                Rispettiamo il tuo diritto alla cancellazione dei dati. Puoi richiedere l&apos;eliminazione completa del tuo account Geniotto AI e di tutti i dati associati in qualsiasi momento.
+                            </p>
+
+                            <h3 className="font-bold text-slate-800 mt-4 mb-2">Come richiedere l&apos;eliminazione:</h3>
+                            <ul className="bg-white/60 border-l-4 border-red-400 p-4 rounded-r-xl mb-4 space-y-2">
+                                <li><strong>Metodo 1 — Tramite app:</strong> Apri Geniotto AI → Menu → Impostazioni → &quot;Elimina Account&quot; → Conferma la cancellazione.</li>
+                                <li><strong>Metodo 2 — Via email:</strong> Invia una richiesta di cancellazione a:<br/>
+                                    <span className="bg-primary/10 text-primary px-2 py-1 rounded font-bold inline-block mt-1 mb-1">giupy.wolf77@gmail.com</span><br/>
+                                    con oggetto <em>&quot;Richiesta eliminazione account Geniotto&quot;</em> e il tuo indirizzo email di registrazione.
+                                </li>
+                            </ul>
+
+                            <h3 className="font-bold text-slate-800 mt-4 mb-2">Cosa viene eliminato:</h3>
+                            <ul className="mb-4 space-y-1">
+                                <li>✅ Account utente e credenziali di accesso</li>
+                                <li>✅ Tutta la cronologia delle conversazioni</li>
+                                <li>✅ Immagini caricate per l&apos;analisi</li>
+                                <li>✅ Preferenze e impostazioni personali</li>
+                            </ul>
+
+                            <h3 className="font-bold text-slate-800 mt-4 mb-2">Tempi di elaborazione:</h3>
+                            <p className="mb-2">
+                                La richiesta sarà elaborata entro <strong>30 giorni</strong> dalla ricezione. Riceverai una conferma via email al completamento della cancellazione.
+                            </p>
+                            <p className="text-sm italic text-slate-500">
+                                Nota: alcune informazioni potrebbero essere conservate per obblighi legali o fiscali per il periodo minimo richiesto dalla legge.
+                            </p>
+                        </section>
+
+                        <section className="mt-8">
+                            <h2 className="text-xl font-black text-slate-800 mb-3">7. Contatti</h2>
                             <p>
-                                Per qualsiasi domanda riguardante questa Privacy Policy, puoi contattarci all&apos;indirizzo email fornito nel footer del sito.
+                                Per qualsiasi domanda riguardante questa Privacy Policy o per esercitare i tuoi diritti, puoi contattarci all&apos;indirizzo email: <span className="font-bold text-primary">giupy.wolf77@gmail.com</span>
                             </p>
                         </section>
 
                         <p className="text-sm italic pt-8 border-t border-slate-100">
-                            Ultimo aggiornamento: 17 Marzo 2026
+                            Ultimo aggiornamento: 9 Maggio 2026
                         </p>
                     </div>
                 </div>

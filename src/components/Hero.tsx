@@ -2,8 +2,20 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import RewardAdModal from "./RewardAdModal";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
+
+// Caricamento dinamico per evitare problemi SSR con Three.js
+const Geniotto3D = dynamic(() => import("./Geniotto3D"), { 
+    ssr: false,
+    loading: () => (
+        <div className="w-full h-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+    )
+});
 
 const messages = [
     "Ciao, sono Geniotto! 👋",
@@ -113,43 +125,12 @@ export default function Hero() {
                         </div>
                     </div>
 
-                    <div className="relative w-full aspect-square bg-white/40 glass rounded-[4rem] p-12 flex items-center justify-center group overflow-visible transition-all duration-500 ease-out"
-                        style={{ transform: `perspective(1000px) rotateY(${mousePos.x * 10}deg) rotateX(${-mousePos.y * 10}deg)` }}>
+                    <div className="relative w-full aspect-square bg-white/40 glass rounded-[4rem] flex items-center justify-center group overflow-visible transition-all duration-500 ease-out">
                         {/* Animated backdrop circles */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-highlight/5 to-accent/10 opacity-50 rounded-[4rem]" />
 
-                        {/* Mascot Robot */}
-                        <div className="relative z-20 floating group-hover:scale-105 transition-transform duration-700 ease-out"
-                            style={{ transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)` }}>
-                            <svg width="340" height="340" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                {/* Robot Head group moved by mouse */}
-                                <g style={{ transform: `translate(${mousePos.x * 15}px, ${mousePos.y * 15}px)`, transition: 'transform 0.1s ease-out' }}>
-                                    <rect x="55" y="30" width="90" height="70" rx="30" fill="white" className="shadow-inner" />
-                                    <rect x="55" y="30" width="90" height="70" rx="30" stroke="#3b82f6" strokeWidth="6" />
-                                    {/* Face Screen */}
-                                    <rect x="68" y="45" width="64" height="40" rx="12" fill="#1e293b" />
-                                    {/* Glowing Eyes following mouse */}
-                                    <g style={{ transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 8}px)` }}>
-                                        <circle cx="85" cy="65" r="4" fill="#60a5fa" className="animate-pulse" />
-                                        <circle cx="115" cy="65" r="4" fill="#60a5fa" className="animate-pulse" />
-                                    </g>
-                                    {/* Smile */}
-                                    <path d="M90 75C90 75 95 80 100 80C105 80 110 75 110 75" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" />
-                                </g>
-
-                                {/* Robot Body */}
-                                <rect x="65" y="105" width="70" height="60" rx="20" fill="white" stroke="#3b82f6" strokeWidth="6" />
-                                <circle cx="100" cy="135" r="10" fill="#3b82f6" fillOpacity="0.1" stroke="#3b82f6" strokeWidth="2" />
-
-                                {/* Hands floating with parallax and waving */}
-                                <g className="animate-wave" style={{ transformOrigin: '45px 100px' }}>
-                                    <rect x="35" y="90" width="20" height="20" rx="8" fill="white" stroke="#3b82f6" strokeWidth="4"
-                                        style={{ transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px)` }} />
-                                </g>
-                                <rect x="145" y="110" width="20" height="20" rx="8" fill="white" stroke="#3b82f6" strokeWidth="4"
-                                    className="animate-bounce [animation-delay:0.5s]" style={{ transform: `translate(${mousePos.x * 10}px, ${mousePos.y * 10}px)` }} />
-                            </svg>
-                        </div>
+                        {/* Interactive 3D Mascot Robot */}
+                        <Geniotto3D mousePos={mousePos} />
 
                         {/* Orbiting Icons with parallax */}
                         <div className="absolute top-[10%] right-[10%] w-20 h-20 glass rounded-3xl flex items-center justify-center text-4xl floating shadow-2xl"

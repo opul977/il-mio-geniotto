@@ -151,12 +151,15 @@ REGOLE FONDAMENTALI:
 6. TONO: Sii sempre paziente e incoraggiante. Usa al massimo una o due emoji per messaggio.`;
 
         // Funzione per ottenere lo streaming con fallback intelligente
-        const getStreamResult = async (modelName: string, apiVersion?: string) => {
-            const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+        const getStreamResult = async (modelName: string) => {
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                systemInstruction: systemPrompt 
+            });
 
             if (image) {
                 // Image analysis: one-shot call
-                const prompt = [systemPrompt + " Analizza: " + (message || "Cosa vedi?"), { inlineData: { data: image.split(",")[1], mimeType: image.split(";")[0].split(":")[1] || "image/jpeg" } }];
+                const prompt = [message || "Cosa vedi?", { inlineData: { data: image.split(",")[1], mimeType: image.split(";")[0].split(":")[1] || "image/jpeg" } }];
                 return await model.generateContentStream(prompt);
             } else {
                 // Text chat: use history for context
@@ -173,8 +176,8 @@ REGOLE FONDAMENTALI:
                 const chat = model.startChat({ 
                     history: chatHistory,
                 });
-                // Prepend system prompt to the message for context
-                return await chat.sendMessageStream(systemPrompt + "\n\nDomanda dell'utente: " + message);
+                
+                return await chat.sendMessageStream(message);
             }
         };
 

@@ -62,6 +62,7 @@ export default function ChatPage() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [showTokenInfo, setShowTokenInfo] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -274,234 +275,194 @@ export default function ChatPage() {
     }, []);
 
     return (
-        <main className="min-h-screen mesh-gradient-light flex flex-col">
-            <Navbar />
-
-            <div className="flex-1 max-w-5xl mx-auto w-full pt-32 pb-6 px-6 flex flex-col gap-4 h-[calc(100vh-2rem)] overflow-hidden">
-
-                {/* Header barra controlli */}
-                <div className="flex flex-col sm:flex-row items-center justify-between bg-white/40 glass p-4 rounded-[2rem] gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 p-2">
-                            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                                <rect x="5" y="10" width="90" height="70" rx="25" fill="white" stroke="#3b82f6" strokeWidth="6" />
-                                <rect x="18" y="25" width="64" height="40" rx="12" fill="#1e293b" />
-                                <circle cx="35" cy="45" r="4" fill="#60a5fa" className="animate-pulse" />
-                                <circle cx="65" cy="45" r="4" fill="#60a5fa" className="animate-pulse" />
-                                <path d="M40 55C40 55 45 60 50 60C55 60 60 55 60 55" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" />
-                            </svg>
+        <main className="h-screen bg-[#f9fafb] flex overflow-hidden font-sans">
+            {/* Sidebar - Stile ChatGPT/Gemini */}
+            <aside className={`
+                fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 transition-transform duration-300 ease-in-out md:relative md:translate-x-0
+                ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+            `}>
+                <div className="p-6 flex items-center justify-between md:block">
+                    <button 
+                        onClick={() => {
+                            setMessages([{ role: "assistant", content: "Ciao! Sono Geniotto. Come posso aiutarti oggi?" }]);
+                            setInput("");
+                            setIsSidebarOpen(false);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-3 bg-slate-50 hover:bg-slate-100 border-2 border-slate-100 p-4 rounded-2xl transition-all group"
+                    >
+                        <span className="text-xl group-hover:scale-110 transition-transform">➕</span>
+                        <span className="font-black text-xs uppercase tracking-widest text-slate-700">Nuova Chat</span>
+                    </button>
+                    <button onClick={() => setIsSidebarOpen(false)} className="md:hidden p-2 text-slate-400">✕</button>
+                </div>
+                {/* ... rest of sidebar remains ... */}
+                <div className="flex-1 overflow-y-auto px-4 space-y-6">
+                    <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 mb-4 block">La tua cronologia</span>
+                        <div className="space-y-1">
+                            {messages.filter(m => m.role === 'user').slice(-5).map((m, i) => (
+                                <button key={i} className="w-full text-left p-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs truncate transition-colors">
+                                    💬 {m.content.substring(0, 30)}...
+                                </button>
+                            ))}
                         </div>
-                        <div className="flex flex-col">
-                            <h2 className="text-xl font-black text-slate-800 tracking-tight">Geniotto AI</h2>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                {isSpeaking ? (
-                                    <div className="flex items-center gap-2 text-emerald-600 animate-pulse">
-                                        <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                                        Ti sta parlando... 💬
-                                    </div>
-                                ) : (
-                                    <>
-                                        <span className="w-2 h-2 bg-slate-300 rounded-full" />
-                                        {session ? `Ciao, ${session.user?.name?.split(' ')[0]}!` : "Modalità Ospite 🚀"}
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-4">
-                        {/* Selettore livello */}
-                        <div className="flex bg-slate-100 p-1 rounded-xl">
-                            <button onClick={() => setLevel("primary")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "primary" ? "bg-white text-primary shadow-sm" : "text-slate-400"}`}>Primaria</button>
-                            <button onClick={() => setLevel("middle")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "middle" ? "bg-white text-orange-500 shadow-sm" : "text-slate-400"}`}>Media</button>
-                            <button onClick={() => setLevel("highschool")} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${level === "highschool" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"}`}>Superiori</button>
-                        </div>
-
-                        {/* Badge gettoni con tooltip informativo */}
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowTokenInfo(v => !v)}
-                                className="bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-2 hover:bg-amber-200 transition-all"
-                            >
-                                <span className="text-lg">🪙</span>
-                                <span className="text-[10px] font-black text-amber-600">
-                                    {tokens} {session ? "GETTONI" : "GETTONI OSPITE"}
-                                </span>
-                                <span className="text-[10px] text-amber-400 font-black">?</span>
-                            </button>
-
-                            {/* Tooltip spiegazione gettoni */}
-                            {showTokenInfo && (
-                                <div className="absolute top-12 right-0 z-50 w-72 bg-white rounded-2xl shadow-2xl border border-amber-100 p-5 animate-in fade-in slide-in-from-top-2 duration-200">
-                                    <button
-                                        onClick={() => setShowTokenInfo(false)}
-                                        className="absolute top-3 right-3 text-slate-300 hover:text-slate-500 text-lg font-black"
-                                    >✕</button>
-                                    <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight mb-3">🪙 Cosa sono i Gettoni?</h4>
-                                    <p className="text-slate-500 text-xs font-bold leading-relaxed mb-3">
-                                        I <strong className="text-amber-600">gettoni</strong> sono i tuoi crediti per fare domande a Geniotto. Ogni volta che invii un messaggio, usi <strong>1 gettone</strong>.
-                                    </p>
-                                    <div className="flex flex-col gap-2 mb-3">
-                                        <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-2">
-                                            <span>🚀</span>
-                                            <span className="text-[10px] font-black text-slate-500 uppercase">Ospite: {tokens} gettoni gratuiti</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 bg-blue-50 rounded-xl p-2">
-                                            <span>👤</span>
-                                            <span className="text-[10px] font-black text-blue-500 uppercase">Registrato: più gettoni ogni giorno</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 bg-amber-50 rounded-xl p-2">
-                                            <span>📺</span>
-                                            <span className="text-[10px] font-black text-amber-500 uppercase">Guarda un video: +5 gettoni gratis!</span>
-                                        </div>
-                                    </div>
-                                    {!session && (
-                                        <a
-                                            href="/auth/register"
-                                            className="block w-full text-center bg-primary text-white text-[10px] font-black uppercase tracking-widest py-2.5 rounded-xl hover:bg-blue-600 transition-all"
-                                        >
-                                            Registrati — È Gratis! 🎉
-                                        </a>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Donazione caffè */}
-                        <a
-                            href="https://www.paypal.com/donate/?business=opul77@yahoo.it&no_recurring=0&item_name=Offrimi+un+caffè+per+Geniotto+☕&currency_code=EUR"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-white border-2 border-amber-100 px-3 py-1.5 rounded-xl flex items-center gap-2 hover:bg-amber-50 transition-all hover:scale-105 active:scale-95"
-                        >
-                            <span className="text-[10px] font-black text-amber-600">☕ Offrimi un caffè</span>
-                        </a>
-
-                        {/* Toggle audio */}
-                        <button
-                            onClick={() => {
-                                const newState = !isAudioEnabled;
-                                setIsAudioEnabled(newState);
-                                if (!newState) window.speechSynthesis.cancel();
-                            }}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all font-black text-[10px] uppercase ${isAudioEnabled ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}
-                        >
-                            {isAudioEnabled ? "🔊 Voce Attiva" : "🔇 Voce Spenta"}
-                        </button>
                     </div>
                 </div>
+                <div className="p-6 border-t border-slate-100">
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm">
+                            {session?.user?.name?.[0] || "U"}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-[10px] font-black text-slate-700 truncate uppercase tracking-tight">
+                                {session?.user?.name?.split(' ')[0] || "Ospite"}
+                            </span>
+                            <span className="text-[9px] font-bold text-slate-400 truncate tracking-tighter">
+                                {tokens} Gettoni
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
 
-                {/* Area chat principale */}
-                <div className="flex-1 bg-white/60 glass rounded-[2.5rem] p-6 flex flex-col gap-4 overflow-hidden shadow-2xl">
+            {/* Overlay per mobile */}
+            {isSidebarOpen && (
+                <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
+            )}
 
-                    {/* Messaggi */}
-                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4">
+            {/* Area Chat Principale */}
+            <div className="flex-1 flex flex-col relative h-full bg-white md:bg-[#f9fafb]">
+                <header className="absolute top-0 left-0 right-0 z-30 p-4 md:p-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <button 
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="md:hidden w-12 h-12 bg-white shadow-sm border border-slate-100 rounded-2xl flex items-center justify-center text-xl"
+                        >
+                            📜
+                        </button>
+                        <Navbar />
+                    </div>
+                    
+                    {/* Badge Livello Desktop */}
+                    <div className="hidden lg:flex bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-slate-100 gap-2 mt-4">
+                        <button onClick={() => setLevel("primary")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "primary" ? "bg-primary text-white" : "text-slate-400 hover:text-slate-600"}`}>Elementari</button>
+                        <button onClick={() => setLevel("middle")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "middle" ? "bg-orange-500 text-white" : "text-slate-400 hover:text-slate-600"}`}>Medie</button>
+                        <button onClick={() => setLevel("highschool")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "highschool" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-slate-600"}`}>Superiori</button>
+                    </div>
+                </header>
+
+
+                {/* Container Messaggi */}
+                <div className="flex-1 overflow-y-auto pt-32 pb-32 custom-scrollbar">
+                    <div className="max-w-3xl mx-auto px-6 flex flex-col gap-8">
                         {messages.map((msg, i) => (
-                            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                                <div className={`max-w-[85%] flex flex-col gap-2 ${msg.role === "user" ? "items-end" : "items-start"}`}>
-                                    <div className={`p-5 rounded-[1.8rem] text-md font-bold shadow-sm ${msg.role === "user"
-                                        ? "bg-primary text-white rounded-tr-none"
-                                        : "bg-white text-slate-800 rounded-tl-none border border-slate-100"
+                            <div key={i} className={`flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+                                {/* Avatar */}
+                                <div className={`w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl shadow-sm ${msg.role === "user" ? "bg-primary text-white" : "bg-white border border-slate-200"}`}>
+                                    {msg.role === "user" ? (session?.user?.name?.[0] || "👤") : "🤖"}
+                                </div>
+
+                                {/* Bubble */}
+                                <div className={`flex flex-col max-w-[85%] ${msg.role === "user" ? "items-end" : "items-start"}`}>
+                                    <div className={`group relative p-6 rounded-[2rem] shadow-sm transition-all ${msg.role === "user" 
+                                        ? "bg-primary text-white rounded-tr-none shadow-blue-100" 
+                                        : "bg-white text-slate-800 rounded-tl-none border border-slate-100 shadow-slate-100"
                                     }`}>
                                         {msg.image && (
-                                            <div className="mb-3 relative w-full h-48 rounded-xl overflow-hidden border-2 border-slate-100">
+                                            <div className="mb-4 relative w-full h-64 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md">
                                                 <Image src={msg.image} alt="Compito" fill className="object-cover" />
                                             </div>
                                         )}
-                                        {msg.role === "assistant" ? (
-                                            <div className="markdown-content">
-                                                <ReactMarkdown>{msg.content}</ReactMarkdown>
-                                            </div>
-                                        ) : (
-                                            msg.content
-                                        )}
+                                        
+                                        <div className={`prose max-w-none font-bold leading-relaxed text-[15px] sm:text-base ${msg.role === "user" ? "prose-invert" : "prose-slate"}`}>
+                                            {msg.role === "assistant" ? (
+                                                <div className="markdown-content">
+                                                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                                </div>
+                                            ) : (
+                                                msg.content
+                                            )}
+                                        </div>
+
+                                        {/* Azioni veloci bolla */}
                                         {msg.role === "assistant" && msg.content && (
-                                            <button
-                                                onClick={() => speak(msg.content)}
-                                                className="ml-3 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-500 hover:bg-blue-100 transition-all shadow-sm"
-                                                title="Ascolta Geniotto"
-                                            >
-                                                🔊
-                                            </button>
+                                            <div className="absolute -bottom-10 left-0 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => speak(msg.content)} className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-xs shadow-sm hover:bg-slate-50 transition-colors" title="Ascolta">🔊</button>
+                                                <button onClick={() => {
+                                                    navigator.clipboard.writeText(msg.content);
+                                                    alert("Copiato!");
+                                                }} className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-xs shadow-sm hover:bg-slate-50 transition-colors" title="Copia">📋</button>
+                                            </div>
                                         )}
                                     </div>
-                                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest px-2">
-                                        {msg.role === "user" ? "Tu" : "Geniotto"}
+                                    <span className="mt-2 text-[9px] font-black text-slate-300 uppercase tracking-widest px-4">
+                                        {msg.role === "user" ? "Tu" : "Geniotto AI"}
                                     </span>
                                 </div>
                             </div>
                         ))}
 
                         {isLoading && (
-                            <div className="flex justify-start">
-                                <div className="bg-white p-4 rounded-[1.5rem] rounded-tl-none border border-slate-100 shadow-sm flex gap-1.5">
+                            <div className="flex gap-4 animate-pulse">
+                                <div className="w-10 h-10 rounded-2xl bg-slate-100 flex-shrink-0" />
+                                <div className="bg-white p-6 rounded-[2rem] rounded-tl-none border border-slate-100 shadow-sm w-32 flex gap-1.5 items-center justify-center">
                                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
                                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
                                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
                                 </div>
                             </div>
                         )}
-                        <div ref={messagesEndRef} />
+                        <div ref={messagesEndRef} className="h-4" />
                     </div>
+                </div>
 
-                    {/* Preview immagine selezionata */}
-                    {selectedImage && (
-                        <div className="mx-2 mb-2 relative inline-block animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-xl">
-                                <Image src={selectedImage} alt="Preview" fill className="object-cover" />
-                                <div className="absolute inset-0 bg-black/10 hover:bg-black/20 transition-colors" />
+                {/* Input Bar - Moderna e Galleggiante */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white/90 to-transparent">
+                    <div className="max-w-3xl mx-auto flex flex-col gap-3">
+                        
+                        {selectedImage && (
+                            <div className="mx-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white shadow-2xl group">
+                                    <Image src={selectedImage} alt="Preview" fill className="object-cover" />
+                                    <button onClick={() => setSelectedImage(null)} className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-black text-xs">ELIMINA</button>
+                                </div>
                             </div>
-                            <button
-                                onClick={() => setSelectedImage(null)}
-                                className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all z-10 font-bold border-2 border-white"
-                                title="Rimuovi immagine"
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    )}
+                        )}
 
-                    {/* Input area */}
-                    <div className="pt-4 flex items-center gap-3">
-                        <input
-                            type="file"
-                            className="hidden"
-                            ref={fileInputRef}
-                            accept="image/*"
-                            onChange={handleFileUpload}
-                        />
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-14 h-14 bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center text-2xl transition-all shadow-inner shrink-0"
-                            title="Carica foto del compito"
-                        >
-                            📸
-                        </button>
-                        <button
-                            onClick={startSpeechRecognition}
-                            className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all shadow-inner shrink-0 ${isListening ? "bg-red-500 text-white animate-pulse" : "bg-slate-50 text-slate-400"}`}
-                            title="Parla a Geniotto"
-                        >
-                            {isListening ? "⏹️" : "🎙️"}
-                        </button>
-                        <div className="flex-1 relative">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                                placeholder="Scrivi al tuo amico Geniotto..."
-                                aria-label="Messaggio per Geniotto"
-                                className="w-full bg-white border-2 border-slate-50 rounded-2xl py-4 pl-6 pr-20 text-md font-bold placeholder:text-slate-300 focus:outline-none focus:border-primary/20 transition-all shadow-md"
-                            />
-                            <button
-                                onClick={() => handleSend()}
-                                disabled={isLoading || (!input.trim() && !selectedImage)}
-                                className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-blue-600 disabled:opacity-50 text-white px-5 rounded-xl font-black shadow-lg hover:scale-105 active:scale-95 transition-all text-[11px] uppercase"
-                            >
-                                INVIA 🚀
-                            </button>
+                        <div className="relative group">
+                            <div className="absolute inset-0 bg-primary/10 rounded-[2.5rem] blur-2xl group-focus-within:bg-primary/20 transition-all opacity-50" />
+                            <div className="relative flex items-center bg-white border-2 border-slate-100 rounded-[2.5rem] p-2 shadow-2xl focus-within:border-primary/30 transition-all">
+                                <input type="file" className="hidden" ref={fileInputRef} accept="image/*" onChange={handleFileUpload} />
+                                
+                                <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 flex items-center justify-center text-xl hover:bg-slate-50 rounded-full transition-all shrink-0" title="Allega foto">📸</button>
+                                
+                                <button onClick={startSpeechRecognition} className={`w-12 h-12 flex items-center justify-center text-xl rounded-full transition-all shrink-0 ${isListening ? "bg-red-500 text-white animate-pulse" : "hover:bg-slate-50 text-slate-400"}`}>
+                                    {isListening ? "⏹️" : "🎙️"}
+                                </button>
+
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                                    placeholder="Chiedi aiuto al tuo Geniotto..."
+                                    className="flex-1 bg-transparent border-none py-4 px-4 text-sm sm:text-base font-bold text-slate-800 placeholder:text-slate-300 focus:outline-none"
+                                />
+
+                                <button
+                                    onClick={() => handleSend()}
+                                    disabled={isLoading || (!input.trim() && !selectedImage)}
+                                    className="bg-primary hover:bg-blue-600 disabled:opacity-50 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0"
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 rotate-45">
+                                        <path d="M12 4V20M12 4L8 8M12 4L16 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
+                        <p className="text-center text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+                            Geniotto AI può commettere errori. Verifica sempre le informazioni importanti. 🐺
+                        </p>
                     </div>
                 </div>
             </div>
@@ -518,3 +479,4 @@ export default function ChatPage() {
         </main>
     );
 }
+

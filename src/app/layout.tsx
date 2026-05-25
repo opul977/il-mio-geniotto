@@ -70,6 +70,7 @@ import { Providers } from "@/components/Providers";
 import CookieConsent from "@/components/CookieConsent";
 import Script from 'next/script';
 import AdSenseDisplay from "@/components/AdSenseDisplay";
+import MagicParticles from "@/components/MagicParticles";
 
 export default function RootLayout({
   children,
@@ -91,6 +92,7 @@ export default function RootLayout({
         className={`${outfit.variable} ${quicksand.variable} font-sans antialiased bg-white`}
       >
         <Providers>
+          <MagicParticles />
           <div className="flex min-h-screen w-full">
             {/* Sidebar Sinistra (AdSense) - Visibile solo su Desktop XL */}
             <aside className="hidden xl:flex w-[180px] flex-col p-4 sticky top-0 h-screen border-r border-slate-50">

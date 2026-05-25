@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const messages = [
     "Hai bisogno di aiuto? 📚",
@@ -52,19 +53,14 @@ export default function FloatingGeniotto() {
 
             {/* Geniotto Mascot (Simplified for Floating) */}
             <Link href="/chat" className="group relative">
-                <div className="bg-white p-4 rounded-full shadow-2xl border-4 border-primary hover:scale-110 transition-transform cursor-pointer">
-                    <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="20" y="25" width="60" height="50" rx="20" fill="white" stroke="#3b82f6" strokeWidth="4" />
-                        <rect x="30" y="37" width="40" height="26" rx="10" fill="#1e293b" />
-                        <circle cx="40" cy="50" r="3" fill="#60a5fa" className="animate-pulse" />
-                        <circle cx="60" cy="50" r="3" fill="#60a5fa" className="animate-pulse" />
-                        <path d="M42 58C42 58 46 62 50 62C54 62 58 58 58 58" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" />
-
-                        {/* Waving Hand */}
-                        <g className="animate-wave" style={{ transformOrigin: '80px 80px' }}>
-                            <rect x="75" y="65" width="12" height="12" rx="4" fill="white" stroke="#3b82f6" strokeWidth="2" />
-                        </g>
-                    </svg>
+                <div className="bg-white p-2 rounded-full shadow-2xl border-4 border-primary hover:scale-110 transition-transform cursor-pointer w-[80px] h-[80px] flex items-center justify-center overflow-hidden">
+                    <Image 
+                        src="/mascot.png.PNG" 
+                        alt="Geniotto" 
+                        width={80} 
+                        height={80} 
+                        className="w-full h-auto"
+                    />
                 </div>
 
                 {/* Notification Badge */}
