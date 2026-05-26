@@ -45,9 +45,4 @@ next-env.d.ts
 
 # File binari pesanti (esclusi dal repo per evitare timeout)
 public/*.apk
-public/*.mp4
-public/*.gif
-public/*.glb
-public/*.PNG
-public/mascot.png.PNG
 lint_output.txt
