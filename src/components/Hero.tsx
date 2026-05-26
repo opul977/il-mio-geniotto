@@ -5,17 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import RewardAdModal from "./RewardAdModal";
 import { useSession } from "next-auth/react";
-import dynamic from "next/dynamic";
-
-// Caricamento dinamico per evitare problemi SSR con Three.js
-const Geniotto3D = dynamic(() => import("./Geniotto3D"), { 
-    ssr: false,
-    loading: () => (
-        <div className="w-full h-full flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-    )
-});
+// Nessun import 3D necessario, usiamo il video premium
 
 const messages = [
     "Ciao, sono Geniotto! 👋",
@@ -129,16 +119,36 @@ export default function Hero() {
                         {/* Animated backdrop circles */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-highlight/5 to-accent/10 opacity-50 rounded-[4rem]" />
 
-                        {/* Interactive 3D Mascot Robot */}
-                        <Geniotto3D mousePos={mousePos} />
+                        {/* Interactive Video Player (Premium Glassmorphism) */}
+                        <div className="relative w-full aspect-[4/5] sm:aspect-square md:aspect-video lg:aspect-square bg-slate-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/40 ring-1 ring-slate-900/5 group hover:scale-[1.02] transition-transform duration-500 ease-out z-20">
+                            {/* Video Loop */}
+                            <video 
+                                autoPlay 
+                                loop 
+                                muted 
+                                playsInline
+                                className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
+                                poster="/geniotto-head.PNG"
+                            >
+                                <source src="/geniotto_final.mp4" type="video/mp4" />
+                                <source src="/geniotto.mp4" type="video/mp4" />
+                            </video>
+                            
+                            {/* Play overlay finto per estetica */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-slate-900/20">
+                                <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/50 text-white shadow-xl transform scale-90 group-hover:scale-100 transition-transform">
+                                    <span className="text-2xl ml-1">▶</span>
+                                </div>
+                            </div>
+                        </div>
 
-                        {/* Orbiting Icons with parallax */}
-                        <div className="absolute top-[10%] right-[10%] w-20 h-20 glass rounded-3xl flex items-center justify-center text-4xl floating shadow-2xl"
-                            style={{ animationDelay: '0.2s', transform: `translate(${mousePos.x * -40}px, ${mousePos.y * -40}px)` }}>🧪</div>
-                        <div className="absolute bottom-[20%] left-[-5%] w-16 h-16 glass rounded-2xl flex items-center justify-center text-3xl floating shadow-xl"
-                            style={{ animationDelay: '1s', transform: `translate(${mousePos.x * 30}px, ${mousePos.y * 30}px)` }}>📚</div>
-                        <div className="absolute top-[40%] left-[10%] w-14 h-14 glass rounded-2xl flex items-center justify-center text-2xl floating shadow-lg"
-                            style={{ animationDelay: '0.5s', transform: `translate(${mousePos.x * 50}px, ${mousePos.y * -20}px)` }}>🎨</div>
+                        {/* Orbiting Icons with parallax (restano per dare dinamismo) */}
+                        <div className="absolute top-[-5%] right-[-5%] w-16 h-16 sm:w-20 sm:h-20 glass rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl floating shadow-2xl z-30"
+                            style={{ animationDelay: '0.2s', transform: `translate(${mousePos.x * -30}px, ${mousePos.y * -30}px)` }}>🧪</div>
+                        <div className="absolute bottom-[10%] left-[-10%] w-12 h-12 sm:w-16 sm:h-16 glass rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl floating shadow-xl z-30"
+                            style={{ animationDelay: '1s', transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)` }}>📚</div>
+                        <div className="absolute top-[30%] left-[-5%] w-10 h-10 sm:w-14 sm:h-14 glass rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl floating shadow-lg z-30"
+                            style={{ animationDelay: '0.5s', transform: `translate(${mousePos.x * 40}px, ${mousePos.y * -15}px)` }}>🎨</div>
                     </div>
                 </div>
             </div>
