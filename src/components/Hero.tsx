@@ -5,17 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import RewardAdModal from "./RewardAdModal";
 import { useSession } from "next-auth/react";
-import dynamic from "next/dynamic";
-
-// Caricamento dinamico per evitare problemi SSR con Three.js
-const Geniotto3D = dynamic(() => import("./Geniotto3D"), { 
-    ssr: false,
-    loading: () => (
-        <div className="w-full h-full flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-    )
-});
+import RobotDancer from "./RobotDancer";
 
 const messages = [
     "Ciao, sono Geniotto! 👋",
@@ -129,8 +119,8 @@ export default function Hero() {
                         {/* Animated backdrop circles */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-highlight/5 to-accent/10 opacity-50 rounded-[4rem]" />
 
-                        {/* Interactive 3D Mascot Robot */}
-                        <Geniotto3D mousePos={mousePos} />
+                        {/* Interactive Mascot Robot (SVG Fallback) */}
+                        <RobotDancer />
 
                         {/* Orbiting Icons with parallax */}
                         <div className="absolute top-[10%] right-[10%] w-20 h-20 glass rounded-3xl flex items-center justify-center text-4xl floating shadow-2xl"
