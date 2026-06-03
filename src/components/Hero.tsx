@@ -119,26 +119,21 @@ export default function Hero() {
                         {/* Animated backdrop circles */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-highlight/5 to-accent/10 opacity-50 rounded-[4rem]" />
 
-                        {/* Interactive Video Player (Premium Glassmorphism) */}
-                        <div className="relative w-full aspect-[4/5] sm:aspect-square md:aspect-video lg:aspect-square bg-slate-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/40 ring-1 ring-slate-900/5 group hover:scale-[1.02] transition-transform duration-500 ease-out z-20">
-                            {/* Video Loop */}
-                            <video 
-                                autoPlay 
-                                loop 
-                                muted 
-                                playsInline
-                                className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
-                                poster="/geniotto-head.PNG"
-                            >
-                                <source src="/geniotto_final.mp4" type="video/mp4" />
-                                <source src="/geniotto.mp4" type="video/mp4" />
-                            </video>
+                        {/* Logo Premium Floating */}
+                        <div className="relative w-[80%] aspect-square mx-auto flex items-center justify-center z-20">
+                            {/* Glow Effect */}
+                            <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-full mix-blend-multiply animate-pulse" />
                             
-                            {/* Play overlay finto per estetica */}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-slate-900/20">
-                                <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/50 text-white shadow-xl transform scale-90 group-hover:scale-100 transition-transform">
-                                    <span className="text-2xl ml-1">▶</span>
-                                </div>
+                            {/* Logo Image with float animation */}
+                            <div className="relative w-full h-full hover:scale-110 hover:-translate-y-4 transition-all duration-700 ease-out cursor-pointer">
+                                <Image 
+                                    src="/logo.png" 
+                                    alt="Il Mio Geniotto Logo" 
+                                    fill 
+                                    className="object-contain drop-shadow-2xl"
+                                    sizes="(max-width: 768px) 80vw, 40vw"
+                                    priority
+                                />
                             </div>
                         </div>
 
