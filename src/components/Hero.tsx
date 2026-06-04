@@ -1,11 +1,20 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import RewardAdModal from "./RewardAdModal";
 import { useSession } from "next-auth/react";
-// Nessun import 3D necessario, usiamo il video premium
+import dynamic from "next/dynamic";
+
+// Caricamento dinamico per evitare SSR del canvas
+const ParticleEmoji = dynamic(() => import("./ParticleEmoji"), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full aspect-square bg-slate-900 rounded-[3rem] flex items-center justify-center text-8xl animate-pulse">
+            🚀
+        </div>
+    )
+});
 
 const messages = [
     "Ciao, sono Geniotto! 👋",
@@ -16,11 +25,9 @@ const messages = [
 ];
 
 export default function Hero() {
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [messageIndex, setMessageIndex] = useState(0);
     const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
     const { update } = useSession();
-    const mascotRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -29,23 +36,11 @@ export default function Hero() {
         return () => clearInterval(interval);
     }, []);
 
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!mascotRef.current) return;
-        const rect = mascotRef.current.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        setMousePos({ x, y });
-    };
 
-    const handleMouseLeave = () => {
-        setMousePos({ x: 0, y: 0 });
-    };
 
     return (
         <section
             className="relative pt-44 pb-32 overflow-hidden mesh-gradient-light"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
         >
             {/* Dynamic Background Elements */}
             <div className="absolute top-20 left-10 w-24 h-24 bg-primary/10 rounded-full blur-3xl animate-pulse" />
@@ -102,49 +97,20 @@ export default function Hero() {
 
                 </div>
 
-                {/* Mascot / Visual */}
-                <div className="relative z-10 lg:mt-24" ref={mascotRef}>
+                {/* Mascot / Visual — Particle Emoji Interattivo */}
+                <div className="relative z-10 lg:mt-16">
                     {/* Speech Bubble */}
                     <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-30 transition-all duration-500 transform hover:scale-110">
                         <div className="bg-white/90 glass px-6 py-4 rounded-[2rem] rounded-bl-none shadow-2xl border-2 border-primary/20 relative animate-in fade-in slide-in-from-bottom-4 duration-700">
                             <p className="text-lg font-black text-slate-800 whitespace-nowrap">
                                 {messages[messageIndex]}
                             </p>
-                            {/* Little triangle for the bubble */}
                             <div className="absolute -bottom-3 left-0 w-6 h-6 bg-white/90 border-r-2 border-b-2 border-primary/20 rotate-45 -z-10" />
                         </div>
                     </div>
 
-                    <div className="relative w-full aspect-square bg-white/40 glass rounded-[4rem] flex items-center justify-center group overflow-visible transition-all duration-500 ease-out">
-                        {/* Animated backdrop circles */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-highlight/5 to-accent/10 opacity-50 rounded-[4rem]" />
-
-                        {/* Logo Premium Floating */}
-                        <div className="relative w-[80%] aspect-square mx-auto flex items-center justify-center z-20">
-                            {/* Glow Effect */}
-                            <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-full mix-blend-multiply animate-pulse" />
-                            
-                            {/* Logo Image with float animation */}
-                            <div className="relative w-full h-full hover:scale-110 hover:-translate-y-4 transition-all duration-700 ease-out cursor-pointer">
-                                <Image 
-                                    src="/logo.png" 
-                                    alt="Il Mio Geniotto Logo" 
-                                    fill 
-                                    className="object-contain drop-shadow-2xl"
-                                    sizes="(max-width: 768px) 80vw, 40vw"
-                                    priority
-                                />
-                            </div>
-                        </div>
-
-                        {/* Orbiting Icons with parallax (restano per dare dinamismo) */}
-                        <div className="absolute top-[-5%] right-[-5%] w-16 h-16 sm:w-20 sm:h-20 glass rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl floating shadow-2xl z-30"
-                            style={{ animationDelay: '0.2s', transform: `translate(${mousePos.x * -30}px, ${mousePos.y * -30}px)` }}>🧪</div>
-                        <div className="absolute bottom-[10%] left-[-10%] w-12 h-12 sm:w-16 sm:h-16 glass rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl floating shadow-xl z-30"
-                            style={{ animationDelay: '1s', transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)` }}>📚</div>
-                        <div className="absolute top-[30%] left-[-5%] w-10 h-10 sm:w-14 sm:h-14 glass rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl floating shadow-lg z-30"
-                            style={{ animationDelay: '0.5s', transform: `translate(${mousePos.x * 40}px, ${mousePos.y * -15}px)` }}>🎨</div>
-                    </div>
+                    {/* Canvas Particle Emoji — interattivo */}
+                    <ParticleEmoji />
                 </div>
             </div>
             <RewardAdModal
