@@ -71,7 +71,7 @@ export default function Navbar() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
                     <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Image src="/geniotto-head.PNG" alt="Geniotto Logo" width={56} height={56} className="drop-shadow-md object-contain" />
+                        <Image src="/geniotto-head.png" alt="Geniotto Logo" width={56} height={56} className="drop-shadow-md object-contain" />
                     </div>
                     <div className="flex flex-col hidden sm:flex">
                         <span className="text-[9px] font-black text-slate-400 tracking-widest uppercase leading-none">Il Mio</span>
