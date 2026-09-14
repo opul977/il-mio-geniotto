@@ -183,12 +183,15 @@ REGOLE FONDAMENTALI:
 
         let result;
         try {
-            // "gemini-flash-latest" points to the latest stable 1.5-flash which is currently working
-            result = await getStreamResult("gemini-flash-latest");
+            result = await getStreamResult("gemini-3.5-flash");
         } catch (err) {
-            console.warn("Switching to fallback model (gemini-pro-latest):", err);
-            // Fallback to Pro if Flash has issues
-            result = await getStreamResult("gemini-pro-latest");
+            console.warn("Switching to fallback model (gemini-3.5-flash-lite):", err);
+            try {
+                result = await getStreamResult("gemini-3.5-flash-lite");
+            } catch (err2) {
+                console.warn("Switching to second fallback (gemini-3.6-flash):", err2);
+                result = await getStreamResult("gemini-3.6-flash");
+            }
         }
 
         // Salva il messaggio dell'utente PRIMA dello streaming (sia loggato che ospite)
