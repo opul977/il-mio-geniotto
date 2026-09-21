@@ -308,20 +308,29 @@ export default function ChatPage() {
                         </div>
                     </div>
                 </div>
-                <div className="p-6 border-t border-slate-100">
-                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm">
-                            {session?.user?.name?.[0] || "U"}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                            <span className="text-[10px] font-black text-slate-700 truncate uppercase tracking-tight">
-                                {session?.user?.name?.split(' ')[0] || "Ospite"}
-                            </span>
-                            <span className="text-[9px] font-bold text-slate-400 truncate tracking-tighter">
-                                {tokens} Gettoni
-                            </span>
+                <div className="p-6 border-t border-slate-100 space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm shrink-0">
+                                {session?.user?.name?.[0] || "U"}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[10px] font-black text-slate-700 truncate uppercase tracking-tight">
+                                    {session?.user?.name?.split(' ')[0] || "Ospite"}
+                                </span>
+                                <span className="text-[10px] font-black text-amber-600 truncate tracking-tighter flex items-center gap-1">
+                                    🪙 {tokens} Gettoni
+                                </span>
+                            </div>
                         </div>
                     </div>
+                    <button
+                        onClick={() => setIsRewardModalOpen(true)}
+                        className="w-full bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-black text-xs py-3 px-4 rounded-2xl shadow-md shadow-amber-200 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                        <span>🎁</span>
+                        <span>Vinci Gettoni Gratis</span>
+                    </button>
                 </div>
             </aside>
 
@@ -332,7 +341,7 @@ export default function ChatPage() {
 
             {/* Area Chat Principale */}
             <div className="flex-1 flex flex-col relative h-full bg-white md:bg-[#f9fafb]">
-                <header className="absolute top-0 left-0 right-0 z-30 p-4 md:p-6 flex items-center justify-between">
+                <header className="absolute top-0 left-0 right-0 z-30 p-4 md:p-6 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={() => setIsSidebarOpen(true)}
@@ -343,11 +352,26 @@ export default function ChatPage() {
                         <Navbar />
                     </div>
                     
-                    {/* Badge Livello Desktop */}
-                    <div className="hidden lg:flex bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-slate-100 gap-2 mt-4">
-                        <button onClick={() => setLevel("primary")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "primary" ? "bg-primary text-white" : "text-slate-400 hover:text-slate-600"}`}>Elementari</button>
-                        <button onClick={() => setLevel("middle")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "middle" ? "bg-orange-500 text-white" : "text-slate-400 hover:text-slate-600"}`}>Medie</button>
-                        <button onClick={() => setLevel("highschool")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "highschool" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-slate-600"}`}>Superiori</button>
+                    <div className="flex items-center gap-3 mt-2 md:mt-4">
+                        {/* Token Badge & Recharge Button */}
+                        <button
+                            onClick={() => setIsRewardModalOpen(true)}
+                            className="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 hover:border-amber-400 px-3 py-1.5 md:px-4 md:py-2 rounded-2xl shadow-sm transition-all hover:scale-105 active:scale-95 group"
+                            title="Ricarica i tuoi gettoni"
+                        >
+                            <span className="text-sm md:text-base animate-bounce">🪙</span>
+                            <span className="font-black text-xs md:text-sm text-amber-700">{tokens}</span>
+                            <span className="hidden sm:inline bg-amber-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs tracking-wider">
+                                + Gratis
+                            </span>
+                        </button>
+
+                        {/* Badge Livello Desktop */}
+                        <div className="hidden lg:flex bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-slate-100 gap-2">
+                            <button onClick={() => setLevel("primary")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "primary" ? "bg-primary text-white" : "text-slate-400 hover:text-slate-600"}`}>Elementari</button>
+                            <button onClick={() => setLevel("middle")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "middle" ? "bg-orange-500 text-white" : "text-slate-400 hover:text-slate-600"}`}>Medie</button>
+                            <button onClick={() => setLevel("highschool")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "highschool" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-slate-600"}`}>Superiori</button>
+                        </div>
                     </div>
                 </header>
 

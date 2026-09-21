@@ -14,7 +14,7 @@ interface RewardAdModalProps {
 
 export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdModalProps) {
     const [step, setStep] = useState<'selection' | 'watching' | 'rewarded' | 'auth_required'>('selection');
-    const [duration, setDuration] = useState<30 | 60>(30);
+    const [duration, setDuration] = useState<15 | 30>(15);
     const [timeLeft, setTimeLeft] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { data: session } = useSession();
@@ -27,7 +27,7 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
         }
     }, [isOpen, session, step]);
 
-    const startAd = (d: 30 | 60) => {
+    const startAd = (d: 15 | 30) => {
         setDuration(d);
         setTimeLeft(d);
         setStep('watching');
@@ -45,7 +45,7 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
             const data = await response.json();
 
             if (response.ok) {
-                toast.success(`Ottimo! Hai guadagnato ${duration === 30 ? '1 gettone' : '2 gettoni'}! 🪙`);
+                toast.success(`Ottimo! Hai guadagnato ${duration === 15 ? '1 gettone' : '2 gettoni'}! 🪙`);
                 onReward(data.newTokens);
                 setStep('rewarded');
             } else {
@@ -105,26 +105,26 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                                 <button
-                                    onClick={() => startAd(30)}
+                                    onClick={() => startAd(15)}
                                     disabled={isSubmitting}
                                     className="group bg-white border-2 border-slate-100 hover:border-primary/30 p-6 rounded-3xl transition-all hover:shadow-lg text-left disabled:opacity-50"
                                 >
                                     <div className="text-2xl mb-2">⚡</div>
                                     <div className="font-black text-slate-800">Flash Ad</div>
-                                    <div className="text-xs text-slate-400 mb-2">30 Secondi</div>
+                                    <div className="text-xs text-slate-400 mb-2">15 Secondi</div>
                                     <div className="inline-flex items-center gap-1 bg-blue-50 text-primary text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest">
                                         +1 Gettone
                                     </div>
                                 </button>
 
                                 <button
-                                    onClick={() => startAd(60)}
+                                    onClick={() => startAd(30)}
                                     disabled={isSubmitting}
                                     className="group bg-white border-2 border-slate-100 hover:border-primary/30 p-6 rounded-3xl transition-all hover:shadow-lg text-left disabled:opacity-50"
                                 >
                                     <div className="text-2xl mb-2">🎬</div>
                                     <div className="font-black text-slate-800">Full Ad</div>
-                                    <div className="text-xs text-slate-400 mb-2">1 Minuto</div>
+                                    <div className="text-xs text-slate-400 mb-2">30 Secondi</div>
                                     <div className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest">
                                         +2 Gettoni
                                     </div>

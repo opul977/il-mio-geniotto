@@ -12,12 +12,12 @@ export async function POST(request: Request) {
         }
 
         const { duration } = await request.json();
-        if (![30, 60].includes(duration)) {
+        if (![15, 20, 30, 60].includes(duration)) {
             return NextResponse.json({ error: "Durata non valida." }, { status: 400 });
         }
 
         const userId = (session.user as { id: string }).id;
-        const rewardAmount = duration === 30 ? 1 : 2;
+        const rewardAmount = (duration === 30 || duration === 60) ? 2 : 1;
 
         // Verifica lo stato dell'utente
         const { data: usage, error: fetchError } = await supabase
