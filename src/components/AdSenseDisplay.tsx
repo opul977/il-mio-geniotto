@@ -42,10 +42,33 @@ export default function AdSenseDisplay({ type = 'square', slot = "2038476836" }:
     const isVertical = type === 'vertical';
 
     return (
-        <div className={`w-full flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-slate-50/50 border border-slate-100 p-2 
-            ${isHorizontal ? 'my-2 min-h-[100px]' : isVertical ? 'h-full min-h-[600px]' : 'my-4 min-h-[280px]'}`}>
-            <div className="text-[9px] text-slate-300 font-black uppercase tracking-[0.2em] mb-2 opacity-50">Sponsor</div>
-            <ins className="adsbygoogle"
+        <div className={`relative w-full flex flex-col items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50/70 via-indigo-50/50 to-purple-50/70 border-2 border-indigo-100/60 p-4 shadow-inner 
+            ${isHorizontal ? 'my-2 min-h-[120px]' : isVertical ? 'h-full min-h-[500px]' : 'my-4 min-h-[260px]'}`}>
+            
+            <div className="absolute top-2 left-3 flex items-center gap-1.5 opacity-60">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping"></span>
+                <span className="text-[9px] text-indigo-900 font-black uppercase tracking-[0.2em]">Spazio Sponsor</span>
+            </div>
+
+            {/* Fallback promozionale animato sempre presente sotto */}
+            <div className="flex flex-col items-center justify-center text-center p-4 space-y-3 z-0">
+                <div className="w-14 h-14 rounded-2xl bg-white shadow-md border border-indigo-100 flex items-center justify-center text-2xl animate-bounce">
+                    ✨🤖
+                </div>
+                <div className="space-y-1 max-w-xs">
+                    <h4 className="font-black text-slate-800 text-sm">Geniotto Premium Partner</h4>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                        Compiti facili e spiegazioni magiche ogni giorno. Grazie per supportare il nostro progetto! ❤️
+                    </p>
+                </div>
+                <div className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-xs px-3 py-1 rounded-full border border-indigo-100/80 text-[10px] font-black text-indigo-600 shadow-xs">
+                    <span>🌟</span>
+                    <span>Studio Smart & Semplice</span>
+                </div>
+            </div>
+
+            {/* Inserimento AdSense sopra */}
+            <ins className="adsbygoogle z-10 w-full"
                 style={{ 
                     display: "block", 
                     width: "100%", 
