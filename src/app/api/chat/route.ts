@@ -5,6 +5,10 @@ import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { containsBadWords } from "@/lib/badwords";
 
+function getItalianDateString(date: Date): string {
+    return date.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' });
+}
+
 export async function POST(req: NextRequest) {
     try {
         const { message, image, level, history } = await req.json();
@@ -37,14 +41,14 @@ export async function POST(req: NextRequest) {
 
             currentTokens = usage?.tokens_remaining ?? 10;
             if (!usageError && usage) {
-                const lastUsedDate = new Date(usage.last_used_at || now.toISOString()).toISOString().split('T')[0];
-                const nowDate = now.toISOString().split('T')[0];
+                const lastUsedDate = getItalianDateString(new Date(usage.last_used_at || '1970-01-01T00:00:00Z'));
+                const nowDate = getItalianDateString(now);
                 
                 if (lastUsedDate !== nowDate) {
-                    currentTokens = 10;
+                    currentTokens = Math.max(10, usage.tokens_remaining);
                     await supabase
                         .from('user_usage')
-                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() })
+                        .update({ tokens_remaining: currentTokens, last_used_at: now.toISOString() })
                         .eq('user_id', userId);
                 }
             } else if (usageError?.code === 'PGRST116') {
@@ -55,7 +59,7 @@ export async function POST(req: NextRequest) {
             }
         } else {
             const forwarded = req.headers.get("x-forwarded-for");
-            guestIp = forwarded ? forwarded.split(/, /)[0] : "127.0.0.1";
+            guestIp = forwarded ? forwarded.split(',')[0].trim() : "127.0.0.1";
             const { data: usage, error: usageError } = await supabase
                 .from('guest_usage')
                 .select('tokens_remaining, last_used_at')
@@ -64,14 +68,14 @@ export async function POST(req: NextRequest) {
 
             currentTokens = usage?.tokens_remaining ?? 10;
             if (!usageError && usage) {
-                const lastUsedDate = new Date(usage.last_used_at || now.toISOString()).toISOString().split('T')[0];
-                const nowDate = now.toISOString().split('T')[0];
+                const lastUsedDate = getItalianDateString(new Date(usage.last_used_at || '1970-01-01T00:00:00Z'));
+                const nowDate = getItalianDateString(now);
                 
                 if (lastUsedDate !== nowDate) {
-                    currentTokens = 10;
+                    currentTokens = Math.max(10, usage.tokens_remaining);
                     await supabase
                         .from('guest_usage')
-                        .update({ tokens_remaining: 10, last_used_at: now.toISOString() })
+                        .update({ tokens_remaining: currentTokens, last_used_at: now.toISOString() })
                         .eq('ip_address', guestIp);
                 }
             } else if (usageError?.code === 'PGRST116') {

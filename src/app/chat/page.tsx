@@ -14,6 +14,13 @@ type Message = {
     image?: string;
 };
 
+type Conversation = {
+    id: string;
+    title: string;
+    messages: Message[];
+    lastActivity: string;
+};
+
 interface SpeechRecognitionEvent extends Event {
     results: {
         [index: number]: {
@@ -65,6 +72,48 @@ export default function ChatPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+
+    const groupMessagesIntoConversations = (msgs: Array<{role: string, content: string, image_url?: string, created_at: string}>): Conversation[] => {
+        if (!msgs || msgs.length === 0) return [];
+        
+        const convs: Conversation[] = [];
+        let currentConv: typeof msgs = [];
+        let lastTime = 0;
+        
+        for (const msg of msgs) {
+            const msgTime = new Date(msg.created_at).getTime();
+            // 30 min gap = new conversation
+            if (lastTime > 0 && (msgTime - lastTime) > 30 * 60 * 1000) {
+                if (currentConv.length > 0) {
+                    const firstUserMsg = currentConv.find(m => m.role === 'user');
+                    convs.push({
+                        id: `conv-${convs.length}`,
+                        title: firstUserMsg ? firstUserMsg.content.substring(0, 40) : 'Conversazione',
+                        messages: currentConv.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content, image: m.image_url })),
+                        lastActivity: currentConv[currentConv.length - 1].created_at
+                    });
+                }
+                currentConv = [];
+            }
+            currentConv.push(msg);
+            lastTime = msgTime;
+        }
+        
+        // Last group
+        if (currentConv.length > 0) {
+            const firstUserMsg = currentConv.find(m => m.role === 'user');
+            convs.push({
+                id: `conv-${convs.length}`,
+                title: firstUserMsg ? firstUserMsg.content.substring(0, 40) : 'Conversazione',
+                messages: currentConv.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content, image: m.image_url })),
+                lastActivity: currentConv[currentConv.length - 1].created_at
+            });
+        }
+        
+        return convs.reverse(); // newest first
+    };
 
     useEffect(() => {
         // Carica il contatore gettoni
@@ -78,17 +127,8 @@ export default function ChatPage() {
             .then(res => res.json())
             .then(data => {
                 if (data.messages && data.messages.length > 0) {
-                    const welcomeMsg = data.source === 'account'
-                        ? "Bentornato! Ecco le nostre ultime conversazioni:"
-                        : "Bentornato! Ho ritrovato la tua cronologia 🔍";
-                    setMessages([
-                        { role: "assistant", content: welcomeMsg },
-                        ...data.messages.map((m: { role: "user" | "assistant", content: string, image_url: string }) => ({
-                            role: m.role,
-                            content: m.content,
-                            image: m.image_url
-                        }))
-                    ]);
+                    const grouped = groupMessagesIntoConversations(data.messages);
+                    setConversations(grouped);
                 }
             })
             .catch(err => console.error("Errore caricamento cronologia:", err));
@@ -286,6 +326,7 @@ export default function ChatPage() {
                         onClick={() => {
                             setMessages([{ role: "assistant", content: "Ciao! Sono Geniotto. Come posso aiutarti oggi?" }]);
                             setInput("");
+                            setActiveConversationId(null);
                             setIsSidebarOpen(false);
                         }}
                         className="flex-1 flex items-center justify-center gap-3 bg-slate-50 hover:bg-slate-100 border-2 border-slate-100 p-4 rounded-2xl transition-all group"
@@ -298,13 +339,30 @@ export default function ChatPage() {
                 {/* ... rest of sidebar remains ... */}
                 <div className="flex-1 overflow-y-auto px-4 space-y-6">
                     <div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 mb-4 block">La tua cronologia</span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 mb-4 block">Le tue chat</span>
                         <div className="space-y-1">
-                            {messages.filter(m => m.role === 'user').slice(-5).map((m, i) => (
-                                <button key={i} className="w-full text-left p-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs truncate transition-colors">
-                                    💬 {m.content.substring(0, 30)}...
-                                </button>
-                            ))}
+                            {conversations.length === 0 ? (
+                                <p className="text-xs text-slate-400 px-3 py-2">Nessuna chat precedente</p>
+                            ) : (
+                                conversations.map((conv) => (
+                                    <button
+                                        key={conv.id}
+                                        onClick={() => {
+                                            setMessages([
+                                                { role: "assistant", content: "Ecco la tua conversazione precedente 🔍" },
+                                                ...conv.messages
+                                            ]);
+                                            setActiveConversationId(conv.id);
+                                            setIsSidebarOpen(false);
+                                        }}
+                                        className={`w-full text-left p-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs truncate transition-colors ${
+                                            activeConversationId === conv.id ? 'bg-slate-100 border border-slate-200' : ''
+                                        }`}
+                                    >
+                                        💬 {conv.title}{conv.title.length >= 40 ? '...' : ''}
+                                    </button>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>

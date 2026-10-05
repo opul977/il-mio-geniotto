@@ -20,12 +20,10 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
     const { data: session } = useSession();
 
     useEffect(() => {
-        if (isOpen && !session) {
-            setStep('auth_required');
-        } else if (isOpen && session && step === 'auth_required') {
+        if (isOpen) {
             setStep('selection');
         }
-    }, [isOpen, session, step]);
+    }, [isOpen]);
 
     const startAd = (d: 15 | 30) => {
         setDuration(d);
@@ -36,7 +34,8 @@ export default function RewardAdModal({ isOpen, onClose, onReward }: RewardAdMod
     const handleCompleteAd = useCallback(async () => {
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api/tokens/reward', {
+            const endpoint = session ? '/api/tokens/reward' : '/api/tokens/guest-reward';
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ duration }),

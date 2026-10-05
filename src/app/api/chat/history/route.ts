@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
                 .select('role, content, image_url, created_at')
                 .eq('user_id', userId)
                 .order('created_at', { ascending: true })
-                .limit(50);
+                .limit(200);
 
             if (error) throw error;
             return NextResponse.json({ messages: messages || [], source: 'account' });
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
                 .select('role, content, image_url, created_at')
                 .eq('guest_ip', guestIp)
                 .order('created_at', { ascending: true })
-                .limit(30);
+                .limit(100);
 
             if (error) throw error;
             return NextResponse.json({ messages: messages || [], source: 'guest_ip' });

@@ -3,6 +3,10 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
+function getItalianDateString(date: Date): string {
+    return date.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' });
+}
+
 export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -24,17 +28,18 @@ export async function GET(req: NextRequest) {
                 .single();
 
             if (usage) {
-                const lastUsedDate = new Date(usage.last_used_at || new Date().toISOString()).toISOString().split('T')[0];
-                const nowDate = new Date().toISOString().split('T')[0];
+                const lastUsedDate = getItalianDateString(new Date(usage.last_used_at || '1970-01-01T00:00:00Z'));
+                const nowDate = getItalianDateString(new Date());
                 const isNewDay = lastUsedDate !== nowDate;
 
                 if (isNewDay) {
                     // Reset tokens per il nuovo giorno
+                    const newTokens = Math.max(10, usage.tokens_remaining || 0);
                     await supabase
                         .from('user_usage')
-                        .update({ tokens_remaining: 10, last_used_at: new Date().toISOString() })
+                        .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() })
                         .eq('user_id', userId);
-                    return NextResponse.json({ tokens: 10 });
+                    return NextResponse.json({ tokens: newTokens });
                 }
 
                 return NextResponse.json({ tokens: usage.tokens_remaining });
@@ -51,7 +56,7 @@ export async function GET(req: NextRequest) {
         } else {
             // Logica Guest (IP-based)
             const forwarded = req.headers.get("x-forwarded-for");
-            const ip = forwarded ? forwarded.split(/, /)[0] : "127.0.0.1";
+            const ip = forwarded ? forwarded.split(',')[0].trim() : "127.0.0.1";
 
             const { data: usage } = await supabase
                 .from('guest_usage')
@@ -60,16 +65,17 @@ export async function GET(req: NextRequest) {
                 .single();
 
             if (usage) {
-                const lastUsedDate = new Date(usage.last_used_at || new Date().toISOString()).toISOString().split('T')[0];
-                const nowDate = new Date().toISOString().split('T')[0];
+                const lastUsedDate = getItalianDateString(new Date(usage.last_used_at || '1970-01-01T00:00:00Z'));
+                const nowDate = getItalianDateString(new Date());
                 const isNewDay = lastUsedDate !== nowDate;
 
                 if (isNewDay) {
+                    const newTokens = Math.max(10, usage.tokens_remaining || 0);
                     await supabase
                         .from('guest_usage')
-                        .update({ tokens_remaining: 10, last_used_at: new Date().toISOString() })
+                        .update({ tokens_remaining: newTokens, last_used_at: new Date().toISOString() })
                         .eq('ip_address', ip);
-                    return NextResponse.json({ tokens: 10 });
+                    return NextResponse.json({ tokens: newTokens });
                 }
 
                 return NextResponse.json({ tokens: usage.tokens_remaining });
