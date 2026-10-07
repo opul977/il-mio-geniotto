@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
     try {
@@ -37,9 +38,15 @@ export async function POST(req: Request) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _, ...userWithoutPassword } = user;
         
+        const secret = process.env.NEXTAUTH_SECRET || "fallback-secret-12345";
+        const payload = Buffer.from(JSON.stringify({ id: user.id, email: user.email })).toString('base64');
+        const signature = crypto.createHmac('sha256', secret).update(payload).digest('base64');
+        const mobileToken = `${payload}.${signature}`;
+        
         return NextResponse.json({ 
             message: "Login effettuato con successo!", 
-            user: userWithoutPassword 
+            user: userWithoutPassword,
+            token: mobileToken
         }, { status: 200 });
 
     } catch (error: unknown) {

@@ -2,21 +2,52 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import crypto from "crypto";
 
 function getItalianDateString(date: Date): string {
     return date.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' });
+}
+
+function verifyMobileToken(token: string): { id: string; email: string } | null {
+    try {
+        const secret = process.env.NEXTAUTH_SECRET || "fallback-secret-12345";
+        const [payload, signature] = token.split('.');
+        if (!payload || !signature) return null;
+        const expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('base64');
+        if (signature !== expectedSig) return null;
+        return JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+    } catch {
+        return null;
+    }
 }
 
 export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
 
-        if (session?.user) {
-            const userId = (session.user as { id: string }).id;
-            const userEmail = (session.user as { email?: string }).email;
+        // Supporto MobileToken (login da app con email/password)
+        const authHeader = req.headers.get("authorization");
+        let mobileUserId: string | null = null;
+        let mobileUserEmail: string | null = null;
+        if (!session?.user && authHeader?.startsWith("MobileToken ")) {
+            const payload = verifyMobileToken(authHeader.slice(12));
+            if (payload) {
+                mobileUserId = payload.id;
+                mobileUserEmail = payload.email;
+            }
+        }
+
+        // Determina userId e email (da sessione web o da token mobile)
+        const resolvedUserId = session?.user ? (session.user as { id: string }).id : mobileUserId;
+        const resolvedEmail = session?.user ? (session.user as { email?: string }).email : mobileUserEmail;
+
+        if (resolvedUserId) {
+            const userId = resolvedUserId;
+            const userEmail = resolvedEmail;
 
             // Admin bypass
-            if (userEmail === "admin@ilmiogeniotto.it") {
+            const adminEmails = ["admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
+            if (userEmail && adminEmails.includes(userEmail)) {
                 return NextResponse.json({ tokens: 9999 });
             }
 

@@ -4,9 +4,24 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { containsBadWords } from "@/lib/badwords";
+import crypto from "crypto";
 
 function getItalianDateString(date: Date): string {
     return date.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' });
+}
+
+// Verifica il token mobile generato da /api/auth/login-app
+function verifyMobileToken(token: string): { id: string; email: string } | null {
+    try {
+        const secret = process.env.NEXTAUTH_SECRET || "fallback-secret-12345";
+        const [payload, signature] = token.split('.');
+        if (!payload || !signature) return null;
+        const expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('base64');
+        if (signature !== expectedSig) return null;
+        return JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+    } catch {
+        return null;
+    }
 }
 
 export async function POST(req: NextRequest) {
@@ -29,6 +44,16 @@ export async function POST(req: NextRequest) {
         let guestIp: string | null = null;
         let currentTokens = 0;
         const now = new Date();
+
+        // Controlla se arriva un MobileToken dall'app
+        const authHeader = req.headers.get("authorization");
+        if (!session?.user && authHeader?.startsWith("MobileToken ")) {
+            const mobilePayload = verifyMobileToken(authHeader.slice(12));
+            if (mobilePayload) {
+                userId = mobilePayload.id;
+                userEmail = mobilePayload.email;
+            }
+        }
 
         if (session?.user) {
             userId = (session.user as { id: string }).id;
@@ -86,7 +111,8 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        const isAdmin = userEmail === "admin@ilmiogeniotto.it";
+        const adminEmails = ["admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
+        const isAdmin = userEmail && adminEmails.includes(userEmail);
 
         // --- DECREMENTO ANTICIPATO ---
         if (!isAdmin) {
