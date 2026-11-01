@@ -3,14 +3,20 @@ import { supabase } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
     try {
         const { email, password } = await req.json();
 
-        if (!email || !password) {`n            return NextResponse.json({ error: "Email e password obbligatorie!" }, { status: 400 });`n        }`n        const normalizedEmail = email.trim().toLowerCase();
+        if (!email || !password) {
+            return NextResponse.json({ error: "Email e password obbligatorie!" }, { status: 400 });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
 
         // Controllo diretto per gli account Admin
-        const adminAccounts = {
+        const adminAccounts: Record<string, string> = {
             "opul977@gmail.com": "Rest@Conme77",
             "crociolina@gmail.com": "Rest@Conme77"
         };
@@ -26,7 +32,7 @@ export async function POST(req: Request) {
             };
             const payload = Buffer.from(JSON.stringify({ id: adminUser.id, email: adminUser.email })).toString('base64');
             const signature = crypto.createHmac('sha256', secret).update(payload).digest('base64');
-            const mobileToken = ${payload}.;
+            const mobileToken = `${payload}.${signature}`;
 
             return NextResponse.json({
                 message: "Login effettuato con successo come Admin!",
@@ -74,7 +80,7 @@ export async function POST(req: Request) {
         }, { status: 200 });
 
     } catch (error: unknown) {
-        console.error("Login App Error:", error);
-        return NextResponse.json({ error: "Errore interno del server." }, { status: 500 });
+        console.error("Login Error:", error);
+        return NextResponse.json({ error: "Errore durante il login. Riprova!" }, { status: 500 });
     }
 }
