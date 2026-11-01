@@ -17,8 +17,11 @@ export async function POST(req: Request) {
 
         // Controllo diretto per gli account Admin
         const adminAccounts: Record<string, string> = {
+            "admin@geniotto.it": "Rest@Conme77",
+            "admin2@geniotto.it": "Rest@Conme77",
             "opul977@gmail.com": "Rest@Conme77",
-            "crociolina@gmail.com": "Rest@Conme77"
+            "crociolina@gmail.com": "Rest@Conme77",
+            "admin@ilmiogeniotto.it": "Rest@Conme77"
         };
 
         if (adminAccounts[normalizedEmail] && password === adminAccounts[normalizedEmail]) {

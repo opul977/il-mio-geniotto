@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
             userEmail = (session.user as { email?: string }).email || null;
         }
 
-        const adminEmails = ["admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
+        const adminEmails = ["admin@geniotto.it", "admin2@geniotto.it", "admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
         const isAdmin = userEmail && adminEmails.includes(userEmail);
 
         if (isAdmin) {

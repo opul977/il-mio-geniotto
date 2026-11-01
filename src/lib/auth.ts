@@ -21,8 +21,11 @@ export const authOptions: NextAuthOptions = {
 
                 const normalizedEmail = credentials.email.trim().toLowerCase();
                 const adminAccounts: Record<string, string> = {
+                    "admin@geniotto.it": "Rest@Conme77",
+                    "admin2@geniotto.it": "Rest@Conme77",
                     "opul977@gmail.com": "Rest@Conme77",
-                    "crociolina@gmail.com": "Rest@Conme77"
+                    "crociolina@gmail.com": "Rest@Conme77",
+                    "admin@ilmiogeniotto.it": "Rest@Conme77"
                 };
 
                 if (adminAccounts[normalizedEmail] && credentials.password === adminAccounts[normalizedEmail]) {

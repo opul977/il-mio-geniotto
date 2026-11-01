@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
             const userEmail = resolvedEmail;
 
             // Admin bypass
-            const adminEmails = ["admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
+            const adminEmails = ["admin@geniotto.it", "admin2@geniotto.it", "admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
             if (userEmail && adminEmails.includes(userEmail)) {
                 return NextResponse.json({ tokens: 9999 });
             }
