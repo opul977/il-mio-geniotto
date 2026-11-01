@@ -7,8 +7,32 @@ export async function POST(req: Request) {
     try {
         const { email, password } = await req.json();
 
-        if (!email || !password) {
-            return NextResponse.json({ error: "Email e password obbligatorie!" }, { status: 400 });
+        if (!email || !password) {`n            return NextResponse.json({ error: "Email e password obbligatorie!" }, { status: 400 });`n        }`n        const normalizedEmail = email.trim().toLowerCase();
+
+        // Controllo diretto per gli account Admin
+        const adminAccounts = {
+            "opul977@gmail.com": "Rest@Conme77",
+            "crociolina@gmail.com": "Rest@Conme77"
+        };
+
+        if (adminAccounts[normalizedEmail] && password === adminAccounts[normalizedEmail]) {
+            const secret = process.env.NEXTAUTH_SECRET || "fallback-secret-12345";
+            const adminUser = {
+                id: "admin-" + Buffer.from(normalizedEmail).toString('hex').slice(0, 16),
+                email: normalizedEmail,
+                full_name: normalizedEmail.split('@')[0],
+                tokens: 9999,
+                email_verified: true
+            };
+            const payload = Buffer.from(JSON.stringify({ id: adminUser.id, email: adminUser.email })).toString('base64');
+            const signature = crypto.createHmac('sha256', secret).update(payload).digest('base64');
+            const mobileToken = ${payload}.;
+
+            return NextResponse.json({
+                message: "Login effettuato con successo come Admin!",
+                user: adminUser,
+                token: mobileToken
+            }, { status: 200 });
         }
 
         // Cerca l'utente nella tabella 'profiles'

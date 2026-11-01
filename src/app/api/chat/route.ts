@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
         let currentTokens = 0;
         const now = new Date();
 
-        // Controlla se arriva un MobileToken dall'app
+                // Controlla se arriva un MobileToken dall'app
         const authHeader = req.headers.get("authorization");
         if (!session?.user && authHeader?.startsWith("MobileToken ")) {
             const mobilePayload = verifyMobileToken(authHeader.slice(12));
@@ -58,6 +58,14 @@ export async function POST(req: NextRequest) {
         if (session?.user) {
             userId = (session.user as { id: string }).id;
             userEmail = (session.user as { email?: string }).email || null;
+        }
+
+        const adminEmails = ["admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
+        const isAdmin = userEmail && adminEmails.includes(userEmail);
+
+        if (isAdmin) {
+            currentTokens = 9999;
+        } else if (userId) {
             const { data: usage, error: usageError } = await supabase
                 .from('user_usage')
                 .select('tokens_remaining, last_used_at')
