@@ -119,9 +119,6 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        const adminEmails = ["admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
-        const isAdmin = userEmail && adminEmails.includes(userEmail);
-
         // --- DECREMENTO ANTICIPATO ---
         if (!isAdmin) {
             if (currentTokens <= 0) {
