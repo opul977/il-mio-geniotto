@@ -22,6 +22,11 @@ type Conversation = {
     lastActivity: string;
 };
 
+const DEFAULT_WELCOME: Message = {
+    role: "assistant",
+    content: "Ciao! Sono Geniotto. Come posso aiutarti oggi?"
+};
+
 interface SpeechRecognitionEvent extends Event {
     results: {
         [index: number]: {
@@ -56,9 +61,9 @@ declare global {
 
 export default function ChatPage() {
     const { data: session } = useSession();
-    const [messages, setMessages] = useState<Message[]>([
-        { role: "assistant", content: "Ciao! Sono Geniotto. Come posso aiutarti oggi?" }
-    ]);
+    const [messages, setMessages] = useState<Message[]>([DEFAULT_WELCOME]);
+    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [activeConversationId, setActiveConversationId] = useState<string>("");
     const [input, setInput] = useState("");
     const [level, setLevel] = useState<"primary" | "middle" | "highschool">("primary");
     const [tokens, setTokens] = useState(10);
@@ -73,66 +78,155 @@ export default function ChatPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
-    const groupMessagesIntoConversations = (msgs: Array<{role: string, content: string, image_url?: string, created_at: string}>): Conversation[] => {
-        if (!msgs || msgs.length === 0) return [];
-        
-        const convs: Conversation[] = [];
-        let currentConv: typeof msgs = [];
-        let lastTime = 0;
-        
-        for (const msg of msgs) {
-            const msgTime = new Date(msg.created_at).getTime();
-            // 30 min gap = new conversation
-            if (lastTime > 0 && (msgTime - lastTime) > 30 * 60 * 1000) {
-                if (currentConv.length > 0) {
-                    const firstUserMsg = currentConv.find(m => m.role === 'user');
-                    convs.push({
-                        id: `conv-${convs.length}`,
-                        title: firstUserMsg ? firstUserMsg.content.substring(0, 40) : 'Conversazione',
-                        messages: currentConv.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content, image: m.image_url })),
-                        lastActivity: currentConv[currentConv.length - 1].created_at
-                    });
-                }
-                currentConv = [];
+    // Salva le conversazioni in localStorage
+    const saveToLocalStorage = (convList: Conversation[]) => {
+        try {
+            if (typeof window !== "undefined") {
+                localStorage.setItem("geniotto_conversations_v2", JSON.stringify(convList));
             }
-            currentConv.push(msg);
-            lastTime = msgTime;
+        } catch (e) {
+            console.error("Errore salvataggio localStorage:", e);
         }
-        
-        // Last group
-        if (currentConv.length > 0) {
-            const firstUserMsg = currentConv.find(m => m.role === 'user');
-            convs.push({
-                id: `conv-${convs.length}`,
-                title: firstUserMsg ? firstUserMsg.content.substring(0, 40) : 'Conversazione',
-                messages: currentConv.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content, image: m.image_url })),
-                lastActivity: currentConv[currentConv.length - 1].created_at
-            });
-        }
-        
-        return convs.reverse(); // newest first
     };
 
+    // Aggiorna o crea la conversazione corrente sia in stato che su disco
+    const updateCurrentConversation = (newMessages: Message[], convId: string) => {
+        setConversations(prev => {
+            const firstUser = newMessages.find(m => m.role === 'user');
+            const newTitle = firstUser 
+                ? (firstUser.content.length > 32 ? firstUser.content.substring(0, 32) + "..." : firstUser.content) 
+                : "Nuova chat";
+
+            let found = false;
+            const updated = prev.map(c => {
+                if (c.id === convId) {
+                    found = true;
+                    return {
+                        ...c,
+                        title: c.title === "Nuova chat" ? newTitle : c.title,
+                        messages: newMessages,
+                        lastActivity: new Date().toISOString()
+                    };
+                }
+                return c;
+            });
+
+            if (!found) {
+                updated.unshift({
+                    id: convId,
+                    title: newTitle,
+                    messages: newMessages,
+                    lastActivity: new Date().toISOString()
+                });
+            }
+
+            // Ordina dalla più recente alla meno recente
+            updated.sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime());
+            saveToLocalStorage(updated);
+            return updated;
+        });
+    };
+
+    // Inizializzazione: carica gettoni, localStorage e poi sincronizza con il server
     useEffect(() => {
-        // Carica il contatore gettoni
+        // 1. Gettoni
         fetch('/api/tokens/check')
             .then(res => res.json())
             .then(data => { if (data.tokens !== undefined) setTokens(data.tokens); })
             .catch(err => console.error("Error fetching tokens:", err));
 
-        // Carica cronologia: funziona per utenti loggati E ospiti (via IP)
+        // 2. Carica da localStorage (immediato e sempre persistente)
+        let localConvs: Conversation[] = [];
+        try {
+            const stored = localStorage.getItem("geniotto_conversations_v2");
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    localConvs = parsed;
+                }
+            }
+        } catch (e) {
+            console.error("Errore lettura cache locale:", e);
+        }
+
+        if (localConvs.length > 0) {
+            setConversations(localConvs);
+            const active = localConvs[0];
+            setActiveConversationId(active.id);
+            setMessages(active.messages);
+        } else {
+            const initialId = `conv-${Date.now()}`;
+            const initialConv: Conversation = {
+                id: initialId,
+                title: "Nuova chat",
+                messages: [DEFAULT_WELCOME],
+                lastActivity: new Date().toISOString()
+            };
+            setConversations([initialConv]);
+            setActiveConversationId(initialId);
+            setMessages([DEFAULT_WELCOME]);
+            saveToLocalStorage([initialConv]);
+        }
+
+        // 3. Prova a sincronizzare la cronologia server (se disponibile)
         fetch("/api/chat/history")
             .then(res => res.json())
             .then(data => {
                 if (data.messages && data.messages.length > 0) {
-                    const grouped = groupMessagesIntoConversations(data.messages);
-                    setConversations(grouped);
+                    setConversations(prev => {
+                        const hasUser = prev.some(c => c.messages.some(m => m.role === 'user'));
+                        if (!hasUser) {
+                            // Importa cronologia remota
+                            const remoteMsgs: Message[] = [
+                                {
+                                    role: "assistant",
+                                    content: data.source === 'account'
+                                        ? "Bentornato! Ecco le nostre ultime conversazioni:"
+                                        : "Bentornato! Ho ritrovato la tua cronologia 🔍"
+                                },
+                                ...data.messages.map((m: { role: string; content: string; image_url?: string }) => {
+                                    let imgList: string[] | undefined = undefined;
+                                    if (m.image_url) {
+                                        try {
+                                            const parsed = JSON.parse(m.image_url);
+                                            if (Array.isArray(parsed)) imgList = parsed;
+                                        } catch {
+                                            imgList = [m.image_url];
+                                        }
+                                    }
+                                    return {
+                                        role: m.role as "user" | "assistant",
+                                        content: m.content,
+                                        image: imgList?.[0] || m.image_url,
+                                        images: imgList
+                                    };
+                                })
+                            ];
+
+                            const firstUser = data.messages.find((m: { role: string }) => m.role === 'user');
+                            const remoteTitle = firstUser 
+                                ? (firstUser.content.length > 30 ? firstUser.content.substring(0, 30) + "..." : firstUser.content) 
+                                : "Chat precedente";
+
+                            const remoteConv: Conversation = {
+                                id: `remote-${Date.now()}`,
+                                title: remoteTitle,
+                                messages: remoteMsgs,
+                                lastActivity: new Date().toISOString()
+                            };
+
+                            const merged = [remoteConv];
+                            saveToLocalStorage(merged);
+                            setActiveConversationId(remoteConv.id);
+                            setMessages(remoteMsgs);
+                            return merged;
+                        }
+                        return prev;
+                    });
                 }
             })
-            .catch(err => console.error("Errore caricamento cronologia:", err));
+            .catch(err => console.warn("Cronologia remota non disponibile:", err));
     }, []);
 
     useEffect(() => {
@@ -213,29 +307,119 @@ export default function ChatPage() {
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files && files.length > 0) {
+            const newImages: string[] = [];
+            let filesRead = 0;
+            const totalFiles = files.length;
+
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     if (reader.result) {
-                        setSelectedImages(prev => [...prev, reader.result as string]);
+                        newImages.push(reader.result as string);
+                    }
+                    filesRead++;
+                    if (filesRead === totalFiles) {
+                        setSelectedImages(prev => [...prev, ...newImages]);
                     }
                 };
                 reader.readAsDataURL(file);
             });
-            e.target.value = "";
+        }
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
         }
     };
 
-    const removeImage = (index: number) => {
-        setSelectedImages(prev => prev.filter((_, idx) => idx !== index));
+    const removeImage = (indexToRemove: number) => {
+        setSelectedImages(prev => prev.filter((_, idx) => idx !== indexToRemove));
     };
 
-    const handleSend = async (customText?: string, imageFile?: string, customLevel?: "primary" | "middle" | "highschool") => {
+    // Crea una nuova chat
+    const handleNewChat = () => {
+        const newId = `conv-${Date.now()}`;
+        const newConv: Conversation = {
+            id: newId,
+            title: "Nuova chat",
+            messages: [DEFAULT_WELCOME],
+            lastActivity: new Date().toISOString()
+        };
+
+        setConversations(prev => {
+            // Rimuovi eventuali chat vuote precedenti
+            const cleaned = prev.filter(c => c.messages.some(m => m.role === 'user'));
+            const updated = [newConv, ...cleaned];
+            saveToLocalStorage(updated);
+            return updated;
+        });
+
+        setActiveConversationId(newId);
+        setMessages([DEFAULT_WELCOME]);
+        setInput("");
+        setSelectedImages([]);
+        setIsSidebarOpen(false);
+    };
+
+    // Seleziona una conversazione dalla sidebar
+    const handleSelectConversation = (convId: string) => {
+        const target = conversations.find(c => c.id === convId);
+        if (target) {
+            setActiveConversationId(target.id);
+            setMessages(target.messages);
+            setIsSidebarOpen(false);
+        }
+    };
+
+    // Elimina una conversazione
+    const handleDeleteConversation = (convId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!confirm("Sei sicuro di voler eliminare questa chat?")) return;
+
+        setConversations(prev => {
+            const filtered = prev.filter(c => c.id !== convId);
+            saveToLocalStorage(filtered);
+
+            if (activeConversationId === convId) {
+                if (filtered.length > 0) {
+                    setActiveConversationId(filtered[0].id);
+                    setMessages(filtered[0].messages);
+                } else {
+                    const freshId = `conv-${Date.now()}`;
+                    const freshConv: Conversation = {
+                        id: freshId,
+                        title: "Nuova chat",
+                        messages: [DEFAULT_WELCOME],
+                        lastActivity: new Date().toISOString()
+                    };
+                    saveToLocalStorage([freshConv]);
+                    setActiveConversationId(freshId);
+                    setMessages([DEFAULT_WELCOME]);
+                    return [freshConv];
+                }
+            }
+            return filtered;
+        });
+    };
+
+    // Svuota l'intera cronologia
+    const handleClearAllConversations = () => {
+        if (!confirm("Sei sicuro di voler cancellare tutta la cronologia delle chat?")) return;
+        const freshId = `conv-${Date.now()}`;
+        const freshConv: Conversation = {
+            id: freshId,
+            title: "Nuova chat",
+            messages: [DEFAULT_WELCOME],
+            lastActivity: new Date().toISOString()
+        };
+        saveToLocalStorage([freshConv]);
+        setConversations([freshConv]);
+        setActiveConversationId(freshId);
+        setMessages([DEFAULT_WELCOME]);
+    };
+
+    const handleSend = async (customText?: string, customImages?: string[], customLevel?: "primary" | "middle" | "highschool") => {
         const messageText = customText || input;
-        const finalImages: string[] = imageFile 
-            ? (Array.isArray(imageFile) ? imageFile : [imageFile]) 
-            : selectedImages;
-        if ((!messageText.trim() && finalImages.length === 0) || isLoading) return;
+        const imagesToSend = customImages || selectedImages;
+        if ((!messageText.trim() && imagesToSend.length === 0) || isLoading) return;
 
         if (tokens <= 0) {
             if (!session) setIsAuthModalOpen(true);
@@ -243,13 +427,19 @@ export default function ChatPage() {
             return;
         }
 
+        const activeId = activeConversationId || `conv-${Date.now()}`;
+        if (!activeConversationId) setActiveConversationId(activeId);
+
         const userMessage: Message = { 
             role: "user", 
-            content: messageText || (finalImages.length > 1 ? "Analizza queste foto" : "Analizza questa foto"), 
-            image: finalImages[0] || undefined,
-            images: finalImages.length > 0 ? finalImages : undefined
+            content: messageText || (imagesToSend.length > 1 ? "Analizza queste foto" : "Analizza questa foto"), 
+            image: imagesToSend[0] || undefined,
+            images: imagesToSend.length > 0 ? imagesToSend : undefined
         };
-        setMessages(prev => [...prev, userMessage]);
+
+        const newMessagesWithUser = [...messages, userMessage];
+        setMessages(newMessagesWithUser);
+        updateCurrentConversation(newMessagesWithUser, activeId);
         setInput("");
         setSelectedImages([]);
         setIsLoading(true);
@@ -259,16 +449,16 @@ export default function ChatPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    message: messageText || (finalImages.length > 1 ? "Analizza queste foto" : "Analizza questa foto"),
-                    images: finalImages,
-                    image: finalImages[0] || null,
+                    message: messageText || (imagesToSend.length > 1 ? "Analizza queste foto" : "Analizza questa foto"),
+                    images: imagesToSend,
+                    image: imagesToSend[0] || null,
                     level: customLevel || level,
                     history: messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
                 })
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
+                const errorData = await response.json().catch(() => ({}));
                 if (response.status === 403) {
                     if (errorData.code === "GUEST_LIMIT_REACHED") setIsAuthModalOpen(true);
                     else setIsRewardModalOpen(true);
@@ -281,21 +471,21 @@ export default function ChatPage() {
             const decoder = new TextDecoder();
             if (!reader) throw new Error("Impossibile leggere la risposta.");
 
-            setMessages(prev => [...prev, { role: "assistant", content: "" }]);
             let assistantMessage = "";
+            let latestMessages = [...newMessagesWithUser, { role: "assistant" as const, content: "" }];
+            setMessages(latestMessages);
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 assistantMessage += decoder.decode(value, { stream: true });
-                setMessages(prev => {
-                    const newMessages = [...prev];
-                    newMessages[newMessages.length - 1].content = assistantMessage;
-                    return newMessages;
-                });
+                latestMessages = [...newMessagesWithUser, { role: "assistant" as const, content: assistantMessage }];
+                setMessages(latestMessages);
             }
 
-            setTokens(prev => prev - 1);
+            // Salva la chat finale aggiornata
+            updateCurrentConversation(latestMessages, activeId);
+            setTokens(prev => Math.max(0, prev - 1));
 
             if (isAudioEnabled && assistantMessage) {
                 speak(assistantMessage);
@@ -304,12 +494,15 @@ export default function ChatPage() {
             const err = error as Error;
             console.error("Chat Error:", err);
             if (err.message !== "Token esauriti") {
-                setMessages(prev => [...prev, {
+                const errorMsg: Message = {
                     role: "assistant",
                     content: err.message === "Unauthorized"
                         ? "Ehi! Per parlare con me devi prima fare l'accesso! 🐺"
                         : "Geniotto ha avuto un piccolo intoppo... Riprova tra un attimo! 🤖"
-                }]);
+                };
+                const withError = [...newMessagesWithUser, errorMsg];
+                setMessages(withError);
+                updateCurrentConversation(withError, activeId);
             }
         } finally {
             setIsLoading(false);
@@ -334,125 +527,131 @@ export default function ChatPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const userConversationsCount = conversations.filter(c => c.messages.some(m => m.role === 'user')).length;
+
     return (
         <main className="h-screen bg-[#f9fafb] flex overflow-hidden font-sans">
-            {/* Sidebar - Stile ChatGPT/Gemini */}
+            {/* Sidebar con Cronologia Persistente */}
             <aside className={`
                 fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 transition-transform duration-300 ease-in-out md:relative md:translate-x-0
                 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
             `}>
-                <div className="p-6 flex items-center justify-between md:block">
+                {/* Nuova Chat */}
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-2">
                     <button 
-                        onClick={() => {
-                            setMessages([{ role: "assistant", content: "Ciao! Sono Geniotto. Come posso aiutarti oggi?" }]);
-                            setInput("");
-                            setActiveConversationId(null);
-                            setIsSidebarOpen(false);
-                        }}
-                        className="flex-1 flex items-center justify-center gap-3 bg-slate-50 hover:bg-slate-100 border-2 border-slate-100 p-4 rounded-2xl transition-all group"
+                        onClick={handleNewChat}
+                        className="flex-1 flex items-center justify-center gap-2.5 bg-blue-50/80 hover:bg-blue-100/90 border border-blue-200/80 p-3.5 rounded-2xl transition-all group shadow-sm active:scale-95"
                     >
-                        <span className="text-xl group-hover:scale-110 transition-transform">➕</span>
-                        <span className="font-black text-xs uppercase tracking-widest text-slate-700">Nuova Chat</span>
+                        <span className="text-lg group-hover:scale-110 transition-transform">➕</span>
+                        <span className="font-black text-xs uppercase tracking-wider text-primary">Nuova Chat</span>
                     </button>
-                    <button onClick={() => setIsSidebarOpen(false)} className="md:hidden p-2 text-slate-400">✕</button>
+                    <button 
+                        onClick={() => setIsSidebarOpen(false)} 
+                        className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-500 font-bold"
+                    >
+                        ✕
+                    </button>
                 </div>
-                {/* ... rest of sidebar remains ... */}
-                <div className="flex-1 overflow-y-auto px-4 space-y-6">
-                    <div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 mb-4 block">Le tue chat</span>
-                        <div className="space-y-1">
-                            {conversations.length === 0 ? (
-                                <p className="text-xs text-slate-400 px-3 py-2">Nessuna chat precedente</p>
-                            ) : (
-                                conversations.map((conv) => (
+
+                {/* Lista Chat Salvate */}
+                <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4 custom-scrollbar">
+                    <div className="flex items-center justify-between px-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">
+                            Le tue Chat ({userConversationsCount})
+                        </span>
+                        {userConversationsCount > 1 && (
+                            <button 
+                                onClick={handleClearAllConversations}
+                                className="text-[10px] text-slate-400 hover:text-red-500 font-bold transition-colors"
+                                title="Elimina tutte le chat"
+                            >
+                                Svuota
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        {conversations.map((conv) => {
+                            const isActive = conv.id === activeConversationId;
+                            const userMsgCount = conv.messages.filter(m => m.role === 'user').length;
+                            return (
+                                <div
+                                    key={conv.id}
+                                    onClick={() => handleSelectConversation(conv.id)}
+                                    className={`group w-full flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all border ${
+                                        isActive
+                                            ? "bg-blue-50/90 border-blue-200 text-primary shadow-sm"
+                                            : "hover:bg-slate-50 border-transparent text-slate-600"
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                        <span className="text-base shrink-0">{isActive ? "💡" : "💬"}</span>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className={`text-xs truncate font-bold ${isActive ? "text-primary" : "text-slate-800"}`}>
+                                                {conv.title || "Nuova chat"}
+                                            </span>
+                                            <span className="text-[9px] text-slate-400 font-medium">
+                                                {userMsgCount > 0 ? `${userMsgCount} messaggi` : "Inizia qui"}
+                                            </span>
+                                        </div>
+                                    </div>
                                     <button
-                                        key={conv.id}
-                                        onClick={() => {
-                                            setMessages([
-                                                { role: "assistant", content: "Ecco la tua conversazione precedente 🔍" },
-                                                ...conv.messages
-                                            ]);
-                                            setActiveConversationId(conv.id);
-                                            setIsSidebarOpen(false);
-                                        }}
-                                        className={`w-full text-left p-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs truncate transition-colors ${
-                                            activeConversationId === conv.id ? 'bg-slate-100 border border-slate-200' : ''
-                                        }`}
+                                        onClick={(e) => handleDeleteConversation(conv.id, e)}
+                                        className="opacity-0 group-hover:opacity-100 hover:text-red-500 p-1.5 rounded-lg hover:bg-white text-slate-400 transition-all text-xs shrink-0 ml-1"
+                                        title="Elimina chat"
                                     >
-                                        💬 {conv.title}{conv.title.length >= 40 ? '...' : ''}
+                                        ✕
                                     </button>
-                                ))
-                            )}
-                        </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
-                <div className="p-6 border-t border-slate-100 space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm shrink-0">
-                                {session?.user?.name?.[0] || "U"}
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-[10px] font-black text-slate-700 truncate uppercase tracking-tight">
-                                    {session?.user?.name?.split(' ')[0] || "Ospite"}
-                                </span>
-                                <span className="text-[10px] font-black text-amber-600 truncate tracking-tighter flex items-center gap-1">
-                                    🪙 {tokens} Gettoni
-                                </span>
-                            </div>
+
+                {/* Profilo & Gettoni */}
+                <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+                    <div className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-xs text-white font-black shadow-sm shrink-0">
+                            {session?.user?.name?.[0] || "👤"}
+                        </div>
+                        <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-[11px] font-black text-slate-800 truncate uppercase tracking-tight">
+                                {session?.user?.name?.split(' ')[0] || "Ospite"}
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-400 truncate tracking-tight">
+                                {tokens} Gettoni rimasti
+                            </span>
                         </div>
                     </div>
-                    <button
-                        onClick={() => setIsRewardModalOpen(true)}
-                        className="w-full bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-black text-xs py-3 px-4 rounded-2xl shadow-md shadow-amber-200 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                        <span>🎁</span>
-                        <span>Vinci Gettoni Gratis</span>
-                    </button>
                 </div>
             </aside>
 
-            {/* Overlay per mobile */}
+            {/* Overlay mobile */}
             {isSidebarOpen && (
                 <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
             )}
 
-            {/* Area Chat Principale */}
+            {/* Chat Area */}
             <div className="flex-1 flex flex-col relative h-full bg-white md:bg-[#f9fafb]">
-                <header className="absolute top-0 left-0 right-0 z-30 p-4 md:p-6 flex items-center justify-between gap-2">
+                <header className="absolute top-0 left-0 right-0 z-30 p-4 md:p-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={() => setIsSidebarOpen(true)}
                             className="md:hidden w-12 h-12 bg-white shadow-sm border border-slate-100 rounded-2xl flex items-center justify-center text-xl"
+                            title="Apri cronologia"
                         >
                             📜
                         </button>
                         <Navbar />
                     </div>
                     
-                    <div className="flex items-center gap-3 mt-2 md:mt-4">
-                        {/* Token Badge & Recharge Button */}
-                        <button
-                            onClick={() => setIsRewardModalOpen(true)}
-                            className="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 hover:border-amber-400 px-3 py-1.5 md:px-4 md:py-2 rounded-2xl shadow-sm transition-all hover:scale-105 active:scale-95 group"
-                            title="Ricarica i tuoi gettoni"
-                        >
-                            <span className="text-sm md:text-base animate-bounce">🪙</span>
-                            <span className="font-black text-xs md:text-sm text-amber-700">{tokens}</span>
-                            <span className="hidden sm:inline bg-amber-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs tracking-wider">
-                                + Gratis
-                            </span>
-                        </button>
-
-                        {/* Badge Livello Desktop */}
-                        <div className="hidden lg:flex bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-slate-100 gap-2">
-                            <button onClick={() => setLevel("primary")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "primary" ? "bg-primary text-white" : "text-slate-400 hover:text-slate-600"}`}>Elementari</button>
-                            <button onClick={() => setLevel("middle")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "middle" ? "bg-orange-500 text-white" : "text-slate-400 hover:text-slate-600"}`}>Medie</button>
-                            <button onClick={() => setLevel("highschool")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "highschool" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-slate-600"}`}>Superiori</button>
-                        </div>
+                    {/* Badge Livello Scolastico */}
+                    <div className="hidden lg:flex bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-slate-100 gap-2 mt-4">
+                        <button onClick={() => setLevel("primary")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "primary" ? "bg-primary text-white" : "text-slate-400 hover:text-slate-600"}`}>Elementari</button>
+                        <button onClick={() => setLevel("middle")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "middle" ? "bg-orange-500 text-white" : "text-slate-400 hover:text-slate-600"}`}>Medie</button>
+                        <button onClick={() => setLevel("highschool")} className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${level === "highschool" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-slate-600"}`}>Superiori</button>
                     </div>
                 </header>
-
 
                 {/* Container Messaggi */}
                 <div className="flex-1 overflow-y-auto pt-32 pb-32 custom-scrollbar">
@@ -470,15 +669,20 @@ export default function ChatPage() {
                                         ? "bg-primary text-white rounded-tr-none shadow-blue-100" 
                                         : "bg-white text-slate-800 rounded-tl-none border border-slate-100 shadow-slate-100"
                                     }`}>
-                                        {((msg.images && msg.images.length > 0) || msg.image) && (
-                                            <div className="mb-4 flex flex-wrap gap-2">
-                                                {(msg.images && msg.images.length > 0 ? msg.images : [msg.image!]).map((imgUri, i) => (
-                                                    <div key={i} className="relative w-44 h-44 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md">
-                                                        <Image src={imgUri} alt={`Allegato ${i + 1}`} fill className="object-cover" />
+                                        {/* Supporto Immagini */}
+                                        {msg.images && msg.images.length > 0 ? (
+                                            <div className={`mb-4 grid gap-2 ${msg.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                                                {msg.images.map((img, idx) => (
+                                                    <div key={idx} className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-white/20 shadow-md">
+                                                        <Image src={img} alt={`Compito ${idx + 1}`} fill className="object-cover" />
                                                     </div>
                                                 ))}
                                             </div>
-                                        )}
+                                        ) : msg.image ? (
+                                            <div className="mb-4 relative w-full h-64 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md">
+                                                <Image src={msg.image} alt="Compito" fill className="object-cover" />
+                                            </div>
+                                        ) : null}
                                         
                                         <div className={`prose max-w-none font-bold leading-relaxed text-[15px] sm:text-base ${msg.role === "user" ? "prose-invert" : "prose-slate"}`}>
                                             {msg.role === "assistant" ? (
@@ -522,7 +726,7 @@ export default function ChatPage() {
                     </div>
                 </div>
 
-                {/* Input Bar - Moderna e Galleggiante */}
+                {/* Barra Input con Anteprima Foto Multiple */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white/90 to-transparent">
                     <div className="max-w-3xl mx-auto flex flex-col gap-3">
                         
@@ -587,4 +791,3 @@ export default function ChatPage() {
         </main>
     );
 }
-

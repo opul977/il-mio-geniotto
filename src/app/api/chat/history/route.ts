@@ -18,8 +18,12 @@ export async function GET(req: NextRequest) {
             userId = (session.user as { id: string }).id;
         } else if (bearerToken) {
             // Utente loggato via app mobile (Supabase token)
-            const { data: { user }, error } = await supabase.auth.getUser(bearerToken);
-            if (!error && user) userId = user.id;
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser(bearerToken);
+                if (!error && user) userId = user.id;
+            } catch (authErr) {
+                console.warn("Mobile auth check warning:", authErr);
+            }
         }
 
         if (userId) {
@@ -31,12 +35,15 @@ export async function GET(req: NextRequest) {
                 .order('created_at', { ascending: true })
                 .limit(200);
 
-            if (error) throw error;
+            if (error) {
+                console.warn("Supabase history error (account):", error);
+                return NextResponse.json({ messages: [], source: 'account', warning: 'DB temporarily offline' });
+            }
             return NextResponse.json({ messages: messages || [], source: 'account' });
         } else {
             // Ospite: identificato dall'IP (funziona su web e app)
             const forwarded = req.headers.get("x-forwarded-for");
-            const guestIp = forwarded ? forwarded.split(/, /)[0] : "127.0.0.1";
+            const guestIp = forwarded ? forwarded.split(',')[0].trim() : "127.0.0.1";
 
             const { data: messages, error } = await supabase
                 .from('chat_messages')
@@ -45,11 +52,14 @@ export async function GET(req: NextRequest) {
                 .order('created_at', { ascending: true })
                 .limit(100);
 
-            if (error) throw error;
+            if (error) {
+                console.warn("Supabase history error (guest):", error);
+                return NextResponse.json({ messages: [], source: 'guest_ip', warning: 'DB temporarily offline' });
+            }
             return NextResponse.json({ messages: messages || [], source: 'guest_ip' });
         }
     } catch (error) {
-        console.error("History Error:", error);
-        return NextResponse.json({ error: "Impossibile caricare la cronologia" }, { status: 500 });
+        console.warn("History Route Fallback:", error);
+        return NextResponse.json({ messages: [], source: 'fallback', warning: "Impossibile recuperare cronologia server" });
     }
 }

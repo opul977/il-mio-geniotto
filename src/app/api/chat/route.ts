@@ -47,10 +47,10 @@ export async function POST(req: NextRequest) {
         let userId: string | null = null;
         let userEmail: string | null = null;
         let guestIp: string | null = null;
-        let currentTokens = 0;
+        let currentTokens = 10;
         const now = new Date();
 
-                // Controlla se arriva un MobileToken dall'app
+        // Controlla se arriva un MobileToken dall'app
         const authHeader = req.headers.get("authorization");
         if (!session?.user && authHeader?.startsWith("MobileToken ")) {
             const mobilePayload = verifyMobileToken(authHeader.slice(12));
@@ -68,89 +68,94 @@ export async function POST(req: NextRequest) {
         const adminEmails = ["admin@geniotto.it", "admin2@geniotto.it", "admin@ilmiogeniotto.it", "opul977@gmail.com", "crociolina@gmail.com"];
         const isAdmin = userEmail && adminEmails.includes(userEmail);
 
-        if (isAdmin) {
-            currentTokens = 9999;
-        } else if (userId) {
-            const { data: usage, error: usageError } = await supabase
-                .from('user_usage')
-                .select('tokens_remaining, last_used_at')
-                .eq('user_id', userId)
-                .single();
+        try {
+            if (isAdmin) {
+                currentTokens = 9999;
+            } else if (userId) {
+                const { data: usage, error: usageError } = await supabase
+                    .from('user_usage')
+                    .select('tokens_remaining, last_used_at')
+                    .eq('user_id', userId)
+                    .single();
 
-            currentTokens = usage?.tokens_remaining ?? 10;
-            if (!usageError && usage) {
-                const lastUsedDate = getItalianDateString(new Date(usage.last_used_at || '1970-01-01T00:00:00Z'));
-                const nowDate = getItalianDateString(now);
-                
-                if (lastUsedDate !== nowDate) {
-                    currentTokens = Math.max(10, usage.tokens_remaining);
+                currentTokens = usage?.tokens_remaining ?? 10;
+                if (!usageError && usage) {
+                    const lastUsedDate = getItalianDateString(new Date(usage.last_used_at || '1970-01-01T00:00:00Z'));
+                    const nowDate = getItalianDateString(now);
+                    
+                    if (lastUsedDate !== nowDate) {
+                        currentTokens = Math.max(10, usage.tokens_remaining);
+                        await supabase
+                            .from('user_usage')
+                            .update({ tokens_remaining: currentTokens, last_used_at: now.toISOString() })
+                            .eq('user_id', userId);
+                    }
+                } else if (usageError?.code === 'PGRST116') {
                     await supabase
                         .from('user_usage')
-                        .update({ tokens_remaining: currentTokens, last_used_at: now.toISOString() })
-                        .eq('user_id', userId);
+                        .insert([{ user_id: userId, tokens_remaining: 10, last_used_at: now.toISOString() }]);
+                    currentTokens = 10;
                 }
-            } else if (usageError?.code === 'PGRST116') {
-                await supabase
-                    .from('user_usage')
-                    .insert([{ user_id: userId, tokens_remaining: 10, last_used_at: now.toISOString() }]);
-                currentTokens = 10;
-            }
-        } else {
-            const forwarded = req.headers.get("x-forwarded-for");
-            guestIp = forwarded ? forwarded.split(',')[0].trim() : "127.0.0.1";
-            const { data: usage, error: usageError } = await supabase
-                .from('guest_usage')
-                .select('tokens_remaining, last_used_at')
-                .eq('ip_address', guestIp)
-                .single();
+            } else {
+                const forwarded = req.headers.get("x-forwarded-for");
+                guestIp = forwarded ? forwarded.split(',')[0].trim() : "127.0.0.1";
+                const { data: usage, error: usageError } = await supabase
+                    .from('guest_usage')
+                    .select('tokens_remaining, last_used_at')
+                    .eq('ip_address', guestIp)
+                    .single();
 
-            currentTokens = usage?.tokens_remaining ?? 10;
-            if (!usageError && usage) {
-                const lastUsedDate = getItalianDateString(new Date(usage.last_used_at || '1970-01-01T00:00:00Z'));
-                const nowDate = getItalianDateString(now);
-                
-                if (lastUsedDate !== nowDate) {
-                    currentTokens = Math.max(10, usage.tokens_remaining);
+                currentTokens = usage?.tokens_remaining ?? 10;
+                if (!usageError && usage) {
+                    const lastUsedDate = getItalianDateString(new Date(usage.last_used_at || '1970-01-01T00:00:00Z'));
+                    const nowDate = getItalianDateString(now);
+                    
+                    if (lastUsedDate !== nowDate) {
+                        currentTokens = Math.max(10, usage.tokens_remaining);
+                        await supabase
+                            .from('guest_usage')
+                            .update({ tokens_remaining: currentTokens, last_used_at: now.toISOString() })
+                            .eq('ip_address', guestIp);
+                    }
+                } else if (usageError?.code === 'PGRST116') {
                     await supabase
                         .from('guest_usage')
-                        .update({ tokens_remaining: currentTokens, last_used_at: now.toISOString() })
-                        .eq('ip_address', guestIp);
+                        .insert([{ ip_address: guestIp, tokens_remaining: 10, last_used_at: now.toISOString() }]);
+                    currentTokens = 10;
                 }
-            } else if (usageError?.code === 'PGRST116') {
-                await supabase
-                    .from('guest_usage')
-                    .insert([{ ip_address: guestIp, tokens_remaining: 10, last_used_at: now.toISOString() }]);
-                currentTokens = 10;
             }
-        }
 
-        // --- DECREMENTO ANTICIPATO ---
-        if (!isAdmin) {
-            if (currentTokens <= 0) {
-                if (!session) {
+            // --- DECREMENTO ANTICIPATO ---
+            if (!isAdmin) {
+                if (currentTokens <= 0) {
+                    if (!session) {
+                        return NextResponse.json({
+                            error: "Hai esaurito le tue 10 prove gratuite da ospite! 🎁 Registrati ora per riceverne SUBITO altre 10 e continuare!",
+                            code: "GUEST_LIMIT_REACHED"
+                        }, { status: 403 });
+                    }
                     return NextResponse.json({
-                        error: "Hai esaurito le tue 10 prove gratuite da ospite! 🎁 Registrati ora per riceverne SUBITO altre 10 e continuare!",
-                        code: "GUEST_LIMIT_REACHED"
+                        error: "Hai esaurito i tuoi messaggi gratuiti! Ricaricali guardando uno sponsor o torna domani. 🚀",
+                        code: "USER_LIMIT_REACHED"
                     }, { status: 403 });
                 }
-                return NextResponse.json({
-                    error: "Hai esaurito i tuoi messaggi gratuiti! Ricaricali guardando uno sponsor o torna domani. 🚀",
-                    code: "USER_LIMIT_REACHED"
-                }, { status: 403 });
-            }
 
-            // Sottrai il token IMMEDIATAMENTE sul DB
-            if (userId) {
-                await supabase
-                    .from('user_usage')
-                    .update({ tokens_remaining: currentTokens - 1, last_used_at: now.toISOString() })
-                    .eq('user_id', userId);
-            } else if (guestIp) {
-                await supabase
-                    .from('guest_usage')
-                    .update({ tokens_remaining: currentTokens - 1, last_used_at: now.toISOString() })
-                    .eq('ip_address', guestIp);
+                // Sottrai il token IMMEDIATAMENTE sul DB
+                if (userId) {
+                    await supabase
+                        .from('user_usage')
+                        .update({ tokens_remaining: currentTokens - 1, last_used_at: now.toISOString() })
+                        .eq('user_id', userId);
+                } else if (guestIp) {
+                    await supabase
+                        .from('guest_usage')
+                        .update({ tokens_remaining: currentTokens - 1, last_used_at: now.toISOString() })
+                        .eq('ip_address', guestIp);
+                }
             }
+        } catch (dbUsageError) {
+            console.warn("Supabase check/decrement warning (safe fallback):", dbUsageError);
+            currentTokens = 10;
         }
 
         if (!apiKey) {
@@ -198,7 +203,7 @@ REGOLE FONDAMENTALI:
             });
 
             if (imageList.length > 0) {
-                // Analisi immagini (singola o multipla): chiamata multimodale con Gemini
+                // Image analysis: support single or multiple images
                 const imageParts = imageList.map(img => {
                     const parts = img.split(",");
                     const base64Data = parts[1] || parts[0];
@@ -216,11 +221,6 @@ REGOLE FONDAMENTALI:
                     ...imageParts
                 ];
                 return await model.generateContentStream(prompt);
-
-
-
-
-
             } else {
                 // Text chat: use history for context
                 const chatHistory = (history || []).slice(-10).map((m: { role: string; content: string }) => ({
@@ -254,25 +254,29 @@ REGOLE FONDAMENTALI:
             }
         }
 
-        // Salva il messaggio dell'utente PRIMA dello streaming (sia loggato che ospite)
+        // Salva il messaggio dell'utente PRIMA dello streaming (in try/catch sicuro)
         const savedImageUrl = imageList.length > 1 ? JSON.stringify(imageList) : (imageList[0] || null);
-        if (session?.user) {
-            const userId = (session.user as { id: string }).id;
-            await supabase.from('chat_messages').insert([{
-                user_id: userId,
-                role: 'user',
-                content: message,
-                image_url: savedImageUrl,
-                level: level
-            }]);
-        } else if (guestIp) {
-            await supabase.from('chat_messages').insert([{
-                guest_ip: guestIp,
-                role: 'user',
-                content: message,
-                image_url: savedImageUrl,
-                level: level
-            }]);
+        try {
+            if (session?.user) {
+                const uid = (session.user as { id: string }).id;
+                await supabase.from('chat_messages').insert([{
+                    user_id: uid,
+                    role: 'user',
+                    content: message,
+                    image_url: savedImageUrl,
+                    level: level
+                }]);
+            } else if (guestIp) {
+                await supabase.from('chat_messages').insert([{
+                    guest_ip: guestIp,
+                    role: 'user',
+                    content: message,
+                    image_url: savedImageUrl,
+                    level: level
+                }]);
+            }
+        } catch (dbUserMsgError) {
+            console.warn("Salvataggio messaggio utente su DB non riuscito:", dbUserMsgError);
         }
 
         const stream = new ReadableStream({
@@ -295,12 +299,16 @@ REGOLE FONDAMENTALI:
                         controller.enqueue(encoder.encode(chunkText));
                     }
 
-                    // Salva la risposta dell'assistente (sia per utenti loggati che ospiti)
-                    if (session?.user) {
-                        const uid = (session.user as { id: string }).id;
-                        await supabase.from('chat_messages').insert([{ user_id: uid, role: 'assistant', content: fullResponse, level: level }]);
-                    } else if (guestIp) {
-                        await supabase.from('chat_messages').insert([{ guest_ip: guestIp, role: 'assistant', content: fullResponse, level: level }]);
+                    // Salva la risposta dell'assistente (in try/catch sicuro)
+                    try {
+                        if (session?.user) {
+                            const uid = (session.user as { id: string }).id;
+                            await supabase.from('chat_messages').insert([{ user_id: uid, role: 'assistant', content: fullResponse, level: level }]);
+                        } else if (guestIp) {
+                            await supabase.from('chat_messages').insert([{ guest_ip: guestIp, role: 'assistant', content: fullResponse, level: level }]);
+                        }
+                    } catch (dbAiMsgError) {
+                        console.warn("Salvataggio risposta IA su DB non riuscito:", dbAiMsgError);
                     }
 
                     controller.close();
