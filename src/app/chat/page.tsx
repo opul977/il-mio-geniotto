@@ -12,6 +12,7 @@ type Message = {
     role: "user" | "assistant";
     content: string;
     image?: string;
+    images?: string[];
 };
 
 type Conversation = {
@@ -67,7 +68,7 @@ export default function ChatPage() {
     const [isAudioEnabled, setIsAudioEnabled] = useState(false);
     const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedImages, setSelectedImages] = useState<string[]>([]);
     const [showTokenInfo, setShowTokenInfo] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -210,18 +211,31 @@ export default function ChatPage() {
     useEffect(() => { scrollToBottom(); }, [messages]);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => setSelectedImage(reader.result as string);
-            reader.readAsDataURL(file);
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (reader.result) {
+                        setSelectedImages(prev => [...prev, reader.result as string]);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            e.target.value = "";
         }
+    };
+
+    const removeImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, idx) => idx !== index));
     };
 
     const handleSend = async (customText?: string, imageFile?: string, customLevel?: "primary" | "middle" | "highschool") => {
         const messageText = customText || input;
-        const finalImage = imageFile || selectedImage;
-        if ((!messageText.trim() && !finalImage) || isLoading) return;
+        const finalImages: string[] = imageFile 
+            ? (Array.isArray(imageFile) ? imageFile : [imageFile]) 
+            : selectedImages;
+        if ((!messageText.trim() && finalImages.length === 0) || isLoading) return;
 
         if (tokens <= 0) {
             if (!session) setIsAuthModalOpen(true);
@@ -229,10 +243,15 @@ export default function ChatPage() {
             return;
         }
 
-        const userMessage: Message = { role: "user", content: messageText || "Analizza questa foto", image: finalImage || undefined };
+        const userMessage: Message = { 
+            role: "user", 
+            content: messageText || (finalImages.length > 1 ? "Analizza queste foto" : "Analizza questa foto"), 
+            image: finalImages[0] || undefined,
+            images: finalImages.length > 0 ? finalImages : undefined
+        };
         setMessages(prev => [...prev, userMessage]);
         setInput("");
-        setSelectedImage(null);
+        setSelectedImages([]);
         setIsLoading(true);
 
         try {
@@ -240,8 +259,9 @@ export default function ChatPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    message: messageText || "Analizza questa foto",
-                    image: finalImage,
+                    message: messageText || (finalImages.length > 1 ? "Analizza queste foto" : "Analizza questa foto"),
+                    images: finalImages,
+                    image: finalImages[0] || null,
                     level: customLevel || level,
                     history: messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
                 })
@@ -450,9 +470,13 @@ export default function ChatPage() {
                                         ? "bg-primary text-white rounded-tr-none shadow-blue-100" 
                                         : "bg-white text-slate-800 rounded-tl-none border border-slate-100 shadow-slate-100"
                                     }`}>
-                                        {msg.image && (
-                                            <div className="mb-4 relative w-full h-64 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md">
-                                                <Image src={msg.image} alt="Compito" fill className="object-cover" />
+                                        {((msg.images && msg.images.length > 0) || msg.image) && (
+                                            <div className="mb-4 flex flex-wrap gap-2">
+                                                {(msg.images && msg.images.length > 0 ? msg.images : [msg.image!]).map((imgUri, i) => (
+                                                    <div key={i} className="relative w-44 h-44 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md">
+                                                        <Image src={imgUri} alt={`Allegato ${i + 1}`} fill className="object-cover" />
+                                                    </div>
+                                                ))}
                                             </div>
                                         )}
                                         
@@ -502,19 +526,21 @@ export default function ChatPage() {
                 <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white/90 to-transparent">
                     <div className="max-w-3xl mx-auto flex flex-col gap-3">
                         
-                        {selectedImage && (
-                            <div className="mx-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white shadow-2xl group">
-                                    <Image src={selectedImage} alt="Preview" fill className="object-cover" />
-                                    <button onClick={() => setSelectedImage(null)} className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-black text-xs">ELIMINA</button>
-                                </div>
+                        {selectedImages.length > 0 && (
+                            <div className="mx-4 flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                {selectedImages.map((img, idx) => (
+                                    <div key={idx} className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white shadow-2xl group">
+                                        <Image src={img} alt={`Preview ${idx + 1}`} fill className="object-cover" />
+                                        <button onClick={() => removeImage(idx)} className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-black text-xs">ELIMINA</button>
+                                    </div>
+                                ))}
                             </div>
                         )}
 
                         <div className="relative group">
                             <div className="absolute inset-0 bg-primary/10 rounded-[2.5rem] blur-2xl group-focus-within:bg-primary/20 transition-all opacity-50" />
                             <div className="relative flex items-center bg-white border-2 border-slate-100 rounded-[2.5rem] p-2 shadow-2xl focus-within:border-primary/30 transition-all">
-                                <input type="file" className="hidden" ref={fileInputRef} accept="image/*" onChange={handleFileUpload} />
+                                <input type="file" multiple className="hidden" ref={fileInputRef} accept="image/*" onChange={handleFileUpload} />
                                 
                                 <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 flex items-center justify-center text-xl hover:bg-slate-50 rounded-full transition-all shrink-0" title="Allega foto">📸</button>
                                 
@@ -533,7 +559,7 @@ export default function ChatPage() {
 
                                 <button
                                     onClick={() => handleSend()}
-                                    disabled={isLoading || (!input.trim() && !selectedImage)}
+                                    disabled={isLoading || (!input.trim() && selectedImages.length === 0)}
                                     className="bg-primary hover:bg-blue-600 disabled:opacity-50 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0"
                                 >
                                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 rotate-45">

@@ -26,7 +26,12 @@ function verifyMobileToken(token: string): { id: string; email: string } | null 
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, image, level, history } = await req.json();
+        const { message, image, images, level, history } = await req.json();
+
+        // Normalizza elenco immagini (supporta sia array 'images' che singola 'image')
+        const imageList: string[] = Array.isArray(images) && images.length > 0
+            ? images.filter((img: unknown): img is string => typeof img === 'string' && img.length > 0)
+            : (image && typeof image === 'string' && image.length > 0 ? [image] : []);
 
         // Controllo parolacce / profanity
         if (message && containsBadWords(message)) {
@@ -192,10 +197,30 @@ REGOLE FONDAMENTALI:
                 systemInstruction: systemPrompt 
             });
 
-            if (image) {
-                // Image analysis: one-shot call
-                const prompt = [message || "Cosa vedi?", { inlineData: { data: image.split(",")[1], mimeType: image.split(";")[0].split(":")[1] || "image/jpeg" } }];
+            if (imageList.length > 0) {
+                // Analisi immagini (singola o multipla): chiamata multimodale con Gemini
+                const imageParts = imageList.map(img => {
+                    const parts = img.split(",");
+                    const base64Data = parts[1] || parts[0];
+                    const mimeMatch = parts[0].match(/:(.*?);/);
+                    const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+                    return {
+                        inlineData: {
+                            data: base64Data,
+                            mimeType: mimeType
+                        }
+                    };
+                });
+                const prompt = [
+                    message || (imageList.length > 1 ? "Analizza queste immagini ed elabora una risposta completa." : "Cosa vedi in questa immagine?"),
+                    ...imageParts
+                ];
                 return await model.generateContentStream(prompt);
+
+
+
+
+
             } else {
                 // Text chat: use history for context
                 const chatHistory = (history || []).slice(-10).map((m: { role: string; content: string }) => ({
@@ -230,13 +255,14 @@ REGOLE FONDAMENTALI:
         }
 
         // Salva il messaggio dell'utente PRIMA dello streaming (sia loggato che ospite)
+        const savedImageUrl = imageList.length > 1 ? JSON.stringify(imageList) : (imageList[0] || null);
         if (session?.user) {
             const userId = (session.user as { id: string }).id;
             await supabase.from('chat_messages').insert([{
                 user_id: userId,
                 role: 'user',
                 content: message,
-                image_url: image || null,
+                image_url: savedImageUrl,
                 level: level
             }]);
         } else if (guestIp) {
@@ -244,7 +270,7 @@ REGOLE FONDAMENTALI:
                 guest_ip: guestIp,
                 role: 'user',
                 content: message,
-                image_url: image || null,
+                image_url: savedImageUrl,
                 level: level
             }]);
         }
