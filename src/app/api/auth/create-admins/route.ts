@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 export async function GET() {
     try {
         const admins = ["opul977@gmail.com", "crociolina@gmail.com"];
-        const passwordHash = await bcrypt.hash("AdminGeniotto2026!", 10);
+        const passwordHash = await bcrypt.hash("Rest@Conme77", 10);
         const results = [];
 
         for (const email of admins) {

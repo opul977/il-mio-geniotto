@@ -3,85 +3,92 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Il Metodo Feynman: Capire tutto spiegandolo | Il Mio Geniotto",
-    description: "La tecnica definitiva per padroneggiare concetti complessi. Se non sai spiegarlo a un bambino di 6 anni, non lo hai capito davvero.",
+  title: "Il Metodo Feynman di Studio: Guida Pratica Passo Passo | Il Mio Geniotto",
+  description: "La tecnica definitiva del premio Nobel Richard Feynman per padroneggiare qualsiasi argomento. Se non sai spiegarlo a un bambino, non lo hai capito davvero.",
 };
 
 export default function ArticlePage() {
     return (
         <main className="min-h-screen mesh-gradient-light flex flex-col">
             <Navbar />
+
             <div className="flex-1 max-w-4xl mx-auto w-full pt-32 pb-24 px-6">
                 <div className="bg-white/80 backdrop-blur-md rounded-[3rem] p-8 sm:p-12 shadow-2xl border border-white/50">
                     <Link href="/articoli" className="text-primary font-black text-sm uppercase tracking-wider mb-8 inline-flex items-center gap-2 hover:opacity-70 transition-opacity">
                         ← Torna al Blog
                     </Link>
+
                     <div className="mb-8">
                         <span className="bg-blue-100 text-blue-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 inline-block">
                             Metodo di Studio
                         </span>
+
                         <h1 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight mb-6 leading-tight">
-                            Il Metodo Feynman: Se non lo sai spiegare a un bambino, non lo hai capito
+                            Il Metodo Feynman: Come Capire e Ricordare Concetti Complessi Spiegandoli Semplicemente
                         </h1>
-                        <p className="text-slate-400 font-bold text-sm">Pubblicato a Maggio 2026 • Tempo di lettura: 8 min</p>
+                        <p className="text-slate-400 font-bold text-sm">Pubblicato a Settembre 2026 • Tempo di lettura: 8 min • Di Marco Gennari</p>
                     </div>
 
                     <div className="prose prose-slate max-w-none space-y-8 text-slate-600 font-medium leading-relaxed">
+                        <p className="text-xl text-slate-700 font-bold italic border-l-4 border-primary pl-6 py-2">
+                            Richard Feynman, premio Nobel per la fisica e uno dei docenti più straordinari del Novecento, era soprannominato 'Il Grande Spiegatore'. Il suo segreto? Si rifiutava categoricamente di nascondersi dietro formule pompose e tecnicismi incomprensibili.
+                        </p>
+
                         <section>
-                            <h2 className="text-2xl font-black text-slate-800 mb-4">Chi era Richard Feynman?</h2>
+                            <h2 className="text-2xl font-black text-slate-800 mb-4">Sapere il nome di una cosa vs capire davvero una cosa</h2>
                             <p>
-                                Richard Feynman non era solo un Premio Nobel per la fisica e uno dei mentori del Progetto Manhattan. Era conosciuto come &quot;The Great Explainer&quot; (il Grande Spiegatore). La sua capacità di ridurre concetti incredibilmente complessi (come l&apos;elettrodinamica quantistica) in analogie semplici era leggendaria. Feynman sosteneva che la complessità è spesso una maschera per la mancanza di comprensione profonda.
+                                Feynman raccontava spesso un aneddoto della sua infanzia: suo padre gli mostrava un uccello e diceva: 'Vedi quell'uccello? In italiano si chiama tordo bruno, in portoghese si chiama in un altro modo, in cinese ancora in un altro. Ma anche quando conoscerai tutti i suoi nomi in tutte le lingue del pianeta, non saprai ancora nulla sull'uccello in sé: saprai solo cosa gli uomini hanno deciso di chiamarlo'.
+                            </p>
+                            <p>
+                                La maggior parte degli studenti cade in questo equivoco: impara a memoria definizioni scolastiche preconfezionate credendo che ripetere termini aulici equivalga a dominare la materia. Quando il professore pone una domanda da un'angolazione leggermente diversa, l'impalcatura crolla all'istante.
                             </p>
                         </section>
 
                         <section>
-                            <h2 className="text-2xl font-black text-slate-800 mb-4">I 4 Step del Metodo Feynman</h2>
+                            <h2 className="text-2xl font-black text-slate-800 mb-4">I 4 passi del Metodo Feynman applicati allo studio</h2>
                             <p>
-                                Questa tecnica è diventata il pilastro dell&apos;apprendimento rapido moderno. Ecco come puoi applicarla oggi stesso ai tuoi compiti:
+                                Puoi applicare questa tecnica a qualsiasi materia — dalle derivate matematiche alla filosofia di Hegel:
                             </p>
-                            <ol className="list-decimal pl-6 space-y-4 mt-4">
-                                <li>
-                                    <strong>Scegli un concetto e scrivilo in cima a un foglio:</strong> Che sia la fotosintesi, il teorema di Pitagora o la causa della Prima Guerra Mondiale.
-                                </li>
-                                <li>
-                                    <strong>Spiegalo come se lo stessi insegnando a un bambino di 10 anni:</strong> Evita i paroloni tecnici. Usa un linguaggio semplice. Se ti blocchi e non trovi le parole &quot;facili&quot;, hai appena trovato un buco nella tua comprensione.
-                                </li>
-                                <li>
-                                    <strong>Torna sui libri dove ti sei bloccato:</strong> Rileggi la fonte originale finché non riesci a spiegare quella parte specifica con parole tue.
-                                </li>
-                                <li>
-                                    <strong>Semplifica e crea analogie:</strong> Raffina la tua spiegazione finché non scorre come una storia.
-                                </li>
-                            </ol>
-                        </section>
-
-                        <section className="bg-primary/5 p-8 rounded-3xl border border-primary/10 italic">
-                            &quot;Il primo principio è che non devi prendere in giro te stesso, e tu sei la persona più facile da prendere in giro.&quot; — Richard Feynman
+                            <ul className="list-disc pl-6 space-y-3">
+                                <li><strong>Passo 1: Scegli il concetto e intitola un foglio bianco:</strong> Scrivi in cima il tema specifico che vuoi padroneggiare (es. 'Il ciclo di Krebs' o 'La separazione dei poteri secondo Montesquieu').</li>
+                                <li><strong>Passo 2: Spiegalo come se parlassi a un bambino di 10 anni:</strong> Usa un linguaggio semplice, chiaro, privo di gergo specialistico. Se devi usare una parola tecnica, sei obbligato a definirla subito con una metafora della vita reale.</li>
+                                <li><strong>Passo 3: Individua i tuoi punti ciechi:</strong> In quali passaggi ti sei bloccato? Dove sei stato costretto a usare una frase fatta del libro perché non sapevi come spiegarla a parole tue? Quello è esattamente il confine della tua comprensione.</li>
+                                <li><strong>Passo 4: Torna alle fonti e semplifica con metafore:</strong> Riapri il libro, colma la lacuna specifica e riscrivi la spiegazione finché non scorre liscia e intuitiva.</li>
+                            </ul>
                         </section>
 
                         <section>
-                            <h2 className="text-2xl font-black text-slate-800 mb-4">Come Geniotto potenzia il Metodo Feynman</h2>
+                            <h2 className="text-2xl font-black text-slate-800 mb-4">L'uso dei tutor intelligenti per testare le tue spiegazioni</h2>
                             <p>
-                                Tradizionalmente, per applicare questo metodo, avresti bisogno di un fratellino o di un amico disposto ad ascoltarti. Oggi hai Geniotto. Puoi dire all&apos;IA: <em>&quot;Geniotto, ora ti spiego io cos&apos;è l&apos;inflazione. Dimmi se la mia spiegazione è chiara per un bambino o se sto usando concetti che non ho capito bene&quot;</em>.
-                            </p>
-                            <p>
-                                Questo tipo di interazione trasforma lo studio da una ricezione passiva a una produzione attiva (Active Recall). Quando spieghi qualcosa, il tuo cervello crea nuovi percorsi neurali che rendono quel ricordo quasi impossibile da cancellare.
+                                Oggi non hai bisogno di avere sempre un compagno disponibile ad ascoltarti: puoi spiegare il concetto per iscritto o a voce a un tutor digitale e chiedergli: 'Agisci come uno studente di prima media, trova i passaggi poco chiari e fammi 3 domande difficili su quello che ho appena spiegato'. Questo genera un feedback immediato e potentissimo.
                             </p>
                         </section>
 
                         <section>
-                            <h2 className="text-2xl font-black text-slate-800 mb-4">Conclusione: Verso la maestria</h2>
+                            <h2 className="text-2xl font-black text-slate-800 mb-4">Conclusione</h2>
                             <p>
-                                Il Metodo Feynman non serve solo a prendere un bel voto. Serve a possedere la conoscenza. Quando padroneggi un argomento a tal punto da poterlo spiegare con semplicità, acquisisci una sicurezza che si rifletterà in ogni area della tua vita scolastica e professionale. Smetti di memorizzare, inizia a spiegare.
+                                La vera maestria intellettuale non si misura dalla complessità delle parole che usi, ma dalla semplicità cristallina con cui riesci a renderla accessibile agli altri. Applicare il Metodo Feynman richiede l'umiltà di ammettere cosa non sappiamo ancora spiegare, ma è la strada maestra per una comprensione indistruttibile che dura per tutta la vita.
                             </p>
+                        </section>
+
+                        <section className="bg-slate-50 rounded-2xl p-6 mt-8">
+                            <h3 className="text-lg font-black text-slate-700 mb-3">📚 Fonti e Approfondimenti</h3>
+                            <ul className="space-y-2 text-sm text-slate-500">
+                                <li>• Feynman, R. P. (1985). <em>Surely You're Joking, Mr. Feynman!: Adventures of a Curious Character</em>. W. W. Norton & Company.</li>
+                                <li>• Gleick, J. (1992). <em>Genius: The Life and Science of Richard Feynman</em>. Pantheon Books.</li>
+                                <li>• Chi, M. T. (2000). Self-explaining: The dual processes of generating inference and repairing mental models. <em>Advances in Instructional Psychology</em>, 5, 161–238.</li>
+                            </ul>
                         </section>
                     </div>
 
-                    <div className="mt-12 pt-12 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-6">
-                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl">🤖</div>
-                        <div className="text-center sm:text-left">
-                            <h4 className="font-black text-slate-800">Team Geniotto</h4>
-                            <p className="text-slate-500 text-sm font-medium">Esperti in pedagogia digitale e intelligenza artificiale applicata all&apos;apprendimento.</p>
+                    {/* Firma Autore */}
+                    <div className="mt-12 pt-8 border-t border-slate-100 flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl flex-shrink-0">
+                            👨‍🏫
+                        </div>
+                        <div>
+                            <p className="font-black text-slate-800 text-sm">Marco Gennari</p>
+                            <p className="text-xs text-slate-500 font-medium mt-1">Educatore digitale e fondatore di Il Mio Geniotto. Con oltre 10 anni di esperienza nell&apos;educazione italiana e nella tecnologia applicata all&apos;apprendimento, Marco si dedica a rendere lo studio accessibile a tutti gli studenti italiani.</p>
                         </div>
                     </div>
                 </div>

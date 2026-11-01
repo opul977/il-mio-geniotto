@@ -7,7 +7,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function main() {
     const admins = ["opul977@gmail.com", "crociolina@gmail.com"];
-    const passwordHash = await bcrypt.hash("AdminGeniotto2026!", 10);
+    const passwordHash = await bcrypt.hash("Rest@Conme77", 10);
 
     for (const email of admins) {
         console.log(`Processing ${email}...`);
